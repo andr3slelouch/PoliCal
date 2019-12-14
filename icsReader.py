@@ -6,7 +6,7 @@ def convertICStoCSV():
     filename="mycalendar.ics"
     if os.path.exists(filename):
         os.remove(filename)
-    url = "https://educacionvirtual.epn.edu.ec/calendar/export_execute.php?userid=7587&authtoken=a43c2f67460752ab1e1b0d5a784dd330cb5b93e7&preset_what=all&preset_time=recentupcoming"
+    url = ""
     wget.download(url, "mycalendar.ics")
     f = open("mycalendar.ics","r")
     f2 = open("calendar.csv","w+")

@@ -3,8 +3,8 @@ import TareaClass
 import csv
 from trello import TrelloClient
 #f = open("calendar.csv","r")
-client = TrelloClient(api_key='6fb47d30d0303eeaa0b4aa2f5ae07370',
-                      token='2a453ae9ffbd78256fa1f7386978a3c1af7f9b5c5140878fd7f9d58b7d8420ba')
+client = TrelloClient(api_key='',
+                      token='')
 all_boards = client.list_boards()
 last_board = all_boards[-2]
 id = ''
