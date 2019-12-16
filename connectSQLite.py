@@ -1,10 +1,10 @@
 import sqlite3
 import MateriaClass
 import TareaClass
-
-
+import os
+import configuration
 def getdb():
-    db = sqlite3.connect('tasks.db')
+    db = sqlite3.connect(configuration.get_file_location('tasks.db'))
     return db
 
 

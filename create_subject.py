@@ -17,10 +17,15 @@ def create(subjCod):
     subjectsBoard = client.get_board(config['board_id'])
     if(connectSQLite.check_subject_existence(subjCod) == 0):
         subject_name = input("Se ha detectado una nueva materia con el código "+subjCod+", ingrese el nombre de la materia:")
-        subjectsBoard.add_list(subject_name)
+        id = ""
         for x in subjectsBoard.list_lists():
             if x.name == subject_name:
                 id = x.id
+        if id == "":
+            subjectsBoard.add_list(subject_name)
+            for x in subjectsBoard.list_lists():
+                if x.name == subject_name:
+                    id = x.id
         subject = MateriaClass.Materia(id,subject_name,subjCod)
         print(subject.print())
         sql = connectSQLite.saveSubjects(subject)
