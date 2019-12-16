@@ -2,6 +2,9 @@
 import yaml
 import os
 import webbrowser
+import shutil
+import trello
+from connection import TrelloConnection
 from requests_oauthlib import OAuth1Session
 from requests_oauthlib.oauth1_session import TokenRequestDenied
 class DevNullRedirect:
@@ -30,6 +33,7 @@ def onboard(no_open, output_path='polical.yaml'):
     request_token_url = 'https://trello.com/1/OAuthGetRequestToken'
     authorize_url = 'https://trello.com/1/OAuthAuthorizeToken'
     access_token_url = 'https://trello.com/1/OAuthGetAccessToken'
+    calendar_moodle_epn_url = 'https://educacionvirtual.epn.edu.ec/calendar/view.php?view=upcoming&course=1'
     # First, open the URL that allows the user to get an auth token. Tell them to copy both into the program
     print('Bienvenido a PoliCal! Para comenzar, abra la siguiente URL en su navegador web:')
     print('  ' + user_api_key_url)
@@ -108,8 +112,6 @@ def onboard(no_open, output_path='polical.yaml'):
         'oauth_token_secret': access_token['oauth_token_secret'],
         'api_key': api_key,
         'api_secret': api_secret,
-        'color': True,
-        'banner': False,
         'calendar_url': calendar_url,
     }
     # Ensure we have a folder to put this in, if it's in a nested config location
@@ -120,15 +122,39 @@ def onboard(no_open, output_path='polical.yaml'):
         print('Created folder {0} to hold your configuration'.format(output_folder))
     # Try to be safe about not destroying existing credentials
     """
+    board_id, owner_id = get_working_board_id(api_key,api_secret,access_token['oauth_token'],access_token['oauth_token_secret'])
+    final_output_data['board_id'] = board_id
+    final_output_data['owner_id'] = owner_id
     if os.path.exists(output_file):
-        if click.confirm('{0} exists already, would you like to back it up?'.format(output_file), default=True):
-            shutil.move(output_file, output_file + '.backup')
-        if not click.confirm('Overwrite the existing file?', default=False):
+        #if input('{0} exists already, would you like to back it up?'.format(output_file)):
+        #    shutil.move(output_file, output_file + '.backup')
+        overwrite = input('Overwrite the existing file? s/N:')
+        if overwrite == 'N':
             return
     with open(output_file, 'w') as f:
         f.write(yaml.safe_dump(final_output_data, default_flow_style=False))
-    print('Las credenciales se guardaron en "{0}"- ahora puedes utilizar PoliCal'.format(output_file))
+    #print('Las credenciales se guardaron en "{0}"- ahora puedes utilizar PoliCal'.format(output_file))
     #print('Use the "config" command to view or edit your configuration file')
 
+def get_working_board_id(api_key,api_secret,oauth_token,oauth_token_secret):
+    client = trello.TrelloClient(
+        api_key=api_key,
+        api_secret=api_secret,
+        token=oauth_token,
+        token_secret=oauth_token_secret,
+    )
+    board_id = ''
+    all_boards = client.list_boards()
+    for board in all_boards:
+        if board.name == "TareasPoli":
+            board_id = board.id
+    if board_id == '':
+        print("No se encontró el board \"TareasPoli\", será creado ahora")
+        client.add_board("TareasPoli")
+        all_boards = client.list_boards()
+        for board in all_boards:
+            if board.name == "TareasPoli":
+                board_id = board.id
+    return last_board.id, last_board.all_members()[-1].id
 
-onboard(False)
+#onboard(True)

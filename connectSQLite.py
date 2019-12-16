@@ -42,7 +42,7 @@ def saveTask(task):
 
 
 def saveSubjects(subject):
-    query = "INSERT INTO Materias (MatNombre, MatCodigo, MatID) values (%s, %s, %s)"
+    query = "INSERT INTO Materias (MatNombre, MatCodigo, MatID) values (?, ?, ?);"
     cur = getdb().cursor()
     cur.execute(query, (subject.name, subject.codigo, subject.id))
     cur.connection.commit()
@@ -93,7 +93,7 @@ def getTasks():
     return tasks
 
 def check_subject_existence(subjCod):
-    query = "select count(MatCodigo) from Materias where MatCodigo=" + subjCod + ";"
+    query = "select count(MatCodigo) from Materias where MatCodigo=\'" + subjCod + "\';"
     cur = getdb().cursor()
     cur.execute(query)
     for row in cur.fetchall():
