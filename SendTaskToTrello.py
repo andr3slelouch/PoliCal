@@ -4,6 +4,7 @@ import connectSQLite
 import create_subject
 import configuration
 from datetime import datetime, timedelta
+import os
 config = configuration.load_config_file('polical.yaml')
 client = TrelloClient(
     api_key=config['api_key'],

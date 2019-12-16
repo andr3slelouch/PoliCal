@@ -4,8 +4,8 @@ import csv
 import sys
 import configuration
 def addEvent(header, filename):
-    f = open(filename, "r")
-    f2 = open("calendar.csv", "w+")
+    f = open(configuration.get_file_location(filename), "r", encoding = 'utf-8')
+    f2 = open(configuration.get_file_location("calendar.csv"), "w+")
     f1 = f.readlines()
     print(header)
     for x in header: # Write the defenitive header
@@ -56,18 +56,18 @@ def addEvent(header, filename):
 def convertICStoCSV():
     print("Empezando:")
     print("Eliminando si existe")
-    filename = "mycalendar.ics"
+    filename = configuration.get_file_location("mycalendar.ics")
     if os.path.exists(filename):
         os.remove(filename)
     url = configuration.load_config_file('polical.yaml')['calendar_url']
-    wget.download(url, "mycalendar.ics")
+    wget.download(url, filename)
     addEvent(findHeader(filename), filename)
 
 
 def findHeader(icsCal):
-    f = open(icsCal, "r")
+    f = open(configuration.get_file_location(icsCal), "r",encoding="utf-8")
     print("Looking for headers in this file....")
-    f2 = open("calendar.csv", "w+")
+    f2 = open(configuration.get_file_location("calendar.csv"), "w+")
     f1 = f.readlines()
     wrBegin = False # Flag to detect the line BEGIN:VEVENT
                     # , and start saving the parameters of the event
