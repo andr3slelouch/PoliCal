@@ -2,7 +2,7 @@ import wget
 import os
 import csv
 import sys
-
+import configuration
 def addEvent(header, filename):
     f = open(filename, "r")
     f2 = open("calendar.csv", "w+")
@@ -59,7 +59,7 @@ def convertICStoCSV():
     filename = "mycalendar.ics"
     if os.path.exists(filename):
         os.remove(filename)
-    url = calendarurl
+    url = configuration.load_config_file('polical.yaml')['calendar_url']
     wget.download(url, "mycalendar.ics")
     addEvent(findHeader(filename), filename)
 
