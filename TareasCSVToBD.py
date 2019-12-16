@@ -2,6 +2,7 @@ import MateriaClass
 import TareaClass
 import csv
 import connectSQLite
+import create_subject
 from datetime import datetime, timedelta
 def LoadCSVTasktoDB():
     with open('calendar.csv') as csv_file:
@@ -13,6 +14,7 @@ def LoadCSVTasktoDB():
                 line_count += 1
             elif len(row)>9 and not line_count == 0:
                 print(len(row))
+                create_subject.create(row[9][3:9])
                 sbjID = connectSQLite.getSubjectID(row[9][3:9])
                 print(row[0])
                 task = TareaClass.Tarea(row[1],row[2],row[3],datetime.strptime(row[7][0:8], '%Y%m%d'),sbjID) #Siempre se extraera la fecha aun cuando pueda tener un formato YMDTXXX

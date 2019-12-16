@@ -2,19 +2,19 @@ from trello import TrelloClient
 from trello.member import Member
 import connectSQLite
 import create_subject
+import configuration
 from datetime import datetime, timedelta
-client = TrelloClient(api_key='',
-                           token='')
-member_id=''
+config = configuration.load_config_file('polical.yaml')
+client = TrelloClient(
+    api_key=config['api_key'],
+    api_secret=config['api_secret'],
+    token=config['oauth_token'],
+    token_secret=config['oauth_token_secret'],
+)
+member_id=config['owner_id']
 def SendTaskToTrello():
     boards = client.list_boards()
-    subjectsBoard = boards[-2]
-    if not subjectsBoard.id == boardid:
-        for x in boards:
-            if x.id == boardid:
-                subjectsBoard = x
-    else:
-        print("yes")
+    subjectsBoard = client.get_board(config['board_id'])
     tasks = connectSQLite.getTasks()
     if len(tasks) == 0:
         print("No existen tareas nuevas, verifique consultando el calendario")
