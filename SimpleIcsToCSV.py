@@ -7,7 +7,7 @@ def addEvent(header, filename):
     f = open(configuration.get_file_location(filename), "r", encoding = 'utf-8')
     f2 = open(configuration.get_file_location("calendar.csv"), "w+")
     f1 = f.readlines()
-    print(header)
+    #print(header)
     for x in header: # Write the defenitive header
         f2.write(x)
         if x != "END":
@@ -37,7 +37,7 @@ def addEvent(header, filename):
             ""
 
         if wrNormal and wrDescription == False: # If wrNormal is activated and wrDescription deactivated means that is every posible tag except a description
-            print(list)
+            #print(list)
             try:
                 removebsn = list[1].split("\n", 1) # Delete the especial character
                 f2.write(removebsn[0] + ";") # Adds semicolon
