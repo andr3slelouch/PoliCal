@@ -6,6 +6,7 @@ Antes de la primer ejecución de PoliCal y luego de haber clonado este repositor
 - Pip
 - Cuenta en Trello iniciada sesión en el navegador predeterminado.
 - Cuenta del Aula Virtual EPN iniciada sesión en el navegador predeterminado.
+
 Con estos requisitos mínimos debe ejecutar este comando en su terminal
 ```
 pip install -r requeriments.txt
