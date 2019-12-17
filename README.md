@@ -11,9 +11,9 @@ Con estos requisitos mínimos debe ejecutar este comando en su terminal
 ```
 pip install -r requeriments.txt
 ```
-Es necesario que su terminal(o cmd si es Windows) se este ejecutando en el directorio donde se clono el repositorio.
+Es necesario que su terminal(o cmd si es Windows) se este ejecutando en el directorio donde se clonó el repositorio.
 
-Luego puede iniciar polical
+Luego puede iniciar polical.py
 ```
 python polical.py
 ```
