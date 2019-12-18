@@ -35,9 +35,8 @@ def saveTask(task):
     if exists == 0:
         print("Ejecutando...", exists)
         cur.execute("INSERT INTO Tareas(TarUID, TarTitulo, TarDescripcion, TarFechaLim, Materias_idMaterias, TarEstado) VALUES (?, ?, ?, ?, ?, ?);",
-                    (task.id, task.title, task.description, task.due_date, task.subjectID, "N"))
+                    (task.id, task.title, task.description.replace('\\n','\n'), task.due_date, task.subjectID, "N"))
     cur.connection.commit()
-    # db.close()
     return cur
 
 
