@@ -30,7 +30,7 @@ def SendTaskToTrello():
                 if temp_card.name == x.title:
                     card = temp_card
             if not card.name == x.title:
-                card = subjectList.add_card(x.title,x.description)
+                card = subjectList.add_card(x.title,x.description.replace('\\n','\n'))
                 card.assign(member_id)
                 x.due_date = x.due_date[0:10] + " 19:00:00"
                 card.set_due(datetime.strptime(x.due_date, '%Y-%m-%d %H:%M:%S'))
