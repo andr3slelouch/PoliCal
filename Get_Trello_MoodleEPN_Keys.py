@@ -4,6 +4,7 @@ import os
 import webbrowser
 import shutil
 import trello
+import sys
 from connection import TrelloConnection
 from requests_oauthlib import OAuth1Session
 from requests_oauthlib.oauth1_session import TokenRequestDenied
@@ -35,13 +36,31 @@ def onboard(no_open, output_path='polical.yaml'):
     access_token_url = 'https://trello.com/1/OAuthGetAccessToken'
     calendar_moodle_epn_url = 'https://educacionvirtual.epn.edu.ec/calendar/view.php?view=upcoming&course=1'
     # First, open the URL that allows the user to get an auth token. Tell them to copy both into the program
-    print('Bienvenido a PoliCal! Para comenzar, abra la siguiente URL en su navegador web:')
+    welcome_msg = """
+
+
+     ____  _                           _     _
+    |  _ \(_)                         (_)   | |
+    | |_) |_  ___ _ ____   _____ _ __  _  __| | ___
+    |  _ <| |/ _ \ '_ \ \ / / _ \ '_ \| |/ _` |/ _ \
+    | |_) | |  __/ | | \ V /  __/ | | | | (_| | (_) |
+    |____/|_|\___|_| |_|\_/ \___|_| |_|_|\__,_|\___/
+
+
+
+    """
+    print(welcome_msg)
+    print('Bienvenido a PoliCal! Recuerde que antes de iniciar el proceso de obtención de credenciales')
+    print('ud debe tener una cuenta en Trello y en el Aula Virtual, y deben estar iniciadas las sesiones en el navegador predeterminado')
+    print("En su navegador web se cargará el siguiente URL:")
     print('  ' + user_api_key_url)
-    print('Cuando llegue a esa página, inicie sesión y copie la "Clave" o "Key" que se muestra en un cuadro de texto.')
+    print('Cuando llegue a esa página, inicie sesión y copie la "Tecla" o "Key" que se muestra en un cuadro de texto.')
+    print('Si es la primera vez que realiza este proceso debe aceptar los terminos y condiciones ')
+    input("Presione ENTER para ir al enlace")
     if not no_open:
         with DevNullRedirect():
             webbrowser.open_new_tab(user_api_key_url)
-    api_key = input('Por favor, introduzca el valor de "Clave" o "Key":')
+    api_key = input('Por favor, introduzca el valor de "Tecla" o "Key":')
     print('Ahora desplácese hasta la parte inferior de la página y copie el "Secreto" o "Secret" que se muestra en un cuadro de texto.')
     api_secret = input('Por favor, introduzca el valor de "Secret":')
     # Then, work on getting OAuth credentials for the user so they are permanently authorized to use this program
@@ -72,15 +91,17 @@ def onboard(no_open, output_path='polical.yaml'):
     )
     print('Visite la siguiente URL en su navegador web para autorizar a PoliCal acceso a su cuenta:')
     print('  ' + user_confirmation_url)
+    print("Concedale los permisos a PoliCal para acceder a sus datos de Trello, estas credenciales se mantendran de manera local")
+    input("Presione ENTER para ir al enlace")
     if not no_open:
         with DevNullRedirect():
             webbrowser.open_new_tab(user_confirmation_url)
     '''After the user has granted access to you, the consumer, the provider will
     redirect you to whatever URL you have told them to redirect to. You can
     usually define this in the oauth_callback argument as well.'''
-    confirmation = input('¿Has autorizado a PoliCal? n/S:')
+    confirmation = input('¿Has autorizado a PoliCal? Escriba n para no y S para si:')
     while confirmation == "n":
-        confirmation = input('¿Has autorizado a PoliCal? n/S:')
+        confirmation = input('¿Has autorizado a PoliCal? Escriba n para no y S para si:')
 
     oauth_verifier = input('¿Cuál es el código de verificación?:').strip()
     '''Step 3: Once the consumer has redirected the user back to the oauth_callback
@@ -99,10 +120,13 @@ def onboard(no_open, output_path='polical.yaml'):
 
     '''Step 4: Ahora se debe buscar el calendario en formato ICS generado por el
     Aula Virtual'''
-    print("A continuación se abrirá un link hacia el Aula Virtual EPN, en proximos eventos para, elija Todos los cursos y a continuación de clic en el botón Exportar Calendario")
-    print("Luego, en la opción Exportar seleccione todos los eventos y después en para seleccione los 60 días recientes y próximos")
+    print("A continuación se abrirá un link hacia el Aula Virtual EPN, en proximos eventos para: elija Todos los cursos")
+    print("y a continuación desplácese a la parte más inferior de la página y de clic en el botón Exportar Calendario")
+    print("Luego, en la opción Exportar seleccione todos los eventos y después en \"para\" seleccione los 60 días recientes y próximos")
+    print("Finalmente de clic en el boton Obtener URL del calendario")
     print('Visite la siguiente URL en su navegador web para obtener el calendario del aula virtual EPN:')
     print('  ' + calendar_moodle_epn_url)
+    input("Presione ENTER para ir al enlace e iniciar el proceso")
     if not no_open:
         with DevNullRedirect():
             webbrowser.open_new_tab(calendar_moodle_epn_url)
@@ -155,6 +179,6 @@ def get_working_board_id(api_key,api_secret,oauth_token,oauth_token_secret):
         for board in all_boards:
             if board.name == "TareasPoli":
                 board_id = board.id
-    return last_board.id, last_board.all_members()[-1].id
+    return board.id, board.all_members()[-1].id
 
 #onboard(True)

@@ -48,7 +48,13 @@ def saveSubjects(subject):
     # db.close()
     return cur
 
-
+def saveSubjectID(subject):
+    query = "UPDATE Materias SET MatID = ? WHERE MarCodigo = ?;",(subject.id, subject.codigo)
+    cur = getdb().cursor()
+    cur.execute(query)
+    cur.connection.commit()
+    # db.close()
+    return cur
 def getCardsdb(db):
     cur = exec(
         "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Tareas';", getCur(db))
@@ -72,6 +78,17 @@ def getSubjectID(subjCod):
     cur.connection.close()
     return sbjID
 
+def getSubjectName(subjCod):
+    query = "select MatNombre from Materias where MatCodigo = \'" + subjCod + "\'"
+    cur = getdb().cursor()
+    cur.execute(query)
+    # print all the first cell of all the rows
+    sbjName = ''
+
+    for row in cur.fetchall():
+        sbjName = row[0]
+    cur.connection.close()
+    return sbjName
 
 def addTarTID(TarUID, TarTID):
     cur = getdb().cursor()
