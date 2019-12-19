@@ -36,20 +36,6 @@ def onboard(no_open, output_path='polical.yaml'):
     access_token_url = 'https://trello.com/1/OAuthGetAccessToken'
     calendar_moodle_epn_url = 'https://educacionvirtual.epn.edu.ec/calendar/view.php?view=upcoming&course=1'
     # First, open the URL that allows the user to get an auth token. Tell them to copy both into the program
-    welcome_msg = """
-
-
-     ____  _                           _     _
-    |  _ \(_)                         (_)   | |
-    | |_) |_  ___ _ ____   _____ _ __  _  __| | ___
-    |  _ <| |/ _ \ '_ \ \ / / _ \ '_ \| |/ _` |/ _ \
-    | |_) | |  __/ | | \ V /  __/ | | | | (_| | (_) |
-    |____/|_|\___|_| |_|\_/ \___|_| |_|_|\__,_|\___/
-
-
-
-    """
-    print(welcome_msg)
     print('Bienvenido a PoliCal! Recuerde que antes de iniciar el proceso de obtención de credenciales')
     print('ud debe tener una cuenta en Trello y en el Aula Virtual, y deben estar iniciadas las sesiones en el navegador predeterminado')
     print("En su navegador web se cargará el siguiente URL:")

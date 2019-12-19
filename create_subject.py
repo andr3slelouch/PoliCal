@@ -15,8 +15,9 @@ def create(subjCod):
     )
     member_id=config['owner_id']
     subjectsBoard = client.get_board(config['board_id'])
-    if(connectSQLite.check_subject_existence(subjCod) == 0):
+    if(connectSQLite.check_no_subjectID(subjCod) == 1):
         subject_name = connectSQLite.getSubjectName(subjCod)
+        print(subject_name)
         id = ""
         for x in subjectsBoard.list_lists():
             if x.name == subject_name:

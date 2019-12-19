@@ -49,9 +49,8 @@ def saveSubjects(subject):
     return cur
 
 def saveSubjectID(subject):
-    query = "UPDATE Materias SET MatID = ? WHERE MarCodigo = ?;",(subject.id, subject.codigo)
     cur = getdb().cursor()
-    cur.execute(query)
+    cur.execute("UPDATE Materias SET MatID = ? WHERE MatCodigo = ?;",(subject.id, subject.codigo))
     cur.connection.commit()
     # db.close()
     return cur
@@ -108,8 +107,8 @@ def getTasks():
     cur.connection.close()
     return tasks
 
-def check_subject_existence(subjCod):
-    query = "select count(MatCodigo) from Materias where MatCodigo=\'" + subjCod + "\';"
+def check_no_subjectID(subjCod):
+    query = "select count(MatCodigo) from Materias where MatCodigo=\'" + subjCod + "\'AND MatID=\"\";"
     cur = getdb().cursor()
     cur.execute(query)
     for row in cur.fetchall():
