@@ -15,8 +15,9 @@ def create(subjCod):
     )
     member_id=config['owner_id']
     subjectsBoard = client.get_board(config['board_id'])
-    if(connectSQLite.check_subject_existence(subjCod) == 0):
-        subject_name = input("Se ha detectado una nueva materia con el código "+subjCod+", ingrese el nombre de la materia:")
+    if(connectSQLite.check_no_subjectID(subjCod) == 1):
+        subject_name = connectSQLite.getSubjectName(subjCod)
+        print(subject_name)
         id = ""
         for x in subjectsBoard.list_lists():
             if x.name == subject_name:
@@ -26,9 +27,9 @@ def create(subjCod):
             for x in subjectsBoard.list_lists():
                 if x.name == subject_name:
                     id = x.id
-        subject = MateriaClass.Materia(id,subject_name,subjCod)
+        subject = MateriaClass.Materia(subject_name,subjCod,id)
         print(subject.print())
-        sql = connectSQLite.saveSubjects(subject)
+        sql = connectSQLite.saveSubjectID(subject)
         for row in sql.fetchall():
             print(row)
         sql = connectSQLite.getdb().close()

@@ -1,5 +1,5 @@
 class Materia:
-    def __init__(self, id, name, codigo):
+    def __init__(self, name, codigo,id = ""):
         self.id = id
         self.name = name
         self.codigo = codigo

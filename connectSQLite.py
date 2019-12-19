@@ -48,7 +48,12 @@ def saveSubjects(subject):
     # db.close()
     return cur
 
-
+def saveSubjectID(subject):
+    cur = getdb().cursor()
+    cur.execute("UPDATE Materias SET MatID = ? WHERE MatCodigo = ?;",(subject.id, subject.codigo))
+    cur.connection.commit()
+    # db.close()
+    return cur
 def getCardsdb(db):
     cur = exec(
         "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Tareas';", getCur(db))
@@ -72,6 +77,17 @@ def getSubjectID(subjCod):
     cur.connection.close()
     return sbjID
 
+def getSubjectName(subjCod):
+    query = "select MatNombre from Materias where MatCodigo = \'" + subjCod + "\'"
+    cur = getdb().cursor()
+    cur.execute(query)
+    # print all the first cell of all the rows
+    sbjName = ''
+
+    for row in cur.fetchall():
+        sbjName = row[0]
+    cur.connection.close()
+    return sbjName
 
 def addTarTID(TarUID, TarTID):
     cur = getdb().cursor()
@@ -91,8 +107,8 @@ def getTasks():
     cur.connection.close()
     return tasks
 
-def check_subject_existence(subjCod):
-    query = "select count(MatCodigo) from Materias where MatCodigo=\'" + subjCod + "\';"
+def check_no_subjectID(subjCod):
+    query = "select count(MatCodigo) from Materias where MatCodigo=\'" + subjCod + "\'AND MatID=\"\";"
     cur = getdb().cursor()
     cur.execute(query)
     for row in cur.fetchall():
