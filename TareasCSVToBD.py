@@ -3,9 +3,10 @@ import TareaClass
 import csv
 import connectSQLite
 import create_subject
+import configuration
 from datetime import datetime, timedelta
 def LoadCSVTasktoDB():
-    with open('calendar.csv') as csv_file:
+    with open(configuration.get_file_location('calendar.csv')) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=';')
         line_count = 0
         for row in csv_reader:
