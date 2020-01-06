@@ -1,4 +1,4 @@
-#This code is based on https://github.com/delucks/gtd.py onboard function, especial thanks to: delucks
+# This code is based on https://github.com/delucks/gtd.py onboard function, especial thanks to: delucks
 import yaml
 import os
 import webbrowser
@@ -8,6 +8,8 @@ import sys
 from connection import TrelloConnection
 from requests_oauthlib import OAuth1Session
 from requests_oauthlib.oauth1_session import TokenRequestDenied
+
+
 class DevNullRedirect:
     '''Temporarily eat stdout/stderr to allow no output.
     This is used to suppress browser messages in webbrowser.open'''
@@ -22,6 +24,7 @@ class DevNullRedirect:
     def __exit__(self, exc_type, exc_value, traceback):
         os.dup2(self.old_stderr, 2)
         os.dup2(self.old_stdout, 1)
+
 
 def onboard(no_open, output_path='polical.yaml'):
     '''Obtain Trello API credentials and put them into your config file.
@@ -62,9 +65,11 @@ def onboard(no_open, output_path='polical.yaml'):
     try:
         response = session.fetch_request_token(request_token_url)
     except TokenRequestDenied:
-        print('Invalid API key/secret provided: {0} / {1}'.format(api_key, api_secret))
+        print(
+            'Invalid API key/secret provided: {0} / {1}'.format(api_key, api_secret))
         sys.exit(1)
-    resource_owner_key, resource_owner_secret = response.get('oauth_token'), response.get('oauth_token_secret')
+    resource_owner_key, resource_owner_secret = response.get(
+        'oauth_token'), response.get('oauth_token_secret')
     '''Step 2: Redirect to the provider. Since this is a CLI script we do not
     redirect. In a web application you would redirect the user to the URL
     below.'''
@@ -85,9 +90,11 @@ def onboard(no_open, output_path='polical.yaml'):
     '''After the user has granted access to you, the consumer, the provider will
     redirect you to whatever URL you have told them to redirect to. You can
     usually define this in the oauth_callback argument as well.'''
-    confirmation = input('¿Has autorizado a PoliCal? Escriba n para no y S para si:')
+    confirmation = input(
+        '¿Has autorizado a PoliCal? Escriba n para no y S para si:')
     while confirmation == "n":
-        confirmation = input('¿Has autorizado a PoliCal? Escriba n para no y S para si:')
+        confirmation = input(
+            '¿Has autorizado a PoliCal? Escriba n para no y S para si:')
 
     oauth_verifier = input('¿Cuál es el código de verificación?:').strip()
     '''Step 3: Once the consumer has redirected the user back to the oauth_callback
@@ -116,7 +123,8 @@ def onboard(no_open, output_path='polical.yaml'):
     if not no_open:
         with DevNullRedirect():
             webbrowser.open_new_tab(calendar_moodle_epn_url)
-    calendar_url = input('Por favor, introduzca el url generado por el Aula Virtual:')
+    calendar_url = input(
+        'Por favor, introduzca el url generado por el Aula Virtual:')
     final_output_data = {
         'oauth_token': access_token['oauth_token'],
         'oauth_token_secret': access_token['oauth_token_secret'],
@@ -132,11 +140,12 @@ def onboard(no_open, output_path='polical.yaml'):
         print('Created folder {0} to hold your configuration'.format(output_folder))
     # Try to be safe about not destroying existing credentials
     """
-    board_id, owner_id = get_working_board_id(api_key,api_secret,access_token['oauth_token'],access_token['oauth_token_secret'])
+    board_id, owner_id = get_working_board_id(
+        api_key, api_secret, access_token['oauth_token'], access_token['oauth_token_secret'])
     final_output_data['board_id'] = board_id
     final_output_data['owner_id'] = owner_id
     if os.path.exists(output_file):
-        #if input('{0} exists already, would you like to back it up?'.format(output_file)):
+        # if input('{0} exists already, would you like to back it up?'.format(output_file)):
         #    shutil.move(output_file, output_file + '.backup')
         overwrite = input('Overwrite the existing file? s/N:')
         if overwrite == 'N':
@@ -146,7 +155,8 @@ def onboard(no_open, output_path='polical.yaml'):
     #print('Las credenciales se guardaron en "{0}"- ahora puedes utilizar PoliCal'.format(output_file))
     #print('Use the "config" command to view or edit your configuration file')
 
-def get_working_board_id(api_key,api_secret,oauth_token,oauth_token_secret):
+
+def get_working_board_id(api_key, api_secret, oauth_token, oauth_token_secret):
     client = trello.TrelloClient(
         api_key=api_key,
         api_secret=api_secret,
@@ -167,4 +177,4 @@ def get_working_board_id(api_key,api_secret,oauth_token,oauth_token_secret):
                 board_id = board.id
     return board.id, board.all_members()[-1].id
 
-#onboard(True)
+# onboard(True)

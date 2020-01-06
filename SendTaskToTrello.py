@@ -12,7 +12,9 @@ client = TrelloClient(
     token=config['oauth_token'],
     token_secret=config['oauth_token_secret'],
 )
-member_id=config['owner_id']
+member_id = config['owner_id']
+
+
 def SendTaskToTrello():
     boards = client.list_boards()
     subjectsBoard = client.get_board(config['board_id'])
@@ -31,10 +33,12 @@ def SendTaskToTrello():
                     card = temp_card
             if not card.name == x.title:
             """
-            card = subjectList.add_card(x.title,x.description.replace('\\n','\n'))
+            card = subjectList.add_card(
+                x.title, x.description.replace('\\n', '\n'))
             card.assign(member_id)
             x.due_date = x.due_date[0:10] + " 19:00:00"
             card.set_due(datetime.strptime(x.due_date, '%Y-%m-%d %H:%M:%S'))
-            #print(x.due_date)
-            #card.set_due(x.due_date)
-            updateTID = connectSQLite.addTarTID(x.id, subjectList.list_cards()[-1].id)
+            # print(x.due_date)
+            # card.set_due(x.due_date)
+            updateTID = connectSQLite.addTarTID(
+                x.id, subjectList.list_cards()[-1].id)
