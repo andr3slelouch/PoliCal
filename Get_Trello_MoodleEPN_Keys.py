@@ -1,11 +1,10 @@
-# This code is based on https://github.com/delucks/gtd.py onboard function, especial thanks to: delucks
+# This code is based on https://github.com/delucks/gtd.py onboard function,
+# especial thanks to: delucks
 import yaml
 import os
 import webbrowser
-import shutil
 import trello
 import sys
-from connection import TrelloConnection
 from requests_oauthlib import OAuth1Session
 from requests_oauthlib.oauth1_session import TokenRequestDenied
 

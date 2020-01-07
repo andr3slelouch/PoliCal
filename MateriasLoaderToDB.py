@@ -1,10 +1,10 @@
 import MateriaClass
-import TareaClass
 import csv
 import connectSQLite
-from trello import TrelloClient
+import configuration
+
 try:
-    with open('materias.csv') as csv_file:
+    with open(configuration.get_file_location('materias.csv')) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=';')
         line_count = 0
         for row in csv_reader:
