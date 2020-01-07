@@ -43,3 +43,16 @@ Caso contrario:
 ```
 py polical.py
 ```
+
+### NOTAS
+Actualmente se encuentran precargadas todas las materias obtenidas desde el SAEW de las siguientes carreras:
+- Ingeniería en Sistemas Informáticos y de Computación PENSUM: 2009B
+- Ingeniería Eléctrica PENSUM: 2010
+- Ingeniería en Electrónica y Redes de Información PENSUM: 2010
+- Ingeniería en Electrónica y Telecomunicaciones PENSUM: 2010
+- Ingeniería en Electrónica y Control PENSUM: 2010
+- Ingeniería en Mecánica PENSUM: 2009D
+
+Si deseas usar el programa y tu carrera no se encuentra registrada envía un correo luis.andradec14@gmail.com con los horarios de materias sea en PDF o idealmente en EXCEL. 
+
+Lo puedes obtener desde esta página iniciando previamente sesión en el SAEW https://saew.epn.edu.ec/SAEINF/HorariosMaterias.aspx
