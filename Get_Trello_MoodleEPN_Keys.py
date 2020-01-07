@@ -175,6 +175,6 @@ def get_working_board_id(api_key, api_secret, oauth_token, oauth_token_secret):
         for board in all_boards:
             if board.name == "TareasPoli":
                 board_id = board.id
-    return board.id, board.all_members()[-1].id
+    return board_id, board.all_members()[-1].id
 
 # onboard(True)
