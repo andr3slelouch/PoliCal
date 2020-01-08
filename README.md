@@ -23,7 +23,7 @@ python polical.py
 ### Para Windows
 
 Con estos requisitos mínimos debe ejecutar este comando en CMD
-Si tiene aregado python a los PATH del sistema:
+Si tiene agregado python a los PATH del sistema:
 ```
 python -m pip install -r requeriments.txt
 ```
