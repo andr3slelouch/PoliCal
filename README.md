@@ -7,13 +7,14 @@ Antes de la primer ejecución de PoliCal y luego de haber clonado este repositor
 - Cuenta en Trello iniciada sesión en el navegador predeterminado. (Puedes registrarte aquí: https://trello.com/signup)
 - Cuenta del Aula Virtual EPN iniciada sesión en el navegador predeterminado.
 
+#### Es necesario que su terminal o CMD se este ejecutando en el directorio donde se clonó/descargo el proyecto.
+
 ### Para Linux
 
-Con estos requisitos mínimos debe ejecutar este comando en su terminal
+Con estos requisitos mínimos debe ejecutar este comando en su terminal:
 ```
 pip install -r requeriments.txt
 ```
-Es necesario que su terminal se este ejecutando en el directorio donde se clonó el repositorio.
 
 Luego puede ejecutar polical.py
 ```
@@ -22,7 +23,7 @@ python polical.py
 
 ### Para Windows
 
-Con estos requisitos mínimos debe ejecutar este comando en CMD
+Con estos requisitos mínimos debe ejecutar este comando en CMD.
 Si tiene agregado python a los PATH del sistema:
 ```
 python -m pip install -r requeriments.txt
@@ -31,8 +32,6 @@ Caso contrario:
 ```
 py -m pip install -r requeriments.txt
 ```
-
-Es necesario que el CMD se este ejecutando en el directorio donde se clonó el repositorio.
 
 Luego puede ejecutar polical.py
 Si tiene aregado python a los PATH del sistema:
