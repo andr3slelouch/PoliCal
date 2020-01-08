@@ -7,7 +7,7 @@ Antes de la primer ejecución de PoliCal y luego de haber clonado este repositor
 - Cuenta en Trello iniciada sesión en el navegador predeterminado. (Puedes registrarte aquí: https://trello.com/signup)
 - Cuenta del Aula Virtual EPN iniciada sesión en el navegador predeterminado.
 
-#### Es necesario que su terminal o CMD se este ejecutando en el directorio donde se clonó/descargo el proyecto.
+#### Es necesario que su terminal o CMD se este ejecutando en el directorio donde se clonó/descargó el proyecto.
 
 ### Para Linux
 
