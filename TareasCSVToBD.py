@@ -15,8 +15,8 @@ def LoadCSVTasktoDB():
                 line_count += 1
             elif len(row) > 9 and not line_count == 0:
                 # print(len(row))
-                create_subject.create(row[9][3:9])
-                sbjID = connectSQLite.getSubjectID(row[9][3:9])
+                create_subject.create(Get_Subject_Name_From_CSV(row[9]),row[2])
+                sbjID = connectSQLite.getSubjectID(Get_Subject_Name_From_CSV(row[9]))
                 # print(row[0])
                 # Siempre se extraera la fecha aun cuando pueda tener un
                 # formato YMDTXXX
@@ -25,3 +25,7 @@ def LoadCSVTasktoDB():
                 sql = connectSQLite.saveTask(task)
                 # print("Las tareas nuevas se agregaron a la BD")
                 sql.connection.close()
+
+def Get_Subject_Name_From_CSV(full_subject_name):
+    list = full_subject_name.split("_", 3)
+    return list[1]
