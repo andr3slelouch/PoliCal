@@ -5,6 +5,7 @@ import os
 import webbrowser
 import trello
 import sys
+import configuration
 from requests_oauthlib import OAuth1Session
 from requests_oauthlib.oauth1_session import TokenRequestDenied
 
@@ -40,10 +41,12 @@ def onboard(no_open, output_path='polical.yaml'):
     # First, open the URL that allows the user to get an auth token. Tell them to copy both into the program
     print('Bienvenido a PoliCal! Recuerde que antes de iniciar el proceso de obtención de credenciales')
     print('ud debe tener una cuenta en Trello y en el Aula Virtual, y deben estar iniciadas las sesiones en el navegador predeterminado')
+    print("\n\n")
+    print("PASO 1: Acceso a Trello")
     print("En su navegador web se cargará el siguiente URL:")
     print('  ' + user_api_key_url)
     print('Cuando llegue a esa página, inicie sesión y copie la "Tecla" o "Key" que se muestra en un cuadro de texto.')
-    print('Si es la primera vez que realiza este proceso debe aceptar los terminos y condiciones ')
+    print('Si es la primera vez que realiza este proceso debe aceptar los terminos y condiciones de Trello')
     input("Presione ENTER para ir al enlace")
     if not no_open:
         with DevNullRedirect():
@@ -52,6 +55,8 @@ def onboard(no_open, output_path='polical.yaml'):
     print('Ahora desplácese hasta la parte inferior de la página y copie el "Secreto" o "Secret" que se muestra en un cuadro de texto.')
     api_secret = input('Por favor, introduzca el valor de "Secret":')
     # Then, work on getting OAuth credentials for the user so they are permanently authorized to use this program
+    print("\n\n")
+    print("PASO 2: Permitir acceso de Polical a Trello")
     print('Ahora obtendremos las credenciales de OAuth necesarias para usar este programa...')
     # The following code is cannibalized from trello.util.create_oauth_token from the py-trello project.
     # Rewriting because it does not support opening the auth URLs using webbrowser.open and since we're using
@@ -112,18 +117,21 @@ def onboard(no_open, output_path='polical.yaml'):
 
     '''Step 4: Ahora se debe buscar el calendario en formato ICS generado por el
     Aula Virtual'''
+    print("\n\n")
+    print("PASO 3: Obtención del calendario del Aula Virtual")
     print("A continuación se abrirá un link hacia el Aula Virtual EPN, en proximos eventos para: elija Todos los cursos")
     print("y a continuación desplácese a la parte más inferior de la página y de clic en el botón Exportar Calendario")
     print("Luego, en la opción Exportar seleccione todos los eventos y después en \"para\" seleccione los 60 días recientes y próximos")
     print("Finalmente de clic en el boton Obtener URL del calendario")
     print('Visite la siguiente URL en su navegador web para obtener el calendario del aula virtual EPN:')
     print('  ' + calendar_moodle_epn_url)
-    input("Presione ENTER para ir al enlace e iniciar el proceso")
+    input("Presione ENTER para ir al enlace e iniciar el proceso, no olvide verificar si su sesión del Aula Virtual se encuentra activa")
     if not no_open:
         with DevNullRedirect():
             webbrowser.open_new_tab(calendar_moodle_epn_url)
-    calendar_url = input(
-        'Por favor, introduzca el url generado por el Aula Virtual:')
+    calendar_url = calendar_moodle_epn_url
+    while not(configuration.check_for_url(calendar_url)):
+        calendar_url = input('Por favor, introduzca el url generado por el Aula Virtual, si este es erróneo se volverá a solicitar:')
     final_output_data = {
         'oauth_token': access_token['oauth_token'],
         'oauth_token_secret': access_token['oauth_token_secret'],
