@@ -1,6 +1,7 @@
 import yaml
 import os
 import Get_Trello_MoodleEPN_Keys
+import re
 
 
 def load_config_file(config_file):
@@ -17,3 +18,12 @@ def load_config_file(config_file):
 def get_file_location(filename):
     workingDirectory = os.path.dirname(os.path.realpath(__file__))
     return os.path.join(workingDirectory, filename)
+
+
+def check_for_url(url):
+    checker = re.search(
+        "^https.*recentupcoming$", url)
+    if (checker):
+        return True
+    else:
+        return False
