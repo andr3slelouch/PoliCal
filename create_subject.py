@@ -31,6 +31,7 @@ def create(subjCod, task_title):
 
 
 def Add_Subject_To_Trello_List(subjectsBoard, subject_name, subjCod):
+    id = ""
     for x in subjectsBoard.list_lists():
         if x.name == subject_name:
             id = x.id
