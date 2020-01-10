@@ -15,6 +15,7 @@ Con estos requisitos mínimos debe ejecutar este comando en su terminal:
 ```
 pip install -r requeriments.txt
 ```
+Precaución en caso de existir errores en la instalación de los paquetes requeridos, intente agregando **--user** al final del comando.
 
 Luego puede ejecutar polical.py
 ```
@@ -32,6 +33,7 @@ Caso contrario:
 ```
 py -m pip install -r requeriments.txt
 ```
+Precaución en caso de existir errores en la instalación de los paquetes requeridos, intente agregando **--user** al final del comando.
 
 Luego puede ejecutar polical.py
 Si tiene aregado python a los PATH del sistema:
