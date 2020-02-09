@@ -17,7 +17,7 @@ correoNotifica= input("Introduce el correo al cual van a llegar las notificacion
 
 file =open("EnvioMail.py", "w")
 
-file.write("import smtplib"+ os.linesep+ "import getpass"+ os.linesep)
+file.write("import smtplib"+ os.linesep+ "import getpass"+ os.linesep+ os.linesep)
 
 file.write("message= 'Tiene un nueva tarea por favor revise su aula virtual'"+ os.linesep+ "subject = 'Nueva tarea Aula virtual'"+ os.linesep+ os.linesep)
 
