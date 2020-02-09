@@ -2,6 +2,8 @@ import MateriaClass
 import csv
 import connectSQLite
 import configuration
+import logging
+logging.basicConfig(filename='Running.log',level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 try:
     with open(configuration.get_file_location('materias.csv')) as csv_file:
@@ -9,16 +11,16 @@ try:
         line_count = 0
         for row in csv_reader:
             if line_count == 0:
-                print(f'Column names are {", ".join(row)}')
+                logging.info(f'Column names are {", ".join(row)}')
                 line_count += 1
             else:
                 subject = MateriaClass.Materia(row[1], row[0])
-                print(subject.print())
+                logging.info(subject.print())
                 sql = connectSQLite.saveSubjects(subject)
                 for row in sql.fetchall():
-                    print(row)
+                    logging.info(row)
                 sql = connectSQLite.getdb().close()
 except:
-    print("FALSE")
+    logging.info("FALSE, exception ocurred")
 #            line_count += 1
 #    print(f'Processed {line_count} lines.')

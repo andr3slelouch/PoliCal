@@ -4,6 +4,8 @@ import csv
 import sys
 import configuration
 
+import logging
+logging.basicConfig(filename='Running.log',level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 def addEvent(header, filename):
     f = open(configuration.get_file_location(filename), "r", encoding='utf-8')
@@ -74,6 +76,7 @@ def convertICStoCSV():
     # print("Empezando:")
     # print("Eliminando si existe")
     print("Descargando calendario desde Aula Virtual...")
+    logging.info("Descargando calendario desde Aula Virtual...")
     filename = configuration.get_file_location("mycalendar.ics")
     if os.path.exists(filename):
         os.remove(filename)
@@ -81,7 +84,7 @@ def convertICStoCSV():
     wget.download(url, filename)
     addEvent(findHeader(filename), filename)
     print("\nEspere...")
-
+    logging.info("Descarga de calendario finalizada.")
 
 def findHeader(icsCal):
     f = open(configuration.get_file_location(icsCal), "r", encoding="utf-8")
@@ -156,6 +159,7 @@ def main(argv):
         filename = argv[1]
     else:
         print("python icsReader.py file/location/file.ics")
+        logging.info("python icsReader.py file/location/file.ics")
     addEvent(findHeader(filename), filename)
 
 

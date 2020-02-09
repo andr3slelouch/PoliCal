@@ -1,6 +1,13 @@
 import wget
 import os
+
+import logging
+logging.basicConfig(filename='Running.log',level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+
+
 def convertICStoCSV():
+    logging.info("Empezando:")
+    logging.infoc("Eliminando si existe")
     print("Empezando:")
     print("Eliminando si existe")
     filename="mycalendar.ics"

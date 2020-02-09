@@ -2,6 +2,11 @@ from trello import TrelloClient
 import connectSQLite
 import configuration
 from datetime import datetime
+
+import logging
+logging.basicConfig(filename='Running.log',level=logging.INFO, format = '%(asctime)s:%(levelname)s:%(message)s')
+
+
 config = configuration.load_config_file('polical.yaml')
 client = TrelloClient(
     api_key=config['api_key'],
@@ -16,10 +21,13 @@ def SendTaskToTrello():
     subjectsBoard = client.get_board(config['board_id'])
     tasks = connectSQLite.getTasks()
     if len(tasks) == 0:
+        logging.info("No existen tareas nuevas, verifique consultando el calendario")
         print("No existen tareas nuevas, verifique consultando el calendario")
     else:
         for x in tasks:
+            logging.info("Agregando Tarea:")
             print("Agregando Tarea:")
+            logging.info(x.print())
             x.print()
             subjectList = subjectsBoard.get_list(x.subjectID)
             card = subjectList.add_card(
