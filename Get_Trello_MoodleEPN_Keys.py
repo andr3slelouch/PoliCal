@@ -163,6 +163,7 @@ def onboard(no_open, output_path='polical.yaml'):
     #print('Use the "config" command to view or edit your configuration file')
 
 
+
 def get_working_board_id(api_key, api_secret, oauth_token, oauth_token_secret):
     client = trello.TrelloClient(
         api_key=api_key,
