@@ -25,9 +25,8 @@ def SendTaskToTrello():
         print("No existen tareas nuevas, verifique consultando el calendario")
     else:
         for x in tasks:
-            logging.info("Agregando Tarea:")
+            logging.info("Agregando Tarea:" + x.subjectID +" "+ x.title + " " + x.description + " " + x.due_date)
             print("Agregando Tarea:")
-            logging.info(x.print())
             x.print()
             subjectList = subjectsBoard.get_list(x.subjectID)
             card = subjectList.add_card(
