@@ -1,8 +1,8 @@
 import unittest
+import configuration 
 from selenium import webdriver
 
-
-#test acceso Epn (calendario)
+ #test acceso Epn (calendario)
 class TestAV(unittest.TestCase):
     def testEpn(self):
         #driver = webdriver.Chrome('C:\\drivers\\chromedriver_win32\\chromedriver.exe')
@@ -13,8 +13,7 @@ class TestAV(unittest.TestCase):
 
         self.assertTrue(titleOfEwbPage == "Google")  #true      
     
-if __name__ == "__main__":
-    unittest.main()
+
 
 #test acceso a trello
 
@@ -26,7 +25,14 @@ class TestTrel(unittest.TestCase):
 
         titleOfEwbPage=driver.title
 
-        self.assertTrue(titleOfEwbPage == "Trello")  #true      
+        self.assertTrue(titleOfEwbPage == "Trello")  #true    
+
+#test url trello
+class test_check_url(unittest.TestCase):
+    def test_trello(self):
+        self.assertEqual(configuration.check_for_url('https://recentupcoming'), True)
+
+
     
 if __name__ == "__main__":
     unittest.main()
