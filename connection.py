@@ -1,5 +1,9 @@
 import trello
 import requests
+
+import logging
+logging.basicConfig(filename='Running.log',level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+
 class GTDException(Exception):
     '''single parameter indicates exit code for the interpreter, because
     this exception typically results in a return of control to the terminal'''
@@ -28,15 +32,16 @@ class TrelloConnection:
             self.boards = trello_client.fetch_json('/members/me/boards/?filter=open')
             return trello_client
         except requests.exceptions.ConnectionError:
-            print('[FATAL] Could not connect to the Trello API!')
+            logging.critical('[FATAL] Could not connect to the Trello API!')
             raise GTDException(1)
         except trello.exceptions.Unauthorized:
-            print('[FATAL] Trello API credentials are invalid')
+            logging.critical('[FATAL] Trello API credentials are invalid')
             raise GTDException(1)
 
     def __repr__(self):
         c = 'disconnected' if self.trello is None else 'connected'
-        return 'TrelloConnection {0} at {0}'.format(c, id(self))
+        # isaac: se corrigio: return 'TrelloConnection {0} at {0}'.format(c, id(self))  
+        return 'TrelloConnection {0} at {1}'.format(c, id(self))
 
     def __str__(self):
         return repr(self)

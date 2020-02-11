@@ -4,10 +4,13 @@ import connectSQLite
 import create_subject
 import configuration
 from datetime import datetime
+import logging
+logging.basicConfig(filename='Running.log',level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 
 def LoadCSVTasktoDB():
     with open(configuration.get_file_location('calendar.csv')) as csv_file:
+        logging.info("CSV abierto.")
         csv_reader = csv.reader(csv_file, delimiter=';')
         line_count = 0
         for row in csv_reader:
@@ -24,6 +27,7 @@ def LoadCSVTasktoDB():
                     row[1], row[2], row[3], datetime.strptime(row[7][0:8], '%Y%m%d'), sbjID)
                 sql = connectSQLite.saveTask(task)
                 # print("Las tareas nuevas se agregaron a la BD")
+                logging.info("Las tareas nuevas se agregaron a la BD")
                 sql.connection.close()
 
 def Get_Subject_Name_From_CSV(full_subject_name):

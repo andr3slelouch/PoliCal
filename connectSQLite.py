@@ -2,6 +2,8 @@ import sqlite3
 import TareaClass
 import configuration
 
+import logging
+logging.basicConfig(filename='Running.log',level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 def getdb():
     db = sqlite3.connect(configuration.get_file_location('tasks.db'))
@@ -32,7 +34,7 @@ def saveTask(task):
         exists = row[0]
         # print(exists)
     if exists == 0:
-        print("Ejecutando...", exists)
+        logging.info("Ejecutando..." + str(exists))
         cur.execute("INSERT INTO Tareas(TarUID, TarTitulo, TarDescripcion, TarFechaLim, Materias_idMaterias, TarEstado) VALUES (?, ?, ?, ?, ?, ?);",
                     (task.id, task.title, task.description.replace('\\n', '\n'), task.due_date, task.subjectID, "N"))
     cur.connection.commit()
@@ -58,8 +60,7 @@ def saveSubjectID(subject):
 
 
 def getCardsdb(db):
-    cur = exec(
-        "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Tareas';", getCur(db))
+    cur = exec("SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Tareas';", getCur(db))
     # print all the first cell of all the rows
     cards = []
     for row in cur.fetchall():

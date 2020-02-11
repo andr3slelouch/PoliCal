@@ -1,0 +1,101 @@
+2020-02-08 23:01:24,688:ERROR:Archivo de configuración no encontrado, generando llaves
+2020-02-08 23:01:24,688:INFO:Mostrando print-board al usuario
+2020-02-08 23:02:58,021:ERROR:No se encontró el board "TareasPoli", será creado ahora
+2020-02-08 23:02:58,618:INFO:Descargando calendario desde Aula Virtual...
+2020-02-08 23:02:58,820:INFO:Descarga de calendario finalizada.
+2020-02-08 23:02:58,821:INFO:CSV abierto.
+2020-02-08 23:02:59,043:INFO:INTELIGENCIA DE NEGOCIOS (SIC614)
+2020-02-08 23:02:59,643:INFO:None
+2020-02-08 23:02:59,657:INFO:Ejecutando...0
+2020-02-08 23:02:59,663:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:02:59,821:INFO:APLICACIONES EN AMBIENTES LIBRES (SIC644)
+2020-02-08 23:03:00,363:INFO:None
+2020-02-08 23:03:00,377:INFO:Ejecutando...0
+2020-02-08 23:03:00,384:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:00,541:INFO:CCNA CISCO (CERTIFIED NETWORK ASSOCIATE) (SIC854)
+2020-02-08 23:03:01,068:INFO:None
+2020-02-08 23:03:01,079:INFO:Ejecutando...0
+2020-02-08 23:03:01,085:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:01,258:INFO:Ejecutando...0
+2020-02-08 23:03:01,268:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:01,430:INFO:Ejecutando...0
+2020-02-08 23:03:01,445:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:01,626:INFO:INGENIERIA DE SOFTWARE II (SIC634)
+2020-02-08 23:03:02,190:INFO:None
+2020-02-08 23:03:02,202:INFO:Ejecutando...0
+2020-02-08 23:03:02,210:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:02,401:INFO:Ejecutando...0
+2020-02-08 23:03:02,414:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:02,578:INFO:LEGISLACION INFORMATICA (ADM612)
+2020-02-08 23:03:03,262:INFO:None
+2020-02-08 23:03:03,273:INFO:Ejecutando...0
+2020-02-08 23:03:03,281:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:03,439:INFO:Ejecutando...0
+2020-02-08 23:03:03,452:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:03,653:INFO:Ejecutando...0
+2020-02-08 23:03:03,664:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:03,826:INFO:Ejecutando...0
+2020-02-08 23:03:03,836:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:03,990:INFO:Ejecutando...0
+2020-02-08 23:03:04,000:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:04,167:INFO:Ejecutando...0
+2020-02-08 23:03:04,177:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:04,337:INFO:COMPUTACION DISTRIBUIDA (SIC616)
+2020-02-08 23:03:04,915:INFO:None
+2020-02-08 23:03:04,928:INFO:Ejecutando...0
+2020-02-08 23:03:04,934:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:05,086:INFO:Ejecutando...0
+2020-02-08 23:03:05,098:INFO:Las tareas nuevas se agregaron a la BD
+2020-02-08 23:03:05,366:INFO:Agregando Tarea:5e3f84735aeb1f6405f868f2 Prueba 2\, Datamining Prueba 2\, Datamining ( Análisis de redes sociales\, minería de texto\, minería Web\, clustering ) 2020-02-04 00:00:00
+2020-02-08 23:03:06,710:INFO:Agregando Tarea:5e3f84748099128d53be008d Taller_S15_1 Pair Programming. 2020-02-04 00:00:00
+2020-02-08 23:03:07,799:INFO:Agregando Tarea:5e3f8475c649126733835b98 Taller BGP Básico Taller BGP Básico 2020-02-05 00:00:00
+2020-02-08 23:03:08,891:INFO:Agregando Tarea:5e3f8475c649126733835b98 Taller BGP avanzado Taller BGP avanzado 2020-02-06 00:00:00
+2020-02-08 23:03:10,046:INFO:Agregando Tarea:5e3f8475c649126733835b98 Examen Segunda Unidad Examen Segunda Unidad 2020-02-06 00:00:00
+2020-02-08 23:03:11,182:INFO:Agregando Tarea:5e3f84765865080462ac69f2 Revisión de la iteración 3 [] Presentar y documentar:
+1. 
+Título del proyecto. [Scrum Master] 
+Rol(es) en el equipo de trabajo\, de cada persona del grupo de trabajo. Una persona puede cumplir uno o más roles.  [Scrum Master]
+2. Objetivo(s) del Sprint\, describir el/los proceso(s) de negocio ligados a los requisitos que se implementarán.  [Scrum Master]
+     P.e. Se proporcionarán las partes esenciales de la tienda online para permitir un proceso de compra completo.
+3. Sprint backlog inicial  [Product Owner]
+4.- Complementar el Sprint backlog inicial  Estimación y asignación a cada desarrollador. Total de horas o puntos de trabajo planificado para el Sprint. [Scrum Master]
+5. Comentarios de las reuniones Scrum Diario [Scrum Master]
+ Presentar de fo
+6. Producto funcional arma práctica (no es necesario documentar lo todo)l final del sprint [Equipo de Desarrollo]. Mostrar en línea.  [Equipo de Desarrollo]
+   Ambiente de desarrollo configurado y funcionando. 
+   Trabajo colaborativo\, gestionado con repositorio común y control de versiones.
+7.  Avance funcional implementado\, presentar uno a uno los requisitos del Sprintbacklog implementeados. [Equipo de Desarrollo]
+8. Sprint backlog al final del sprint\, Doing\, Done\, Re-estimaciones (opcionale)\, Velocidad del equipo (cuántos puntos/horas lograron completar)   [Product Owner]
+9. Gráfico de seguimiento Burn-up ó Burn-down [Scrum Master+Todos] 
+--Por favor\, que solo un miembro del grupo suba el material. Pueden subir hasta 4 archivos. Lo mínimo requerido es 1. El tamaño máximo de cada archivo es de 2MB.
+ 2020-02-06 00:00:00
+2020-02-08 23:03:12,389:INFO:Agregando Tarea:5e3f8475c649126733835b98 Informe Enrutamiento GNS3 Estimado estudiante subir aquí la evidencia de Informe Enrutamiento GNS3.
+
+Saludos 2020-02-07 00:00:00
+2020-02-08 23:03:13,487:INFO:Agregando Tarea:5e3f847775547d2a795c6de9 Mapas Mentales (Dos Documentos)  2020-02-07 00:00:00
+2020-02-08 23:03:14,652:INFO:Agregando Tarea:5e3f847775547d2a795c6de9 Pagina Web de HTML  2020-02-07 00:00:00
+2020-02-08 23:03:15,696:INFO:Agregando Tarea:5e3f847775547d2a795c6de9 Avance Informe accesibilidad Paginas WEB  2020-02-07 00:00:00
+2020-02-08 23:03:16,841:INFO:Agregando Tarea:5e3f84735aeb1f6405f868f2  Proyecto Análisis de tweets 
+
+Análisis de tweets: Investigar una herramienta que pueda usarse para análisis de sentimientos en tweets y aplicarla a un grupo de twits extraidos en un perìodo de tiempo.
+Ejemplos de herramientas
+https://www.google.com/search?q=nodexl+tutorial&amp\;ie=utf-8&amp\;oe=utf-8
+Para aná http://monkeylearn.com/use-cases/
+http://www.adweeklisis de sentimientos.com/socialtimes/free-twitter-tools/4135
+Subir un archivo con el informe de la práctica usando la guia de presentación de informes.
+Defensa 3 de febrero 2020
+Saludos
+
+
+
+ 2020-02-09 00:00:00
+2020-02-08 23:03:17,905:INFO:Agregando Tarea:5e3f84735aeb1f6405f868f2 Ejercicios de mineria de texto Realizar los ejercicios del cap 20 del libro Principles of Datamining de Bramer como preprativo para la prueba y examen 2020-02-09 00:00:00
+2020-02-08 23:03:19,226:INFO:Agregando Tarea:5e3f84735aeb1f6405f868f2 Práctica 7: Predicción de clasificación de documentos con Weka Predicción de clasificación de documentos con Weka:
+1. Construir un archivo de entrenamiento train con dos campos text y class (usar 10 Reuters-Grain.arff)
+2. Construir un archivo de test con filas del archivo 4 filas del archivo Reuters-Grain.arff pero con valores en el campo clase ?.
+3. Abrir el archivo de entrenamiento\, escoger en classify el filtro meta &gt\; filterclassifier. Dar click  junto al nombre del clasificador en  StringToWoRD vectorla ventana de  Choose.
+4. Escoger como segunda opción.
+5. En la opción more options Marcar output prediction y start. 
+6. Analizar las predicciones para los documentos. 2020-02-09 00:00:00
+2020-02-08 23:03:20,273:INFO:Agregando Tarea:5e3f847880040138b86cbb4a Proyecto B2P2  2020-02-14 00:00:00
+2020-02-08 23:03:21,355:INFO:Agregando Tarea:5e3f847775547d2a795c6de9 Informe Completo Accesibilidad Web  2020-02-14 00:00:00
