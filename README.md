@@ -1,5 +1,5 @@
-# ESCUELA POLITÉCNICA NACIONAL
-# MANUAL DE USUARIO
+#                      *ESCUELA POLITÉCNICA NACIONAL*
+#                       *MANUAL DE USUARIO PoliCal*
 # Aplicaciones en Ambientes Libres
 # TEMA: PoliCal
 
