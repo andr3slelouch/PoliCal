@@ -1,8 +1,13 @@
 from scheduler import Scheduler
-import polycal
+
+import SimpleIcsToCSV
+import TareasCSVToBD
+import SendTaskToTrello
 
 def ejecutaScript():	#Define la funcion
-    python polycal.py    
+    SimpleIcsToCSV.convertICStoCSV()
+    TareasCSVToBD.LoadCSVTasktoDB()
+    SendTaskToTrello.SendTaskToTrello()    
 
 scheduler = Scheduler()
 scheduler.add(3600, 0, ejecutaScript)  # Agrega una tarea.
