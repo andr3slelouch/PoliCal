@@ -22,7 +22,7 @@ def exec(command):
     return cur
 
 
-def saveTask(task):
+def saveTask(task, username):
     cur = getdb().cursor()
     checker = "select count(TarUID) from Tareas where TarUID = \'" + \
         task.id + "\'"
@@ -33,8 +33,13 @@ def saveTask(task):
         # print(exists)
     if exists == 0:
         print("Ejecutando...", exists)
-        cur.execute("INSERT INTO Tareas(TarUID, TarTitulo, TarDescripcion, TarFechaLim, Materias_idMaterias, TarEstado) VALUES (?, ?, ?, ?, ?, ?);",
-                    (task.id, task.title, task.description.replace('\\n', '\n'), task.due_date, task.subjectID, "N"))
+        cur.execute("INSERT INTO Tareas(TarUID, TarTitulo, TarDescripcion, TarFechaLim, Materias_idMaterias) VALUES (?, ?, ?, ?, ?);",
+                    (task.id, task.title, task.description.replace('\\n', '\n'), task.due_date, task.subjectID))
+        cur.connection.commit()
+        idTareas = getTaskID(task.id)
+        idUsuarios = getUserID(username)
+        cur.execute("INSERT INTO TareasUsuarios(TarUsrEstado, idTareas, idUsuarios) VALUES (?,?,?);",
+                    ("N", idTareas, idUsuarios))
     cur.connection.commit()
     return cur
 
@@ -45,6 +50,14 @@ def saveSubjects(subject):
     cur.execute(query, (subject.name, subject.codigo, subject.id))
     cur.connection.commit()
     # db.close()
+    return cur
+
+
+def saveUser(username):
+    query = "INSERT INTO Usuarios (UsrNombre) values (?);"
+    cur = getdb.cursor()
+    cur.execute(query, (username))
+    cur.connection.commit()
     return cur
 
 
@@ -81,6 +94,30 @@ def getSubjectID(subjCod):
     return sbjID
 
 
+def getTaskID(TarUID):
+    query = "select idTareas from Tareas where TarUID = \'" + TarUID + "\'"
+    cur = getdb().cursor()
+    cur.execute(query)
+
+    idTareas = ''
+    for row in cur.fetchall():
+        idTareas = row[0]
+    cur.connection.close()
+    return str(idTareas)
+
+
+def getUserID(username):
+    query = "select idUsuarios from Usuarios where UsrNombre = \'" + username + "\'"
+    cur = getdb().cursor()
+    cur.execute(query)
+
+    idUsuarios = ''
+    for row in cur.fetchall():
+        idUsuarios = row[0]
+    cur.connection.close()
+    return str(idUsuarios)
+
+
 def getSubjectName(subjCod):
     query = "select MatNombre from Materias where MatCodigo = \'" + subjCod + "\'"
     cur = getdb().cursor()
@@ -94,17 +131,20 @@ def getSubjectName(subjCod):
     return sbjName
 
 
-def addTarTID(TarUID, TarTID):
+def addTarTID(TarUID, TarTID, username):
     cur = getdb().cursor()
+    idTareas = getTaskID(TarUID)
+    idUsuarios = getUserID(username)
     cur.execute(
-        "UPDATE Tareas SET TarTID = ?, TarEstado = ? WHERE TarUID = ?;", (TarTID, "E", TarUID))
+        "UPDATE TareasUsuarios SET TarUsrTID = ?, TarUsrEstado = ? WHERE idUsuarios = ? AND idTareas = ?;", (TarTID, "E", idUsuarios, idTareas))
     cur.connection.commit()
     # db.close()
     return cur
 
 
-def getTasks():
-    query = "select TarEstado, TarUID, TarTitulo, TarDescripcion, TarFechaLim, MatID from Materias, Tareas where Materias_idMaterias = idMaterias AND TarEstado = 'N';"
+def getTasks(username):
+    idUsuarios = getUserID(username)
+    query = "select TarUsrEstado, TarUID, TarTitulo, TarDescripcion, TarFechaLim, MatID from Materias, Tareas, TareasUsuarios where Tareas.Materias_idMaterias = Materias.idMaterias AND TareasUsuarios.TarUsrEstado = 'N' AND TareasUsuarios.idTareas = Tareas.idTareas AND TareasUsuarios.idUsuarios = \'" + idUsuarios + "\';"
     cur = getdb().cursor()
     cur.execute(query)
     tasks = []
@@ -117,6 +157,17 @@ def getTasks():
 def check_no_subjectID(subjCod):
     query = "select count(MatCodigo) from Materias where MatCodigo=\'" + \
         subjCod + "\'AND MatID=\"\";"
+    cur = getdb().cursor()
+    cur.execute(query)
+    for row in cur.fetchall():
+        result = row[0]
+    cur.connection.close()
+    return result
+
+
+def check_user_existence(username):
+    query = "select count(UsrNombre) from Usuarios where UsrNombre=\'" + \
+        username + "\';"
     cur = getdb().cursor()
     cur.execute(query)
     for row in cur.fetchall():
