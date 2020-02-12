@@ -70,14 +70,14 @@ def addEvent(header, filename):
             f2.write("\n")
 
 
-def convertICStoCSV():
+def convertICStoCSV(url):
     # print("Empezando:")
     # print("Eliminando si existe")
     print("Descargando calendario desde Aula Virtual...")
     filename = configuration.get_file_location("mycalendar.ics")
     if os.path.exists(filename):
         os.remove(filename)
-    url = configuration.load_config_file('polical.yaml')['calendar_url']
+    # url = configuration.load_config_file('polical.yaml')['calendar_url']
     wget.download(url, filename)
     addEvent(findHeader(filename), filename)
     print("\nEspere...")
