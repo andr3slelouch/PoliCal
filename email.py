@@ -2,6 +2,10 @@ import os
 import webbrowser
 import getpass
 
+#File concerned : email.py
+#Email notifications only available with a gmail acount.
+#Configuration : command bash
+#Results : Send a e-mail notification when a new work is added in of the course you follow.
 
 darPermisos= 'https://myaccount.google.com/lesssecureapps'  #direccion a la cual necesitara dar permisos de admicion.
 print('   ')
