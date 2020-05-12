@@ -7,19 +7,17 @@ import logging
 logging.basicConfig(filename='Running.log',level=logging.INFO, format = '%(asctime)s:%(levelname)s:%(message)s')
 
 
-config = configuration.load_config_file('polical.yaml')
-client = TrelloClient(
-    api_key=config['api_key'],
-    api_secret=config['api_secret'],
-    token=config['oauth_token'],
-    token_secret=config['oauth_token_secret'],
-)
-member_id = config['owner_id']
-
-
-def SendTaskToTrello():
-    subjectsBoard = client.get_board(config['board_id'])
-    tasks = connectSQLite.getTasks()
+def SendTaskToTrello(username, user_dict):
+    #user_dict = configuration.load_config_file('polical.yaml')
+    client = TrelloClient(
+        api_key=user_dict['api_key'],
+        api_secret=user_dict['api_secret'],
+        token=user_dict['oauth_token'],
+        token_secret=user_dict['oauth_token_secret'],
+    )
+    member_id = user_dict['owner_id']
+    subjectsBoard = client.get_board(user_dict['board_id'])
+    tasks = connectSQLite.getTasks(username)
     if len(tasks) == 0:
         logging.info("No existen tareas nuevas, verifique consultando el calendario")
         print("No existen tareas nuevas, verifique consultando el calendario")
@@ -36,4 +34,4 @@ def SendTaskToTrello():
             card.set_due(datetime.strptime(x.due_date, '%Y-%m-%d %H:%M:%S'))
             # print(x.due_date)
             # card.set_due(x.due_date)
-            connectSQLite.addTarTID(x.id, subjectList.list_cards()[-1].id)
+            connectSQLite.addTarTID(x.id, subjectList.list_cards()[-1].id, username)

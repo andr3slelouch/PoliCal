@@ -6,6 +6,7 @@ import webbrowser
 import trello
 import sys
 import configuration
+import connectSQLite
 from requests_oauthlib import OAuth1Session
 from requests_oauthlib.oauth1_session import TokenRequestDenied
 
@@ -34,6 +35,7 @@ def onboard(no_open, output_path='polical.yaml'):
     The configuration file is put in an appropriate place for your operating system. If you want to change it later,
     you can use `gtd config -e` to open it in $EDITOR.
     '''
+    username = ""
     output_file = output_path  # Use platform detection
     user_api_key_url = 'https://trello.com/app-key'
     request_token_url = 'https://trello.com/1/OAuthGetRequestToken'
@@ -45,6 +47,7 @@ def onboard(no_open, output_path='polical.yaml'):
     print('Bienvenido a PoliCal! Recuerde que antes de iniciar el proceso de obtención de credenciales')
     print('ud debe tener una cuenta en Trello y en el Aula Virtual, y deben estar iniciadas las sesiones en el navegador predeterminado')
     print("\n\n")
+    username = input("Ingrese su nombre:")
     print("PASO 1: Acceso a Trello")
     print("En su navegador web se cargará el siguiente URL:")
     print('  ' + user_api_key_url)
@@ -133,7 +136,8 @@ def onboard(no_open, output_path='polical.yaml'):
             webbrowser.open_new_tab(calendar_moodle_epn_url)
     calendar_url = calendar_moodle_epn_url
     while not(configuration.check_for_url(calendar_url)):
-        calendar_url = input('Por favor, introduzca el url generado por el Aula Virtual, si este es erróneo se volverá a solicitar:')
+        calendar_url = input(
+            'Por favor, introduzca el url generado por el Aula Virtual, si este es erróneo se volverá a solicitar:')
     final_output_data = {
         'oauth_token': access_token['oauth_token'],
         'oauth_token_secret': access_token['oauth_token_secret'],
@@ -153,17 +157,22 @@ def onboard(no_open, output_path='polical.yaml'):
         api_key, api_secret, access_token['oauth_token'], access_token['oauth_token_secret'])
     final_output_data['board_id'] = board_id
     final_output_data['owner_id'] = owner_id
-    if os.path.exists(output_file):
-        # if input('{0} exists already, would you like to back it up?'.format(output_file)):
-        #    shutil.move(output_file, output_file + '.backup')
-        overwrite = input('Overwrite the existing file? s/N:')
-        if overwrite == 'N':
-            return
+    if check_file_existence(output_file):
+        check_user_on_file(output_file, username + owner_id)
+        with open(output_file) as file:
+            # use safe_load instead load
+            super_final = yaml.safe_load(file)
+            super_final[username + owner_id] = final_output_data
+            connectSQLite.saveUser(username+owner_id)
+    else:
+        super_final = {
+            username + owner_id: final_output_data
+        }
+        connectSQLite.saveUser(username+owner_id)
     with open(output_file, 'w') as f:
-        f.write(yaml.safe_dump(final_output_data, default_flow_style=False))
+        f.write(yaml.safe_dump(super_final, default_flow_style=False))
     #print('Las credenciales se guardaron en "{0}"- ahora puedes utilizar PoliCal'.format(output_file))
     #print('Use the "config" command to view or edit your configuration file')
-
 
 def get_working_board_id(api_key, api_secret, oauth_token, oauth_token_secret):
     client = trello.TrelloClient(
@@ -186,5 +195,27 @@ def get_working_board_id(api_key, api_secret, oauth_token, oauth_token_secret):
             if board.name == "TareasPoli":
                 board_id = board.id
     return board_id, board.all_members()[-1].id
+def check_user_on_file(output_file, username):
+    if os.path.exists(output_file):
+        with open(output_file) as file:
+            # use safe_load instead load
+            users = yaml.safe_load(file)
+            if username in users.keys():
+                overwrite = input(
+                    'El nombre de usuario actualmente ya existe, sobreescribir? s/N:')
+                if overwrite == 'N':
+                    return
 
+
+def check_file_existence(output_file):
+    if os.path.exists(output_file):
+        with open(output_file) as file:
+            # use safe_load instead load
+            users = yaml.safe_load(file)
+            if len(users.keys()) > 0:
+                return True
+            else:
+                return False
+    else:
+        return False
 # onboard(True)
