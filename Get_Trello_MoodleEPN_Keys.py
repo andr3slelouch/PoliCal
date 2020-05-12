@@ -11,7 +11,9 @@ from requests_oauthlib import OAuth1Session
 from requests_oauthlib.oauth1_session import TokenRequestDenied
 
 import logging
-logging.basicConfig(filename='Running.log',level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+logging.basicConfig(filename='Running.log', level=logging.INFO,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
+
 
 class DevNullRedirect:
     '''Temporarily eat stdout/stderr to allow no output.
@@ -44,8 +46,7 @@ def onboard(no_open, output_path='polical.yaml'):
     calendar_moodle_epn_url = 'https://educacionvirtual.epn.edu.ec/calendar/view.php?view=upcoming&course=1'
     # First, open the URL that allows the user to get an auth token. Tell them to copy both into the program
     logging.info("Mostrando print-board al usuario")
-    print('Bienvenido a PoliCal! Recuerde que antes de iniciar el proceso de obtención de credenciales')
-    print('ud debe tener una cuenta en Trello y en el Aula Virtual, y deben estar iniciadas las sesiones en el navegador predeterminado')
+    print('Bienvenido a PoliCal! Recuerde que antes de iniciar el proceso de obtención de credenciales ud debe tener una cuenta en Trello y en el Aula Virtual, y deben estar iniciadas las sesiones en el navegador predeterminado')
     print("\n\n")
     username = input("Ingrese su nombre:")
     print("PASO 1: Acceso a Trello")
@@ -75,7 +76,8 @@ def onboard(no_open, output_path='polical.yaml'):
     try:
         response = session.fetch_request_token(request_token_url)
     except TokenRequestDenied:
-        print('Invalid API key/secret provided: {0} / {1}'.format(api_key, api_secret))
+        print(
+            'Invalid API key/secret provided: {0} / {1}'.format(api_key, api_secret))
         sys.exit(1)
     resource_owner_key, resource_owner_secret = response.get(
         'oauth_token'), response.get('oauth_token_secret')
@@ -163,16 +165,17 @@ def onboard(no_open, output_path='polical.yaml'):
             # use safe_load instead load
             super_final = yaml.safe_load(file)
             super_final[username + owner_id] = final_output_data
-            connectSQLite.saveUser(username+owner_id)
+            connectSQLite.saveUser(username + owner_id)
     else:
         super_final = {
             username + owner_id: final_output_data
         }
-        connectSQLite.saveUser(username+owner_id)
+        connectSQLite.saveUser(username + owner_id)
     with open(output_file, 'w') as f:
         f.write(yaml.safe_dump(super_final, default_flow_style=False))
     #print('Las credenciales se guardaron en "{0}"- ahora puedes utilizar PoliCal'.format(output_file))
     #print('Use the "config" command to view or edit your configuration file')
+
 
 def get_working_board_id(api_key, api_secret, oauth_token, oauth_token_secret):
     client = trello.TrelloClient(
@@ -187,7 +190,8 @@ def get_working_board_id(api_key, api_secret, oauth_token, oauth_token_secret):
         if board.name == "TareasPoli":
             board_id = board.id
     if board_id == '':
-        logging.error(("No se encontró el board \"TareasPoli\", será creado ahora"))
+        logging.error(
+            ("No se encontró el board \"TareasPoli\", será creado ahora"))
         print("No se encontró el board \"TareasPoli\", será creado ahora")
         client.add_board("TareasPoli")
         all_boards = client.list_boards()
@@ -195,6 +199,8 @@ def get_working_board_id(api_key, api_secret, oauth_token, oauth_token_secret):
             if board.name == "TareasPoli":
                 board_id = board.id
     return board_id, board.all_members()[-1].id
+
+
 def check_user_on_file(output_file, username):
     if os.path.exists(output_file):
         with open(output_file) as file:

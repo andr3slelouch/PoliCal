@@ -59,8 +59,8 @@ def saveSubjects(subject):
 
 def saveUser(username):
     query = "INSERT INTO Usuarios (UsrNombre) values (?);"
-    cur = getdb.cursor()
-    cur.execute(query, (username))
+    cur = getdb().cursor()
+    cur.execute(query, (username,))
     cur.connection.commit()
     return cur
 

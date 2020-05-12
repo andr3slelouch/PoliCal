@@ -19,7 +19,7 @@ def LoadCSVTasktoDB(username, user_dict):
             elif len(row) > 9 and not line_count == 0:
                 # print(len(row))
                 create_subject.create(
-                    Get_Subject_Name_From_CSV(row[9]),row[2])
+                    Get_Subject_Name_From_CSV(row[9]),row[2], user_dict)
                 sbjID = connectSQLite.getSubjectID(
                     Get_Subject_Name_From_CSV(row[9]))
                 # print(row[0])
