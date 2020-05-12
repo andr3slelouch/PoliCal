@@ -6,8 +6,8 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="PoliCalAAL",
     version="1.0.0",
-    author="Nicolas Arias",
-    author_email="jozuenikolas@gmail.com",
+    author="andr3slelouch",
+    author_email="luis.andradec14@gmail.com",
     description="Este es un programa hecho en python para sincronizar tareas existentes en el aula virtual de moodle EPN con una cuenta de Trello.",
     long_description=long_description,
     long_description_content_type="text/markdown",
