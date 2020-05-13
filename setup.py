@@ -36,5 +36,6 @@ setuptools.setup(
         "Operating System :: OS Independent",
         "Environment :: Console"
     ],
+    include_package_data=True,
     python_requires='>=3.5',
 )
