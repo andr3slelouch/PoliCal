@@ -1,9 +1,9 @@
 import sqlite3
-import TareaClass
-import configuration
+from polical import TareaClass
+from polical import configuration
 
 import logging
-logging.basicConfig(filename='Running.log', level=logging.INFO,
+logging.basicConfig(filename=configuration.get_file_location('Running.log'), level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 

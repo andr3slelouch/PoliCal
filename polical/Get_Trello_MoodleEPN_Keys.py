@@ -5,13 +5,12 @@ import os
 import webbrowser
 import trello
 import sys
-import configuration
-import connectSQLite
+from polical import configuration
+from polical import connectSQLite
 from requests_oauthlib import OAuth1Session
 from requests_oauthlib.oauth1_session import TokenRequestDenied
-
 import logging
-logging.basicConfig(filename='Running.log', level=logging.INFO,
+logging.basicConfig(filename=configuration.get_file_location('Running.log'), level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 

@@ -1,9 +1,9 @@
-import TareasCSVToBD
-import SendTaskToTrello
-import SimpleIcsToCSV
-import configuration
+from polical import TareasCSVToBD
+from polical import SendTaskToTrello
+from polical import SimpleIcsToCSV
+from polical import configuration
 import sys
-import Get_Trello_MoodleEPN_Keys
+from polical import Get_Trello_MoodleEPN_Keys
 
 
 def main(argv):
@@ -12,7 +12,11 @@ def main(argv):
         if argument == "--addUser":
             Get_Trello_MoodleEPN_Keys.onboard(True)
     else:
-        users = configuration.load_config_file("polical.yaml")
+        users = None
+        while(users == None):
+            users = configuration.load_config_file("polical.yaml")
+            if users == None:
+                Get_Trello_MoodleEPN_Keys.onboard(True)
         for user in users.keys():
             SimpleIcsToCSV.convertICStoCSV(users[user]['calendar_url'])
             TareasCSVToBD.LoadCSVTasktoDB(user, users[user])

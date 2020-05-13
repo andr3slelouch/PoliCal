@@ -1,5 +1,9 @@
 # Don't track python_cache
 __pycache__/
+.vs/
+build/
+dist/
+polical.egg-info/
 calendar.csv
 mycalendar.ics
 polical.yaml

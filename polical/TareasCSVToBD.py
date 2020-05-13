@@ -1,11 +1,11 @@
-import TareaClass
+from polical import TareaClass
 import csv
-import connectSQLite
-import create_subject
-import configuration
+from polical import connectSQLite
+from polical import create_subject
+from polical import configuration
 from datetime import datetime
 import logging
-logging.basicConfig(filename='Running.log',level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+logging.basicConfig(filename=configuration.get_file_location('Running.log'),level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 
 def LoadCSVTasktoDB(username, user_dict):

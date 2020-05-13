@@ -1,8 +1,9 @@
-import MateriaClass
+from polical import MateriaClass
 from trello import TrelloClient
-import connectSQLite
+from polical import connectSQLite
 import logging
-logging.basicConfig(filename='Running.log',level=logging.INFO,
+from polical import configuration
+logging.basicConfig(filename=configuration.get_file_location('Running.log'),level=logging.INFO,
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 def create(subjCod, task_title, user_dict):

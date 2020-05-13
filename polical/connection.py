@@ -1,8 +1,8 @@
 import trello
 import requests
-
+from polical import configuration
 import logging
-logging.basicConfig(filename='Running.log',level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+logging.basicConfig(filename=configuration.get_file_location('Running.log'),level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 class GTDException(Exception):
     '''single parameter indicates exit code for the interpreter, because
@@ -40,7 +40,7 @@ class TrelloConnection:
 
     def __repr__(self):
         c = 'disconnected' if self.trello is None else 'connected'
-        # isaac: se corrigio: return 'TrelloConnection {0} at {0}'.format(c, id(self))  
+        # isaac: se corrigio: return 'TrelloConnection {0} at {0}'.format(c, id(self))
         return 'TrelloConnection {0} at {1}'.format(c, id(self))
 
     def __str__(self):
