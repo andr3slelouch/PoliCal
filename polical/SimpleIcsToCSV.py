@@ -54,7 +54,7 @@ def addEvent(header, filename):
             try:
                 # Delete the especial character
                 removebsn = list[1].split("\n", 1)
-                f2.write(removebsn[0] + ";")  # Adds semicolon
+                f2.write(removebsn[0].replace(';','') + ";")  # Adds semicolon and avoids double ";"
             except Exception as e:
                 print(e)
         elif wrNormal and wrDescription:  # If wrNormal and wrDescription are
