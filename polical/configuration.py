@@ -6,21 +6,19 @@ import logging
 from shutil import copyfile
 from pathlib import Path
 
-logging.basicConfig(filename=get_file_location('Running.log'), level=logging.INFO,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
 
 def get_working_directory():
     userdir = os.path.expanduser("~")
     workingDirectory = os.path.join(userdir, "PoliCal")
-    tasks_db=Path(os.path.join(workingDirectory,"tasks.db"))
+    tasks_db = Path(os.path.join(workingDirectory, "tasks.db"))
     # Check for existence
     if not os.path.exists(workingDirectory):
         os.makedirs(workingDirectory)
     # Check for existence
     if not tasks_db.is_file():
         dir = os.path.dirname(__file__)
-        tasks_src = os.path.join(dir,"tasks.db")
-        tasks_dst = os.path.join(workingDirectory,"tasks.db")
+        tasks_src = os.path.join(dir, "tasks.db")
+        tasks_dst = os.path.join(workingDirectory, "tasks.db")
         copyfile(tasks_src, tasks_dst)
     return workingDirectory
 
@@ -28,6 +26,11 @@ def get_working_directory():
 def get_file_location(filename):
     workingDirectory = get_working_directory()
     return os.path.join(workingDirectory, filename)
+
+
+logging.basicConfig(filename=get_file_location('Running.log'), level=logging.INFO,
+                    format='%(asctime)s:%(levelname)s:%(message)s')
+
 
 def load_config_file(config_file_path):
     while(True):
