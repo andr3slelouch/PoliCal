@@ -1,8 +1,8 @@
 import unittest
-import configuration 
+from polical import configuration
 from selenium import webdriver
 
-from create_subject import Add_Subject_To_Trello_List
+from polical from create_subject import Add_Subject_To_Trello_List
 from connection import TrelloConnection
 
 
@@ -15,8 +15,8 @@ class TestAV(unittest.TestCase):
 
         titleOfEwbPage=driver.title
 
-        self.assertTrue(titleOfEwbPage == "Google")  #true      
-    
+        self.assertTrue(titleOfEwbPage == "Google")  #true
+
 
 
 #test acceso a trello
@@ -28,7 +28,7 @@ class TestTrel(unittest.TestCase):
 
         titleOfEwbPage=driver.title
 
-        self.assertTrue(titleOfEwbPage == "Trello")  #true    
+        self.assertTrue(titleOfEwbPage == "Trello")  #true
 
 
 
@@ -39,7 +39,7 @@ class test_check_url(unittest.TestCase):
 
 
 
-#test añadir una materia a Trello
+#test aï¿½adir una materia a Trello
 class Test_Add_Subject_To_Trello_List(unittest.TestCase):
     def test_given_a_new_list_when_add_an_subject_then_it_has_one_element(self):
         subjectsBoard.list_lists()
@@ -54,7 +54,7 @@ class TestTrelloConnection(unittest.TestCase):
 	trelloClient=TrelloConnection()
 	user=trelloClient.initialize_trello("andres")
 	self.assertEqual("andres", trello_client)
-    
+
 
 
 if __name__ == "__main__":

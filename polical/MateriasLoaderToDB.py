@@ -1,9 +1,9 @@
-import MateriaClass
+from polical import MateriaClass
 import csv
-import connectSQLite
-import configuration
+from polical import connectSQLite
+from polical import configuration
 import logging
-logging.basicConfig(filename='Running.log',level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
+logging.basicConfig(filename=configuration.get_file_location('Running.log'),level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 try:
     with open(configuration.get_file_location('materias.csv')) as csv_file:
