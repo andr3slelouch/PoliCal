@@ -33,15 +33,14 @@ logging.basicConfig(filename=get_file_location('Running.log'), level=logging.INF
 
 
 def load_config_file(config_file_path):
-    while(True):
-        try:
-            with open(get_file_location(config_file_path), 'r') as config_yaml:
-                file_config = yaml.safe_load(config_yaml)
-                return file_config
-        except IOError:
-            logging.error(
-                "Archivo de configuración no encontrado, generando llaves")
-            return None
+    try:
+        with open(get_file_location(config_file_path), 'r') as config_yaml:
+            file_config = yaml.safe_load(config_yaml)
+            return file_config
+    except IOError:
+        logging.error(
+            "Archivo de configuración no encontrado, generando llaves")
+        return None
 
 
 def check_for_url(url):

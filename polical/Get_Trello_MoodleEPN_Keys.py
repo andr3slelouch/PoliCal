@@ -37,7 +37,7 @@ def onboard(no_open, output_path='polical.yaml'):
     you can use `gtd config -e` to open it in $EDITOR.
     '''
     username = ""
-    output_file = output_path  # Use platform detection
+    output_file = configuration.get_file_location(output_path)  # Use platform detection
     user_api_key_url = 'https://trello.com/app-key'
     request_token_url = 'https://trello.com/1/OAuthGetRequestToken'
     authorize_url = 'https://trello.com/1/OAuthAuthorizeToken'
@@ -146,6 +146,7 @@ def onboard(no_open, output_path='polical.yaml'):
         'api_secret': api_secret,
         'calendar_url': calendar_url,
     }
+    print("\n\n")
     # Ensure we have a folder to put this in, if it's in a nested config location
     """
     output_folder = os.path.dirname(output_file)

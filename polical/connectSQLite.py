@@ -58,6 +58,7 @@ def saveSubjects(subject):
 
 
 def saveUser(username):
+    print("Agregando usuario, "+username+"a la base de datos")
     query = "INSERT INTO Usuarios (UsrNombre) values (?);"
     cur = getdb().cursor()
     cur.execute(query, (username,))
