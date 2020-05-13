@@ -45,10 +45,12 @@ def onboard(no_open, output_path='polical.yaml'):
     calendar_moodle_epn_url = 'https://educacionvirtual.epn.edu.ec/calendar/view.php?view=upcoming&course=1'
     # First, open the URL that allows the user to get an auth token. Tell them to copy both into the program
     logging.info("Mostrando print-board al usuario")
-    print('Bienvenido a PoliCal! Recuerde que antes de iniciar el proceso de obtención de credenciales ud debe tener una cuenta en Trello y en el Aula Virtual, y deben estar iniciadas las sesiones en el navegador predeterminado')
+    print('Bienvenido a PoliCal!\n Recuerde que antes de iniciar el proceso de obtención de credenciales ud debe tener una cuenta en Trello y en el Aula Virtual, y deben estar iniciadas las sesiones en el navegador predeterminado')
+    print('')
     print("\n\n")
     username = input("Ingrese su nombre:")
     print("PASO 1: Acceso a Trello")
+    print("Recuerde ingresar e iniciar sesion previamente a www.trello.com")
     print("En su navegador web se cargará el siguiente URL:")
     print('  ' + user_api_key_url)
     print('Cuando llegue a esa página, inicie sesión y copie la "Tecla" o "Key" que se muestra en un cuadro de texto.')
@@ -125,6 +127,7 @@ def onboard(no_open, output_path='polical.yaml'):
     Aula Virtual'''
     print("\n\n")
     print("PASO 3: Obtención del calendario del Aula Virtual")
+    print("Recuerde ingresar e iniciar sesion previamente a https://educacionvirtual.epn.edu.ec/")
     print("A continuación se abrirá un link hacia el Aula Virtual EPN, en proximos eventos para: elija Todos los cursos")
     print("y a continuación desplácese a la parte más inferior de la página y de clic en el botón Exportar Calendario")
     print("Luego, en la opción Exportar seleccione todos los eventos y después en \"para\" seleccione los 60 días recientes y próximos")
