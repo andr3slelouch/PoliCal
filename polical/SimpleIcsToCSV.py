@@ -8,6 +8,8 @@ import logging
 logging.basicConfig(filename=configuration.get_file_location('Running.log'),level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 def addEvent(header, filename):
+    if header == None:
+        return None
     f = open(configuration.get_file_location(filename), "r", encoding='utf-8')
     f2 = open(configuration.get_file_location("calendar.csv"), "w+")
     f1 = f.readlines()
@@ -151,7 +153,10 @@ def findHeader(icsCal):
     if os.path.exists(filename):
         os.remove(filename)
     # Get the header with the most number of tags
-    return max(listHeaders, key=len)
+    if len(listHeaders) > 1:
+        return max(listHeaders, key=len)
+    else:
+        return None
 
 
 def main(argv):
