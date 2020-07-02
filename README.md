@@ -5,31 +5,31 @@ El fin de PoliCal es poder sincronizar desde el calendario electrónico que ofre
 ## Para Linux
 ### Instalar desde Pypi
 
-Para instalar este programa puede hacerlo accediendo desde Pypi.
+1. Para instalar este programa puede hacerlo accediendo desde Pypi.
 ```
 pip install polical
 ```
 Precaución en caso de existir errores en la instalación de los paquetes requeridos, intente agregando **--user** al final del comando.
 
-Luego puede ejecutar polical.py
+2. Luego puede ejecutar polical.py
 ```
 python -m polical
 ```
 ### Instalar desde GitHub
 
-Para instalar este programa desde github debe ejecutar lo siguiente.
+1. Para instalar este programa desde github debe ejecutar lo siguiente.
 ```
 git clone https://github.com/andr3slelouch/PoliCal.git
 cd PoliCal
 python setup.py install
 ```
-Luego puede ejecutar polical.py
+2. Luego puede ejecutar polical.py
 ```
 python -m polical
 ```
 ## Para Windows
 ### Instalar desde Pypi
-Para instalar este programa puede hacerlo accediendo desde Pypi.
+1. Para instalar este programa puede hacerlo accediendo desde Pypi, si tiene agregado python a los PATH del sistema:.
 ```
 python -m pip install polical
 ```
@@ -39,8 +39,8 @@ py -m pip install polical
 ```
 Precaución en caso de existir errores en la instalación de los paquetes requeridos, intente agregando **--user** al final del comando.
 
-Luego puede ejecutar polical.py
-Si tiene aregado python a los PATH del sistema:
+2. Luego puede ejecutar polical.py
+Si tiene agregado python a los PATH del sistema:
 ```
 python -m polical
 ```
