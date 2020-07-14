@@ -1,3 +1,12 @@
+"""
+.. module:: TareasCSVtoBD
+   :platform: Unix, Windows
+   :synopsis: This module reads csv tasks and writes to the database
+
+.. moduleauthor:: Luis Andrade <andr3slelouch@github.com>
+
+
+"""
 from polical import TareaClass
 import csv
 from polical import connectSQLite
@@ -8,6 +17,15 @@ logging.basicConfig(filename=configuration.get_file_location('Running.log'),leve
 
 
 def LoadCSVTasktoDB(username, user_dict):
+    """This function loads csv tasks to the database
+
+    Args:
+        username (str): The username for the current task.
+        user_dict (dict): User dictionary with keys to acces to trello.
+        
+    Raises:
+        FileNotFoundError
+    """
     try:
         with open(configuration.get_file_location('calendar.csv')) as csv_file:
             logging.info("CSV abierto.")
@@ -36,5 +54,14 @@ def LoadCSVTasktoDB(username, user_dict):
 
 
 def Get_Subject_Name_From_CSV(full_subject_name):
-    list = full_subject_name.split("_", 3)
-    return list[1]
+    """This function gets subject name from csv
+
+    Args:
+        full_subject_name (str): Full subject name with format XXX_YYY_ZZZ
+        
+    Return:
+        subject_name (str): Subject name
+    """
+    full_subject_name_list = full_subject_name.split("_", 3)
+    subject_name = full_subject_name_list[1]
+    return subject_name

@@ -1,3 +1,12 @@
+"""
+.. module:: SendTaskToTrello
+   :platform: Unix, Windows
+   :synopsis: This module sends tasks from the database to trello.
+
+.. moduleauthor:: Luis Andrade <andr3slelouch@github.com>
+
+
+"""
 from trello import TrelloClient
 from polical import connectSQLite
 from polical import configuration
@@ -7,6 +16,12 @@ logging.basicConfig(filename=configuration.get_file_location('Running.log'),leve
 
 
 def SendTaskToTrello(username, user_dict):
+    """This function sends tasks from database that are stored as not sended to trello.
+
+    Args:
+        username (str): The username for the current task.
+        user_dict (dict): User dictionary with keys to acces to trello.
+    """
     # user_dict = configuration.load_config_file('polical.yaml')
     client = TrelloClient(
         api_key=user_dict['api_key'],

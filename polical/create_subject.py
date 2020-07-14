@@ -7,6 +7,13 @@ logging.basicConfig(filename=configuration.get_file_location('Running.log'),leve
                     format='%(asctime)s:%(levelname)s:%(message)s')
 
 def create(subjCod, task_title, user_dict):
+    """This function creates a subject in Trello and adds it to local database.
+
+    Args:
+        subjCod (str): Subject Code to check with local database and trello.
+        task_title (str): Subject title for showing to the user if subject is not founded in local database.
+        user_dict (dict): User dictionary with keys to connect to trello.
+    """
     # config = configuration.load_config_file('polical.yaml')
     client = TrelloClient(
         api_key=user_dict['api_key'],
@@ -41,6 +48,13 @@ def create(subjCod, task_title, user_dict):
 
 
 def Add_Subject_To_Trello_List(subjectsBoard, subject_name, subjCod):
+    """This function adds a list to trello board with subject name.
+
+    Args:
+        subjectsBoard (Trello.Board): Tareas Poli's Board object from Trello library
+        subject_name (str): Subject name to create new list.
+        subjCode (str): Subject code to add it to name list.
+    """
     id = ""
     for x in subjectsBoard.list_lists():
         if x.name == subject_name:

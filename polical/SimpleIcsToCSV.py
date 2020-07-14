@@ -1,3 +1,12 @@
+"""
+.. module:: SimpleIcsToCSV
+   :platform: Unix, Windows
+   :synopsis: This module converts ICS calendar file from moodle to CSV file.
+
+.. moduleauthor:: Luis Andrade <andr3slelouch@github.com>
+
+
+"""
 import wget
 import os
 import csv
@@ -8,6 +17,15 @@ import logging
 logging.basicConfig(filename=configuration.get_file_location('Running.log'),level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 def addEvent(header, filename):
+    """This function adds a event as a new line in csv file.
+
+    Args:
+        header (list): Header for the csv.
+        filename (str): The filename where file would be written.
+    
+    Returns:
+        None. If not has headers
+    """
     if header == None:
         return None
     f = open(configuration.get_file_location(filename), "r", encoding='utf-8')
@@ -75,6 +93,11 @@ def addEvent(header, filename):
 
 
 def convertICStoCSV(url):
+    """This function downloads the moodle calendar and addEvents to a CSV file.
+
+    Args:
+        url (str): URL to download moodle calendar
+    """
     # print("Empezando:")
     # print("Eliminando si existe")
     print("Descargando calendario desde Aula Virtual...")
@@ -89,6 +112,14 @@ def convertICStoCSV(url):
     logging.info("Descarga de calendario finalizada.")
 
 def findHeader(icsCal):
+    """This function looks for all the file to get the most longest header.
+
+    Args:
+        icsCal (str): The ics file location.
+    
+    Returns:
+        (list): List containing the largest header list.
+    """
     f = open(configuration.get_file_location(icsCal), "r", encoding="utf-8")
     # print("Looking for headers in this file....")
     f2 = open(configuration.get_file_location("calendar.csv"), "w+")

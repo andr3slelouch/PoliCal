@@ -1,3 +1,12 @@
+"""
+.. module:: configuration
+   :platform: Unix, Windows
+   :synopsis: This module gets paths for files, and adds lists for the subjects in trello.
+
+.. moduleauthor:: Luis Andrade <andr3slelouch@github.com>
+
+
+"""
 import yaml
 import os
 import re
@@ -13,6 +22,11 @@ from polical import configuration
 
 
 def get_working_directory():
+    """This functions gets the working directory path.
+    
+    Returns:
+        workingDirectory (str): The directory where database and yaml are located.
+    """
     userdir = os.path.expanduser("~")
     workingDirectory = os.path.join(userdir, "PoliCal")
     tasks_db = Path(os.path.join(workingDirectory, "tasks.db"))
@@ -29,8 +43,17 @@ def get_working_directory():
 
 
 def get_file_location(filename):
+    """This function is for getting full path location of a file from its filename
+
+    Args:
+        filename (str): Filename that needs the full path location
+    
+    Returns:
+        full_path_file_location (str): Full path location of the file
+    """
     workingDirectory = get_working_directory()
-    return os.path.join(workingDirectory, filename)
+    full_path_file_location = os.path.join(workingDirectory, filename)
+    return full_path_file_location
 
 
 logging.basicConfig(filename=get_file_location('Running.log'), level=logging.INFO,
@@ -38,6 +61,17 @@ logging.basicConfig(filename=get_file_location('Running.log'), level=logging.INF
 
 
 def load_config_file(config_file_path):
+    """This function is for loading yaml config file
+
+    Args:
+        config_file_path (str): File path for the config file to be loaded
+    
+    Returns:
+        file_config (dict): Dictionary with config keys.
+        
+    Raises:
+        IOError
+    """
     try:
         with open(get_file_location(config_file_path), 'r') as config_yaml:
             file_config = yaml.safe_load(config_yaml)
@@ -49,6 +83,17 @@ def load_config_file(config_file_path):
 
 
 def check_for_url(url):
+    """This function is for checking moodle calendar url
+
+    Args:
+        url (str): Moodle Calendar Address to be checked
+    
+    Returns:
+        bool.  The return code::
+
+          False -- If the url does not start with https and ends with recentupcoming 
+          True -- If the url starts with https and ends with recentupcoming
+    """
     checker = re.search("^https.*recentupcoming$", url)
     if (checker):
         return True
@@ -57,6 +102,13 @@ def check_for_url(url):
 
 
 def create_subject(subjCod, task_title, user_dict):
+    """This function creates a subject in Trello and adds it to local database.
+
+    Args:
+        subjCod (str): Subject Code to check with local database and trello.
+        task_title (str): Subject title for showing to the user if subject is not founded in local database.
+        user_dict (dict): User dictionary with keys to connect to trello.
+    """
     # config = configuration.load_config_file('polical.yaml')
     client = TrelloClient(
         api_key=user_dict['api_key'],
@@ -92,6 +144,13 @@ def create_subject(subjCod, task_title, user_dict):
 
 
 def Add_Subject_To_Trello_List(subjectsBoard, subject_name, subjCod):
+    """This function adds a list to trello board with subject name.
+
+    Args:
+        subjectsBoard (Trello.Board): Tareas Poli's Board object from Trello library
+        subject_name (str): Subject name to create new list.
+        subjCode (str): Subject code to add it to name list.
+    """
     id = ""
     for x in subjectsBoard.list_lists():
         if x.name == subject_name:

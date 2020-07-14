@@ -1,3 +1,12 @@
+"""
+.. module:: Get_Trello_MoodleEPN_Keys
+   :platform: Unix, Windows
+   :synopsis: This module gets keys, and initializes config files.
+
+.. moduleauthor:: Luis Andrade <andr3slelouch@github.com>
+
+
+"""
 # This code is based on https://github.com/delucks/gtd.py onboard function,
 # especial thanks to: delucks
 import yaml
@@ -33,8 +42,7 @@ class DevNullRedirect:
 def onboard(no_open, output_path='polical.yaml'):
     '''Obtain Trello API credentials and put them into your config file.
     This is invoked automatically the first time you attempt to do an operation which requires authentication.
-    The configuration file is put in an appropriate place for your operating system. If you want to change it later,
-    you can use `gtd config -e` to open it in $EDITOR.
+    The configuration file is put in an appropriate place for your operating system.
     '''
     username = ""
     output_file = configuration.get_file_location(output_path)  # Use platform detection
@@ -181,6 +189,18 @@ def onboard(no_open, output_path='polical.yaml'):
 
 
 def get_working_board_id(api_key, api_secret, oauth_token, oauth_token_secret):
+    """This function is for getting the TareasPoli Board ID that is created in the onboard process
+
+    Args:
+        api_key (str):  The api key to acceso Trello
+        api_secret (str): The api secret to acceso Trello
+        oauth_token (str): The oauth token to acceso Trello
+        oauth_token_secret (str): The oauth token secret to acceso Trello
+    
+    Returns:
+        board_id (str): This is the board id of TareasPoli board
+        owner_id (str): This is the owner id of Trello user
+    """
     client = trello.TrelloClient(
         api_key=api_key,
         api_secret=api_secret,
@@ -188,6 +208,7 @@ def get_working_board_id(api_key, api_secret, oauth_token, oauth_token_secret):
         token_secret=oauth_token_secret,
     )
     board_id = ''
+    owner_id = ''
     all_boards = client.list_boards()
     for board in all_boards:
         if board.name == "TareasPoli":
@@ -201,10 +222,20 @@ def get_working_board_id(api_key, api_secret, oauth_token, oauth_token_secret):
         for board in all_boards:
             if board.name == "TareasPoli":
                 board_id = board.id
-    return board_id, board.all_members()[-1].id
+    owner_id = board.all_members()[-1].id
+    return board_id, owner_id
 
 
 def check_user_on_file(output_file, username):
+    """This functions checks if an user already exists on yaml file.
+
+    Args:
+        output_file (str):  File location
+        username (str): The username that would be checked.
+    
+    Returns:
+        Stop onboard function if the username already exists and the user answers N to overwrite it.
+    """
     if os.path.exists(output_file):
         with open(output_file) as file:
             # use safe_load instead load
@@ -217,6 +248,17 @@ def check_user_on_file(output_file, username):
 
 
 def check_file_existence(output_file):
+    """This functions checks if the file already exists on filesystem
+
+    Args:
+        output_file (str):  File location
+    
+    Returns:
+        bool.  The return code::
+
+          False -- If the file not exists or is blank
+          True -- If already exists
+    """
     if os.path.exists(output_file):
         with open(output_file) as file:
             # use safe_load instead load
