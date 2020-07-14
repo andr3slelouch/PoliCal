@@ -1,7 +1,6 @@
 from polical import TareaClass
 import csv
 from polical import connectSQLite
-from polical import create_subject
 from polical import configuration
 from datetime import datetime
 import logging
@@ -19,7 +18,7 @@ def LoadCSVTasktoDB(username, user_dict):
                     line_count += 1
                 elif len(row) > 9 and not line_count == 0:
                     # print(len(row))
-                    create_subject.create(
+                    configuration.create_subject(
                         Get_Subject_Name_From_CSV(row[9]),row[2], user_dict)
                     sbjID = connectSQLite.getSubjectID(
                         Get_Subject_Name_From_CSV(row[9]))

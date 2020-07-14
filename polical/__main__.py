@@ -13,9 +13,9 @@ def main(argv):
             Get_Trello_MoodleEPN_Keys.onboard(False)
     else:
         users = None
-        while(users == None):
+        while(users is None):
             users = configuration.load_config_file("polical.yaml")
-            if users == None:
+            if users is None:
                 Get_Trello_MoodleEPN_Keys.onboard(False)
         for user in users.keys():
             SimpleIcsToCSV.convertICStoCSV(users[user]['calendar_url'])
