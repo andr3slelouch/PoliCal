@@ -58,7 +58,7 @@ Actualmente se encuentran precargadas todas las materias obtenidas desde el SAEW
 - Ingeniería en Electrónica y Control PENSUM: 2010
 - Ingeniería en Mecánica PENSUM: 2009D
 
-Si deseas usar el programa y tu carrera no se encuentra registrada, sientete libre de agregar un nuevo [issue](https://github.com/andr3slelouch/PoliCal/issues/new) con los horarios de materias sea en PDF o idealmente en EXCEL.
+Si deseas usar el programa y tu carrera no se encuentra registrada, siéntete libre de agregar un nuevo [issue](https://github.com/andr3slelouch/PoliCal/issues/new) con los horarios de materias sea en PDF o idealmente en EXCEL.
 
 Lo puedes obtener desde esta página iniciando previamente sesión en el SAEW https://saew.epn.edu.ec/SAEINF/HorariosMaterias.aspx
 
