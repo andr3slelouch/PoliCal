@@ -3,265 +3,276 @@ from polical import TareaClass
 from polical import configuration
 
 import logging
-logging.basicConfig(filename=configuration.get_file_location('Running.log'), level=logging.INFO,
-                    format='%(asctime)s:%(levelname)s:%(message)s')
+
+logging.basicConfig(
+    filename=configuration.get_file_location("Running.log"),
+    level=logging.INFO,
+    format="%(asctime)s:%(levelname)s:%(message)s",
+)
 
 
-def getdb():
+def get_db():
     """This function returns the sqlite3 database connection that storages all tasks and subjects.
-  
+
     Returns:
         db (Connection): Database connection that access to tasks and subjects.
     """
-    db = sqlite3.connect(configuration.get_file_location('tasks.db'))
+    db = sqlite3.connect(configuration.get_file_location("tasks.db"))
     return db
 
 
-def getCur():
+def get_cur():
     """This function returns the database cursor
-  
+
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
     """
-    cur = getdb().cursor()
+    cur = get_db().cursor()
     return cur
 
 
-def exec(command):
+def exec(command: str):
     """This function executes a coomand in the database.
 
     Args:
         command (str): Query that needs to be executed on the database.
-    
+
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
     """
-    # Use all the SQL you like
-    cur = getdb().cursor()
+    cur = get_db().cursor()
     cur.execute(command)
-    getdb().commit()
-    # db.close()
+    get_db().commit()
     return cur
 
 
-def saveTask(task, username):
+def save_task(task, username: str):
     """This function saves a task from a user into the database
 
     Args:
         task (Tarea): Tasks that would be added to the database.
         username(str): User owner of the task.
-    
+
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
     """
-    cur = getdb().cursor()
-    checker = "select count(TarUID) from Tareas where TarUID = \'" + \
-        task.id + "\'"
+    cur = get_db().cursor()
+    checker = "select count(TarUID) from Tareas where TarUID = '" + task.id + "'"
     cur.execute(checker, ())
     exists = 0
     for row in cur.fetchall():
         exists = row[0]
-        # print(exists)
     if exists == 0:
         logging.info("Ejecutando..." + str(exists))
-        cur.execute("INSERT INTO Tareas(TarUID, TarTitulo, TarDescripcion, TarFechaLim, Materias_idMaterias) VALUES (?, ?, ?, ?, ?);",
-                    (task.id, task.title, task.description.replace('\\n', '\n'), task.due_date, task.subjectID))
+        cur.execute(
+            "INSERT INTO Tareas(TarUID, TarTitulo, TarDescripcion, TarFechaLim, Materias_idMaterias) VALUES (?, ?, ?, ?, ?);",
+            (
+                task.id,
+                task.title,
+                task.description.replace("\\n", "\n"),
+                task.due_date,
+                task.subject_id,
+            ),
+        )
         cur.connection.commit()
-        idTareas = getTaskID(task.id)
-        idUsuarios = getUserID(username)
-        cur.execute("INSERT INTO TareasUsuarios(TarUsrEstado, idTareas, idUsuarios) VALUES (?,?,?);",
-                    ("N", idTareas, idUsuarios))
+        tarea_id = get_task_id(task.id)
+        usuario_id = get_user_id(username)
+        cur.execute(
+            "INSERT INTO TareasUsuarios(TarUsrEstado, idTareas, idUsuarios) VALUES (?,?,?);",
+            ("N", tarea_id, usuario_id),
+        )
     cur.connection.commit()
     return cur
 
 
-def saveSubjects(subject):
+def save_subject(subject):
     """This function saves a subject into the database
 
     Args:
         subject (Materia): Subject that would be added to the database.
-    
+
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
     """
     query = "INSERT INTO Materias (MatNombre, MatCodigo, MatID) values (?, ?, ?);"
-    cur = getdb().cursor()
+    cur = get_db().cursor()
     cur.execute(query, (subject.name, subject.codigo, subject.id))
     cur.connection.commit()
-    # db.close()
     return cur
 
 
-def saveUser(username):
+def save_user(username: str):
     """This function saves a user into the database
 
     Args:
         username (str): User to be added into the database
-    
+
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
     """
-    print("Agregando usuario, "+username+"a la base de datos")
+    print("Agregando usuario, " + username + "a la base de datos")
     query = "INSERT INTO Usuarios (UsrNombre) values (?);"
-    cur = getdb().cursor()
+    cur = get_db().cursor()
     cur.execute(query, (username,))
     cur.connection.commit()
     return cur
 
 
-def saveSubjectID(subject):
+def save_subject_id(subject):
     """This function saves the trello list ID into the database
 
     Args:
         subject (Materia): Subject that owns the ID that would be added to the database.
-    
-    Returns:
-        cur (Cursor): Database cursor that access to tasks and subjects.
+
     """
-    cur = getdb().cursor()
-    cur.execute("UPDATE Materias SET MatID = ? WHERE MatCodigo = ?;",
-                (subject.id, subject.codigo))
+    cur = get_db().cursor()
+    cur.execute(
+        "UPDATE Materias SET MatID = ? WHERE MatCodigo = ?;",
+        (subject.id, subject.codigo),
+    )
     cur.connection.commit()
-    # db.close()
-    return cur
+    for row in cur.fetchall():
+        logging.info("fila: " + str(row))
+    cur.close()
 
 
-def getCardsdb(db):
+def get_cards_from_db() -> list:
     """This function get all cards from Tareas table.
 
-    Args:
-        db (Connection): Database connection.
-    
     Returns:
         cards (list): List contanining all cards from Tareas table.
     """
     cur = exec(
-        "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Tareas';", getCur(db))
-    # print all the first cell of all the rows
+        "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Tareas';",
+        get_cur(),
+    )
     cards = []
     for row in cur.fetchall():
         cards.append(row[0])
-    db.close()
     return cards
 
 
-def getSubjectID(subjCod):
+def get_subject_id(subject_code: str) -> str:
     """This function gets the subject ID from the database
 
     Args:
-        subjCod (str): Subject code from the subject to get the ID.
-    
+        subject_code (str): Subject code from the subject to get the ID.
+
     Returns:
-        sbjID (str): Subject ID from the subject.
+        subject_id (str): Subject ID from the subject.
     """
-    query = "select idMaterias from Materias where MatCodigo = \'" + subjCod + "\'"
-    cur = getdb().cursor()
+    query = "select idMaterias from Materias where MatCodigo = '" + subject_code + "'"
+    cur = get_db().cursor()
     cur.execute(query)
-    # print all the first cell of all the rows
-    sbjID = ''
+    subject_id = ""
 
     for row in cur.fetchall():
-        sbjID = row[0]
+        subject_id = row[0]
     cur.connection.close()
-    return sbjID
+    subject_id = str(subject_id)
+    return subject_id
 
 
-def getTaskID(TarUID):
+def get_task_id(task_uid: str) -> str:
     """This function gets the task ID from the database
 
     Args:
-        TarUID (str): Task UID from the task to get the ID.
-    
+        task_uid (str): Task UID from the task to get the ID.
+
     Returns:
-        idTareas (str): Task ID from the task.
+        task_id (str): Task ID from the task.
     """
-    query = "select idTareas from Tareas where TarUID = \'" + TarUID + "\'"
-    cur = getdb().cursor()
+    query = "select idTareas from Tareas where TarUID = '" + task_uid + "'"
+    cur = get_db().cursor()
     cur.execute(query)
 
-    idTareas = ''
+    task_id = ""
     for row in cur.fetchall():
-        idTareas = row[0]
+        task_id = row[0]
     cur.connection.close()
-    idTareas = str(idTareas)
-    return idTareas
+    task_id = str(task_id)
+    return task_id
 
 
-def getUserID(username):
+def get_user_id(username: str) -> str:
     """This function gets the User ID from the database
 
     Args:
         username (str): Username to get his ID.
-    
+
     Returns:
         idUsuarios (str): The user id from the database.
     """
-    query = "select idUsuarios from Usuarios where UsrNombre = \'" + username + "\'"
-    cur = getdb().cursor()
+    query = "select idUsuarios from Usuarios where UsrNombre = '" + username + "'"
+    cur = get_db().cursor()
     cur.execute(query)
 
-    idUsuarios = ''
+    user_id = ""
     for row in cur.fetchall():
-        idUsuarios = row[0]
+        user_id = row[0]
     cur.connection.close()
-    idUsuarios = str(idUsuarios)
-    return idUsuarios
+    user_id = str(user_id)
+    return user_id
 
 
-def getSubjectName(subjCod):
+def get_subject_name(subject_code: str):
     """This function gets the subject Name from the database
 
     Args:
-        subjCod (str): Subject code for get the subject name.
-    
+        subject_code (str): Subject code for get the subject name.
+
     Returns:
-        sbjName (str): The subject name from the subject code.
+        subject_name (str): The subject name from the subject code.
     """
-    query = "select MatNombre from Materias where MatCodigo = \'" + subjCod + "\'"
-    cur = getdb().cursor()
+    query = "select MatNombre from Materias where MatCodigo = '" + subject_code + "'"
+    cur = get_db().cursor()
     cur.execute(query)
-    # print all the first cell of all the rows
-    sbjName = ''
+    subject_name = ""
 
     for row in cur.fetchall():
-        sbjName = row[0]
+        subject_name = row[0]
     cur.connection.close()
-    return sbjName
+    return subject_name
 
 
-def addTarTID(TarUID, TarTID, username):
+def add_task_tid(task_uid: str, task_tid: str, username: str):
     """This function adds the task trello ID into the database
 
     Args:
-        TarUID (str): Task UID from ICS file.
-        TarTID (str): New Task Trello ID from trello.
+        task_uid (str): Task UID from ICS file.
+        task_tid (str): New Task Trello ID from trello.
         username (str): Username from the user that owns the task
-    
+
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
     """
-    cur = getdb().cursor()
-    idTareas = getTaskID(TarUID)
-    idUsuarios = getUserID(username)
+    cur = get_db().cursor()
+    task_id = get_task_id(task_uid)
+    user_id = get_user_id(username)
     cur.execute(
-        "UPDATE TareasUsuarios SET TarUsrTID = ?, TarUsrEstado = ? WHERE idUsuarios = ? AND idTareas = ?;", (TarTID, "E", idUsuarios, idTareas))
+        "UPDATE TareasUsuarios SET TarUsrTID = ?, TarUsrEstado = ? WHERE idUsuarios = ? AND idTareas = ?;",
+        (task_tid, "E", user_id, task_id),
+    )
     cur.connection.commit()
-    # db.close()
     return cur
 
 
-def getTasks(username):
+def get_unsended_tasks(username: str) -> list:
     """This function gets all unsended tasks from the user.
 
     Args:
         username (str): Username from the user that owns the task
-    
+
     Returns:
         tasks (list): Database cursor that access to tasks and subjects.
     """
-    idUsuarios = getUserID(username)
-    query = "select TarUsrEstado, TarUID, TarTitulo, TarDescripcion, TarFechaLim, MatID from Materias, Tareas, TareasUsuarios where Tareas.Materias_idMaterias = Materias.idMaterias AND TareasUsuarios.TarUsrEstado = 'N' AND TareasUsuarios.idTareas = Tareas.idTareas AND TareasUsuarios.idUsuarios = \'" + idUsuarios + "\';"
-    cur = getdb().cursor()
+    user_id = get_user_id(username)
+    query = (
+        "select TarUsrEstado, TarUID, TarTitulo, TarDescripcion, TarFechaLim, MatID from Materias, Tareas, TareasUsuarios where Tareas.Materias_idMaterias = Materias.idMaterias AND TareasUsuarios.TarUsrEstado = 'N' AND TareasUsuarios.idTareas = Tareas.idTareas AND TareasUsuarios.idUsuarios = '"
+        + user_id
+        + "';"
+    )
+    cur = get_db().cursor()
     cur.execute(query)
     tasks = []
     for row in cur.fetchall():
@@ -270,18 +281,21 @@ def getTasks(username):
     return tasks
 
 
-def check_no_subjectID(subjCod):
+def check_no_subject_id(subject_code: str) -> str:
     """This function checks if the subject has an ID in the database.
 
     Args:
-        subjCod (str): Subject code from the database to check if it has ID or not.
-    
+        subject_code (str): Subject code from the database to check if it has ID or not.
+
     Returns:
         result (str): Returns '0' if does not has the ID and '1' if it has it.
     """
-    query = "select count(MatCodigo) from Materias where MatCodigo=\'" + \
-        subjCod + "\'AND MatID=\"\";"
-    cur = getdb().cursor()
+    query = (
+        "select count(MatCodigo) from Materias where MatCodigo='"
+        + subject_code
+        + '\'AND MatID="";'
+    )
+    cur = get_db().cursor()
     cur.execute(query)
     for row in cur.fetchall():
         result = row[0]
@@ -289,18 +303,17 @@ def check_no_subjectID(subjCod):
     return result
 
 
-def check_user_existence(username):
+def check_user_existence(username: str):
     """This function checks if the username has an ID in the database.
 
     Args:
         username (str): username from the database to check if it has ID or not.
-    
+
     Returns:
         result (str): Returns '0' if does not has the ID and '1' if it has it.
     """
-    query = "select count(UsrNombre) from Usuarios where UsrNombre=\'" + \
-        username + "\';"
-    cur = getdb().cursor()
+    query = "select count(UsrNombre) from Usuarios where UsrNombre='" + username + "';"
+    cur = get_db().cursor()
     cur.execute(query)
     for row in cur.fetchall():
         result = row[0]

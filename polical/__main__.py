@@ -13,14 +13,14 @@ def main(argv):
             Get_Trello_MoodleEPN_Keys.onboard(False)
     else:
         users = None
-        while(users is None):
+        while users is None:
             users = configuration.load_config_file("polical.yaml")
             if users is None:
                 Get_Trello_MoodleEPN_Keys.onboard(False)
         for user in users.keys():
-            SimpleIcsToCSV.convertICStoCSV(users[user]['calendar_url'])
-            TareasCSVToBD.LoadCSVTasktoDB(user, users[user])
-            SendTaskToTrello.SendTaskToTrello(user, users[user])
+            SimpleIcsToCSV.convert_ics_to_csv(users[user]["calendar_url"])
+            TareasCSVToBD.load_csv_tasks_to_db(user, users[user])
+            SendTaskToTrello.send_task_to_trello(user, users[user])
 
 
 if __name__ == "__main__":
