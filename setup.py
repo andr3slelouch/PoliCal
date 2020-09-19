@@ -8,7 +8,7 @@ setuptools.setup(
     name="polical",
     version=__version__,
     author="Andrés Andrade",
-    author_email="luis.andradec14@gmail.com",
+    author_email="andres.andrade17@outlook.com",
     description="Este es un programa hecho en python para sincronizar tareas existentes en el aula virtual de moodle EPN con una cuenta de Trello.",
     long_description=long_description,
     long_description_content_type="text/markdown",

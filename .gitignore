@@ -10,3 +10,9 @@ polical.yaml
 test.py
 .tasks.db
 Running.log
+
+polical/Horarios_files/
+
+tests/
+
+polical/Horarios.html
