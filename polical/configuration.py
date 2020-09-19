@@ -82,7 +82,6 @@ def load_config_file(config_file_path: str) -> dict:
             return file_config
     except IOError:
         logging.error("Archivo de configuración no encontrado, generando llaves")
-        return None
 
 
 def check_for_url(url: str) -> bool:
@@ -112,7 +111,6 @@ def create_subject(subject_code: str, task_title: str, user_dict: str):
         task_title (str): Subject title for showing to the user if subject is not founded in local database.
         user_dict (dict): User dictionary with keys to connect to trello.
     """
-    # config = configuration.load_config_file('polical.yaml')
     client = TrelloClient(
         api_key=user_dict["api_key"],
         api_secret=user_dict["api_secret"],
@@ -124,7 +122,6 @@ def create_subject(subject_code: str, task_title: str, user_dict: str):
         subject_name = connectSQLite.get_subject_name(subject_code)
         logging.info(subject_name)
         print(subject_name)
-        id = ""
         add_subject_to_trello_list(subjects_board, subject_name, subject_code)
     elif connectSQLite.get_subject_name(subject_code) == "":
         logging.info(
@@ -154,15 +151,15 @@ def add_subject_to_trello_list(subjects_board, subject_name: str, subject_code: 
         subject_name (str): Subject name to create new list.
         subject_code (str): Subject code to add it to name list.
     """
-    id = ""
-    for x in subjects_board.list_lists():
-        if x.name == subject_name:
-            id = x.id
-    if id == "":
+    trello_list_id = ""
+    for trello_list in subjects_board.list_lists():
+        if trello_list.name == subject_name:
+            trello_list_id = trello_list.id
+    if trello_list_id == "":
         subjects_board.add_list(subject_name)
-        for x in subjects_board.list_lists():
-            if x.name == subject_name:
-                id = x.id
-    subject = MateriaClass.Materia(subject_name, subject_code, id)
+        for trello_list in subjects_board.list_lists():
+            if trello_list.name == subject_name:
+                trello_list_id = trello_list.id
+    subject = MateriaClass.Materia(subject_name, subject_code, trello_list_id)
     logging.info(subject.print())
     connectSQLite.save_subject_id(subject)
