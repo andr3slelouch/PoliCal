@@ -35,7 +35,7 @@ def add_event(header: list, filename: str):
     Returns:
         None. If not has headers
     """
-    if header == None:
+    if not header:
         return None
     f = open(configuration.get_file_location(filename), "r", encoding="utf-8")
     f2 = open(configuration.get_file_location(EXPORT_FILENAME), "w+")
@@ -193,7 +193,7 @@ def find_header(filename: str) -> list:
             f2.write(line_list[0].replace(";", "") + ";")
 
     f2.close()  # File calendar.csv is closed
-    listHeaders = []  # A list of every posible header if the ics file is
+    headers_list = []  # A list of every posible header if the ics file is
     # IRREGULAR
 
     # Reading the calendar.csv temporary to get the header with the most number
@@ -201,17 +201,17 @@ def find_header(filename: str) -> list:
     with open(configuration.get_file_location(EXPORT_FILENAME)) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=";")
         for row in csv_reader:
-            listHeaders.append(row)
+            headers_list.append(row)
 
     # File name to erase the calendar.csv that is temporary
     filename = configuration.get_file_location(EXPORT_FILENAME)
     if os.path.exists(filename):
         os.remove(filename)
     # Get the header with the most number of tags
-    if len(listHeaders) > 1:
-        return max(listHeaders, key=len)
+    if len(headers_list) > 1:
+        return max(headers_list, key=len)
     else:
-        return None
+        return []
 
 
 def main(argv):
