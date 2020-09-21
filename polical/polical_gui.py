@@ -148,8 +148,33 @@ class MyFrame(wx.Frame):
             parent,
             -1,
             "Checkbox grid based on UltimateListCtrl Demo",
-            size=(600, 300),
+            size=(1080, 360),
         )
+
+        menubar = wx.MenuBar()
+
+        fileMenu = wx.Menu()
+        fileMenu.Append(wx.ID_NEW, "&New")
+        fileMenu.Append(wx.ID_OPEN, "&Open")
+        fileMenu.Append(wx.ID_SAVE, "&Save")
+        fileMenu.AppendSeparator()
+
+        imp = wx.Menu()
+        imp.Append(wx.ID_ANY, "Import newsfeed list...")
+        imp.Append(wx.ID_ANY, "Import bookmarks...")
+        imp.Append(wx.ID_ANY, "Import mail...")
+
+        fileMenu.AppendSubMenu(imp, "I&mport")
+
+        qmi = wx.MenuItem(fileMenu, wx.ID_EXIT, "&Quit\tCtrl+W")
+        fileMenu.Append(qmi)
+
+        self.Bind(wx.EVT_MENU, self.OnQuit, qmi)
+
+        menubar.Append(fileMenu, "&File")
+        self.SetMenuBar(menubar)
+        self.Centre()
+
         agwStyle = (
             ULC.ULC_HAS_VARIABLE_ROW_HEIGHT
             | wx.LC_REPORT
@@ -174,15 +199,6 @@ class MyFrame(wx.Frame):
         self.boxes = []
 
         cards = get_cards_urls()
-        days = [
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-            "Sunday",
-        ]
 
         boxes = 0
 
@@ -220,13 +236,13 @@ class MyFrame(wx.Frame):
             self.link.SetUrl(cards[index]["url"])
             self.hyperlinks[self.link.GetId()] = index
             mylist.SetItemWindow(index, boxes + 3, self.link, True)
-            # self.boxes.append(self.link)
-            # mylist.SetStringItem(day, 2, str(date_object + temp_date))
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(mylist, 1, wx.EXPAND)
-        button = wx.Button(self, -1, "Retrieve Data")
-        sizer.Add(button)
+        subsizer = wx.BoxSizer(wx.HORIZONTAL)
+        sync_button = wx.Button(self, -1, "Sync")
+        subsizer.Add(sync_button)
+        sizer.Add(subsizer)
         self.Bind(wx.EVT_CHECKBOX, self.OnChecked)
         self.Bind(wx.EVT_BUTTON, self.OnGetData)
         self.SetSizer(sizer)
@@ -246,6 +262,9 @@ class MyFrame(wx.Frame):
                 day_list.append((n, "Checked"))
         print(day_dict)
         print(day_list)
+
+    def OnQuit(self, e):
+        self.Close()
 
 
 app = wx.App()
