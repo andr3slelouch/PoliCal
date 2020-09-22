@@ -125,17 +125,24 @@ def get_cards_urls() -> list:
     all_boards = client.list_boards()
     last_board = all_boards[-1]
     uncompleted_cards = []
-    last_list_from_board = last_board.list_lists()[-1]
+    last_list_from_board = last_board.list_lists()[1]
     for card in last_list_from_board.list_cards():
         due_date = ""
         if card.due_date is not None:
             due_date = card.due_date
+        is_due_complete = False
+        if card.is_due_complete is None:
+            is_due_complete = False
+        else:
+            is_due_complete = card.is_due_complete
         uncompleted_cards.append(
             {
                 "name": card.name,
                 "class": last_list_from_board.name,
                 "url": card.url,
+                "is_due_complete": is_due_complete,
                 "date": due_date,
+                "description": card.description,
             }
         )
     return uncompleted_cards
@@ -148,9 +155,9 @@ class MyFrame(wx.Frame):
             parent,
             -1,
             "Checkbox grid based on UltimateListCtrl Demo",
-            size=(1080, 360),
+            size=(720, 360),
         )
-
+        """Menu initialization"""
         menubar = wx.MenuBar()
 
         fileMenu = wx.Menu()
@@ -164,6 +171,17 @@ class MyFrame(wx.Frame):
         imp.Append(wx.ID_ANY, "Import bookmarks...")
         imp.Append(wx.ID_ANY, "Import mail...")
 
+        self.shst = fileMenu.Append(
+            wx.ID_ANY,
+            "Mostrar tareas realizadas",
+            "Mostrar tareas realizadas",
+            kind=wx.ITEM_CHECK,
+        )
+
+        self.Bind(wx.EVT_MENU, self.ShowDoneTasks, self.shst)
+
+        fileMenu.Check(self.shst.GetId(), True)
+
         fileMenu.AppendSubMenu(imp, "I&mport")
 
         qmi = wx.MenuItem(fileMenu, wx.ID_EXIT, "&Quit\tCtrl+W")
@@ -172,9 +190,12 @@ class MyFrame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnQuit, qmi)
 
         menubar.Append(fileMenu, "&File")
+        self.statusbar = self.CreateStatusBar()
+        self.statusbar.SetStatusText("Ready")
         self.SetMenuBar(menubar)
         self.Centre()
 
+        """Other elements"""
         agwStyle = (
             ULC.ULC_HAS_VARIABLE_ROW_HEIGHT
             | wx.LC_REPORT
@@ -182,70 +203,97 @@ class MyFrame(wx.Frame):
             | wx.LC_HRULES
             | wx.LC_SINGLE_SEL
         )
+
+        self.description_textctrl = wx.TextCtrl(
+            self,
+            style=wx.TE_MULTILINE | wx.TE_READONLY,
+            # size=(150 + 100 + 130 + 120, -1),
+        )
         self.mylist = mylist = ULC.UltimateListCtrl(self, wx.ID_ANY, agwStyle=agwStyle)
 
-        mylist.InsertColumn(0, "Tarea", format=ULC.ULC_FORMAT_LEFT, width=150)
+        mylist.InsertColumn(0, "", format=ULC.ULC_FORMAT_LEFT, width=50)
+        mylist.InsertColumn(1, "Tarea", format=ULC.ULC_FORMAT_LEFT, width=150)
+        mylist.InsertColumn(2, "Clase", format=ULC.ULC_FORMAT_LEFT, width=100)
+        mylist.InsertColumn(3, "Fecha de Entrega", width=130)
+        mylist.InsertColumn(4, "URL", format=ULC.ULC_FORMAT_CENTER, width=120)
 
-        col = 2
-        col_num = str(col - 1)
-        if col == 0:
-            col_num = ""
-        mylist.InsertColumn(1, "Clase", format=ULC.ULC_FORMAT_LEFT, width=100)
-        mylist.InsertColumn(2, "Fecha de Entrega", width=130)
-        mylist.InsertColumn(3, "URL", width=500)
-
-        self.checkboxes = {}
+        self.checkboxes = []
         self.hyperlinks = {}
         self.boxes = []
 
-        cards = get_cards_urls()
+        self.cards = cards = get_cards_urls()
 
         boxes = 0
 
         for index in range(len(cards)):
             name_of_checkbox = cards[index]["name"]
             mylist.InsertStringItem(index, "")
-            self.checkBox = wx.CheckBox(
+            self.checkBox = checkBox = wx.CheckBox(
                 mylist,
                 wx.ID_ANY,
-                cards[index]["name"],
+                "",
                 wx.DefaultPosition,
                 wx.DefaultSize,
                 0,
                 name=name_of_checkbox,
             )
-            self.checkboxes[self.checkBox.GetId()] = index
+            checkBox.SetValue(cards[index]["is_due_complete"])
+            # self.checkboxes[self.checkBox.GetId()] = index
+            self.checkboxes.append(checkBox)
             mylist.SetItemWindow(index, boxes, self.checkBox, True)
             self.boxes.append(self.checkBox)
 
         for index in range(len(cards)):
-            mylist.SetStringItem(index, 1, cards[index]["class"])
+            mylist.SetStringItem(index, 1, cards[index]["name"])
+        for index in range(len(cards)):
+            mylist.SetStringItem(index, 2, cards[index]["class"])
         for index in range(len(cards)):
             if cards[index]["date"] != "":
                 mylist.SetStringItem(
-                    index, 2, str(cards[index]["date"].strftime("%Y-%m-%d"))
+                    index, 3, str(cards[index]["date"].strftime("%Y-%m-%d"))
                 )
             else:
-                mylist.SetStringItem(index, 2, "")
+                mylist.SetStringItem(index, 3, "")
 
         date_object = datetime.date.today()
         for index in range(len(cards)):
-            temp_date = datetime.timedelta(days=index)
-            mylist.SetStringItem(index, 3, "")
-            self.link = Link(mylist, label=cards[index]["url"])
+            mylist.SetStringItem(index, 4, "")
+            self.link = Link(mylist, label="Ver en Trello")
             self.link.SetUrl(cards[index]["url"])
             self.hyperlinks[self.link.GetId()] = index
-            mylist.SetItemWindow(index, boxes + 3, self.link, True)
+            mylist.SetItemWindow(index, boxes + 4, self.link, True)
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(mylist, 1, wx.EXPAND)
         subsizer = wx.BoxSizer(wx.HORIZONTAL)
         sync_button = wx.Button(self, -1, "Sync")
+        sizer.Add(self.description_textctrl, 1, wx.EXPAND)
         subsizer.Add(sync_button)
         sizer.Add(subsizer)
         self.Bind(wx.EVT_CHECKBOX, self.OnChecked)
         self.Bind(wx.EVT_BUTTON, self.OnGetData)
+        self.mylist.Bind(wx.EVT_LIST_ITEM_SELECTED, self.on_plot, self.mylist)
         self.SetSizer(sizer)
+
+    def ShowDoneTasks(self, e):
+        if self.shst.IsChecked():
+            self.statusbar.Show()
+        else:
+            counter = 0
+            index_list = []
+            for checkBox in self.checkboxes:
+                if checkBox.IsChecked():
+                    index_list.append(counter)
+                counter += 1
+            for i in reversed(index_list):
+                self.mylist.DeleteItem(i)
+            print(counter)
+
+    def on_plot(self, event):
+        index = event.GetIndex()
+        item = self.cards[index]
+        self.description_textctrl.Clear()
+        self.description_textctrl.AppendText(item["name"] + "\n" + item["description"])
 
     def OnChecked(self, event):
         clicked = event.GetEventObject()

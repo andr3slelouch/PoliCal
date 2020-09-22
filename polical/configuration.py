@@ -163,3 +163,17 @@ def add_subject_to_trello_list(subjects_board, subject_name: str, subject_code: 
     subject = MateriaClass.Materia(subject_name, subject_code, trello_list_id)
     logging.info(subject.print())
     connectSQLite.save_subject_id(subject)
+
+
+def get_subject_name_from_ics_event_category(full_subject_name):
+    """This function gets subject name from the categories in ics event
+
+    Args:
+        full_subject_name (str): Full subject name with format XXX_YYY_ZZZ
+
+    Return:
+        subject_name (str): Subject name
+    """
+    full_subject_name_list = full_subject_name.split("_", 3)
+    subject_name = full_subject_name_list[1]
+    return subject_name
