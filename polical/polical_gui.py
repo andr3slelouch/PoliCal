@@ -1,6 +1,7 @@
 import sys
 import wx
 import wx.lib.agw.ultimatelistctrl as ULC
+import wx.lib.mixins.listctrl as listmix
 import datetime
 import os
 import yaml
@@ -114,7 +115,7 @@ def get_trello_client(user_dict: dict) -> TrelloClient:
     return client
 
 
-def get_cards_urls() -> list:
+def get_cards(done_tasks_only=False) -> list:
     """This function gets a all uncompleted cards from a board.
 
     Returns:
@@ -125,27 +126,195 @@ def get_cards_urls() -> list:
     all_boards = client.list_boards()
     last_board = all_boards[-1]
     uncompleted_cards = []
+    completed_cards = []
     last_list_from_board = last_board.list_lists()[1]
     for card in last_list_from_board.list_cards():
         due_date = ""
         if card.due_date is not None:
             due_date = card.due_date
+        if due_date != "":
+            due_date = str(due_date.strftime("%Y-%m-%d"))
         is_due_complete = False
         if card.is_due_complete is None:
             is_due_complete = False
         else:
             is_due_complete = card.is_due_complete
-        uncompleted_cards.append(
-            {
-                "name": card.name,
-                "class": last_list_from_board.name,
-                "url": card.url,
-                "is_due_complete": is_due_complete,
-                "date": due_date,
-                "description": card.description,
-            }
+        if is_due_complete:
+            completed_cards.append(
+                {
+                    "name": card.name,
+                    "class": last_list_from_board.name,
+                    "url": card.url,
+                    "is_due_complete": is_due_complete,
+                    "date": due_date,
+                    "description": card.description,
+                }
+            )
+        else:
+            uncompleted_cards.append(
+                {
+                    "name": card.name,
+                    "class": last_list_from_board.name,
+                    "url": card.url,
+                    "is_due_complete": is_due_complete,
+                    "date": due_date,
+                    "description": card.description,
+                }
+            )
+        if done_tasks_only:
+            return completed_cards
+    return uncompleted_cards + completed_cards
+
+
+"""Class MyUltimateListCtrlPanel is based on https://stackoverflow.com/questions/56687156/wxpython-how-to-sort-listctrl-column-items"""
+
+
+class MyUltimateListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent, style=wx.WANTS_CHARS)
+
+        self.description_textctrl = wx.TextCtrl(
+            self,
+            style=wx.TE_MULTILINE | wx.TE_READONLY,
+            # size=(150 + 100 + 130 + 120, -1),
         )
-    return uncompleted_cards
+
+        self.cards = cards = get_cards()
+
+        agwStyle = (
+            ULC.ULC_HAS_VARIABLE_ROW_HEIGHT
+            | wx.LC_REPORT
+            | wx.LC_VRULES
+            | wx.LC_HRULES
+            | wx.LC_SINGLE_SEL
+        )
+
+        self.mylist = mylist = ULC.UltimateListCtrl(self, wx.ID_ANY, agwStyle=agwStyle)
+        mylist.InsertColumn(0, "", format=ULC.ULC_FORMAT_LEFT, width=50)
+        mylist.InsertColumn(1, "Tarea", format=ULC.ULC_FORMAT_LEFT, width=150)
+        mylist.InsertColumn(2, "Clase", format=ULC.ULC_FORMAT_LEFT, width=100)
+        mylist.InsertColumn(3, "Fecha de Entrega", width=130)
+        mylist.InsertColumn(4, "URL", format=ULC.ULC_FORMAT_CENTER, width=120)
+
+        self.checkboxes = []
+        self.hyperlinks = {}
+        self.boxes = []
+
+        self.InitUltimateListCtrl(cards)
+
+        listmix.ColumnSorterMixin.__init__(self, 5)
+        self.Bind(wx.EVT_LIST_COL_CLICK, self.OnColClick, self.mylist)
+
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.mylist, 1, wx.EXPAND)
+        subsizer = wx.BoxSizer(wx.HORIZONTAL)
+        sync_button = wx.Button(self, -1, "Sync")
+        delete_done_tasks_button = wx.Button(self, -1, "Delete Done Tasks")
+        sizer.Add(self.description_textctrl, 1, wx.EXPAND)
+        subsizer.Add(sync_button)
+        subsizer.Add(delete_done_tasks_button)
+        sizer.Add(subsizer)
+        self.Bind(wx.EVT_CHECKBOX, self.OnChecked)
+        self.Bind(wx.EVT_BUTTON, self.OnGetData, sync_button)
+        self.Bind(wx.EVT_BUTTON, self.OnDeleteDoneTasks, delete_done_tasks_button)
+        self.mylist.Bind(wx.EVT_LIST_ITEM_SELECTED, self.on_plot, self.mylist)
+        self.SetSizer(sizer)
+
+    def InitUltimateListCtrl(self, cards):
+
+        mylist = self.mylist
+
+        boxes = 0
+
+        list_of_tuples = []
+        for card in cards:
+            list_of_tuples.append(
+                (card["is_due_complete"], card["name"], card["class"], card["date"], "")
+            )
+
+        for index, card in enumerate(cards):
+            name_of_checkbox = card["name"]
+            mylist.InsertStringItem(index, "")
+            self.checkBox = wx.CheckBox(
+                mylist,
+                wx.ID_ANY,
+                "",
+                wx.DefaultPosition,
+                wx.DefaultSize,
+                0,
+                name=name_of_checkbox,
+            )
+            self.checkBox.SetValue(card["is_due_complete"])
+            self.checkboxes.append(self.checkBox)
+            mylist.SetItemWindow(index, boxes, self.checkBox, True)
+            self.boxes.append(self.checkBox)
+
+            mylist.SetStringItem(index, 1, card["name"])
+            mylist.SetStringItem(index, 2, card["class"])
+            mylist.SetStringItem(index, 3, card["date"])
+            mylist.SetStringItem(index, 4, "")
+            self.link = Link(mylist, label="Ver en Trello")
+            self.link.SetUrl(card["url"])
+            self.hyperlinks[self.link.GetId()] = index
+            mylist.SetItemWindow(index, boxes + 4, self.link, True)
+            mylist.SetItemData(index, list_of_tuples[index])
+
+        self.itemDataMap = {data: data for data in list_of_tuples}
+
+    def GetListCtrl(self):
+        return self.mylist
+
+    def OnColClick(self, event):
+        pass
+
+    def ShowDoneTasks(self, e):
+        if self.shst.IsChecked():
+            self.statusbar.Show()
+        else:
+            counter = 0
+            index_list = []
+            for checkBox in self.checkboxes:
+                if checkBox.IsChecked():
+                    index_list.append(counter)
+                counter += 1
+            for i in reversed(index_list):
+                self.mylist.DeleteItem(i)
+            print(counter)
+
+    def on_plot(self, event):
+        index = event.GetIndex()
+        item = self.cards[index]
+        self.description_textctrl.Clear()
+        self.description_textctrl.AppendText(item["name"] + "\n" + item["description"])
+
+    def OnChecked(self, event):
+        clicked = event.GetEventObject()
+        print(clicked.GetName())
+        print(event.IsChecked())
+
+    def OnGetData(self, event):
+        day_dict = {}
+        day_list = []
+        for i in self.boxes:
+            if i.IsChecked():
+                n = i.GetName()
+                day_dict[n] = "Checked"
+                day_list.append((n, "Checked"))
+        print(day_dict)
+        print(day_list)
+
+    def OnDeleteDoneTasks(self, event):
+        counter = 0
+        index_list = []
+        for checkBox in self.checkboxes:
+            if checkBox.IsChecked():
+                index_list.append(counter)
+            counter += 1
+        for i in reversed(index_list):
+            self.mylist.DeleteItem(i)
+
+    def OnQuit(self, e):
+        self.Close()
 
 
 class MyFrame(wx.Frame):
@@ -171,16 +340,16 @@ class MyFrame(wx.Frame):
         imp.Append(wx.ID_ANY, "Import bookmarks...")
         imp.Append(wx.ID_ANY, "Import mail...")
 
-        self.shst = fileMenu.Append(
+        """ self.shst = fileMenu.Append(
             wx.ID_ANY,
             "Mostrar tareas realizadas",
             "Mostrar tareas realizadas",
             kind=wx.ITEM_CHECK,
-        )
+        ) """
 
-        self.Bind(wx.EVT_MENU, self.ShowDoneTasks, self.shst)
+        """ self.Bind(wx.EVT_MENU, self.ShowDoneTasks, self.shst) 
 
-        fileMenu.Check(self.shst.GetId(), True)
+        fileMenu.Check(self.shst.GetId(), True) """
 
         fileMenu.AppendSubMenu(imp, "I&mport")
 
@@ -195,89 +364,15 @@ class MyFrame(wx.Frame):
         self.SetMenuBar(menubar)
         self.Centre()
 
-        """Other elements"""
-        agwStyle = (
-            ULC.ULC_HAS_VARIABLE_ROW_HEIGHT
-            | wx.LC_REPORT
-            | wx.LC_VRULES
-            | wx.LC_HRULES
-            | wx.LC_SINGLE_SEL
-        )
+        self.panel = MyUltimateListCtrlPanel(self)
+        self.mylist = self.panel.mylist
+        self.checkboxes = self.panel.checkboxes
 
-        self.description_textctrl = wx.TextCtrl(
-            self,
-            style=wx.TE_MULTILINE | wx.TE_READONLY,
-            # size=(150 + 100 + 130 + 120, -1),
-        )
-        self.mylist = mylist = ULC.UltimateListCtrl(self, wx.ID_ANY, agwStyle=agwStyle)
-
-        mylist.InsertColumn(0, "", format=ULC.ULC_FORMAT_LEFT, width=50)
-        mylist.InsertColumn(1, "Tarea", format=ULC.ULC_FORMAT_LEFT, width=150)
-        mylist.InsertColumn(2, "Clase", format=ULC.ULC_FORMAT_LEFT, width=100)
-        mylist.InsertColumn(3, "Fecha de Entrega", width=130)
-        mylist.InsertColumn(4, "URL", format=ULC.ULC_FORMAT_CENTER, width=120)
-
-        self.checkboxes = []
-        self.hyperlinks = {}
-        self.boxes = []
-
-        self.cards = cards = get_cards_urls()
-
-        boxes = 0
-
-        for index in range(len(cards)):
-            name_of_checkbox = cards[index]["name"]
-            mylist.InsertStringItem(index, "")
-            self.checkBox = checkBox = wx.CheckBox(
-                mylist,
-                wx.ID_ANY,
-                "",
-                wx.DefaultPosition,
-                wx.DefaultSize,
-                0,
-                name=name_of_checkbox,
-            )
-            checkBox.SetValue(cards[index]["is_due_complete"])
-            # self.checkboxes[self.checkBox.GetId()] = index
-            self.checkboxes.append(checkBox)
-            mylist.SetItemWindow(index, boxes, self.checkBox, True)
-            self.boxes.append(self.checkBox)
-
-        for index in range(len(cards)):
-            mylist.SetStringItem(index, 1, cards[index]["name"])
-        for index in range(len(cards)):
-            mylist.SetStringItem(index, 2, cards[index]["class"])
-        for index in range(len(cards)):
-            if cards[index]["date"] != "":
-                mylist.SetStringItem(
-                    index, 3, str(cards[index]["date"].strftime("%Y-%m-%d"))
-                )
-            else:
-                mylist.SetStringItem(index, 3, "")
-
-        date_object = datetime.date.today()
-        for index in range(len(cards)):
-            mylist.SetStringItem(index, 4, "")
-            self.link = Link(mylist, label="Ver en Trello")
-            self.link.SetUrl(cards[index]["url"])
-            self.hyperlinks[self.link.GetId()] = index
-            mylist.SetItemWindow(index, boxes + 4, self.link, True)
-
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(mylist, 1, wx.EXPAND)
-        subsizer = wx.BoxSizer(wx.HORIZONTAL)
-        sync_button = wx.Button(self, -1, "Sync")
-        sizer.Add(self.description_textctrl, 1, wx.EXPAND)
-        subsizer.Add(sync_button)
-        sizer.Add(subsizer)
-        self.Bind(wx.EVT_CHECKBOX, self.OnChecked)
-        self.Bind(wx.EVT_BUTTON, self.OnGetData)
-        self.mylist.Bind(wx.EVT_LIST_ITEM_SELECTED, self.on_plot, self.mylist)
-        self.SetSizer(sizer)
-
-    def ShowDoneTasks(self, e):
+    """ def ShowDoneTasks(self, e):
+        print("InShowTask", self.shst.IsChecked())
         if self.shst.IsChecked():
-            self.statusbar.Show()
+            done_cards = get_cards(True)
+            self.panel.InitUltimateListCtrl([done_cards[0]], self.mylist.GetItemCount())
         else:
             counter = 0
             index_list = []
@@ -287,7 +382,7 @@ class MyFrame(wx.Frame):
                 counter += 1
             for i in reversed(index_list):
                 self.mylist.DeleteItem(i)
-            print(counter)
+            print(counter) """
 
     def on_plot(self, event):
         index = event.GetIndex()
