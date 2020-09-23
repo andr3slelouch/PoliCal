@@ -161,8 +161,6 @@ def get_cards(done_tasks_only=False) -> list:
                     "description": card.description,
                 }
             )
-    print("Number of completed_cards:", len(completed_cards))
-    print("Number of uncompleted_cards:", len(uncompleted_cards))
     if done_tasks_only:
         return completed_cards
     return uncompleted_cards + completed_cards
@@ -178,7 +176,6 @@ class MyUltimateListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
         self.description_textctrl = wx.TextCtrl(
             self,
             style=wx.TE_MULTILINE | wx.TE_READONLY,
-            # size=(150 + 100 + 130 + 120, -1),
         )
 
         self.cards = cards = get_cards()
@@ -193,7 +190,6 @@ class MyUltimateListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
 
         self.mylist = mylist = ULC.UltimateListCtrl(self, wx.ID_ANY, agwStyle=agwStyle)
 
-        print("Adding columns")
         mylist.InsertColumn(0, "", format=ULC.ULC_FORMAT_LEFT, width=50)
         mylist.InsertColumn(1, "Tarea", format=ULC.ULC_FORMAT_LEFT, width=150)
         mylist.InsertColumn(2, "Clase", format=ULC.ULC_FORMAT_LEFT, width=100)
@@ -214,46 +210,23 @@ class MyUltimateListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
         sizer.Add(self.mylist, 1, wx.EXPAND)
         subsizer = wx.BoxSizer(wx.HORIZONTAL)
         sync_button = wx.Button(self, -1, "Sync")
-        """ delete_done_tasks_button = wx.Button(self, -1, "Delete Done Tasks")
-        reload_done_tasks_button = wx.Button(self, -1, "Reload Done Tasks") """
         sizer.Add(self.description_textctrl, 1, wx.EXPAND)
         subsizer.Add(sync_button)
-        """ subsizer.Add(delete_done_tasks_button)
-        subsizer.Add(reload_done_tasks_button) """
         sizer.Add(subsizer)
         self.Bind(wx.EVT_CHECKBOX, self.OnChecked)
         self.Bind(wx.EVT_BUTTON, self.OnGetData, sync_button)
-        """ self.Bind(wx.EVT_BUTTON, self.OnDeleteDoneTasks, delete_done_tasks_button)
-        self.Bind(wx.EVT_BUTTON, self.OnReloadDoneTasks, reload_done_tasks_button) """
         self.mylist.Bind(wx.EVT_LIST_ITEM_SELECTED, self.on_plot, self.mylist)
         self.SetSizer(sizer)
 
     def InitUltimateListCtrl(self, cards, main_index=0):
-
         mylist = self.mylist
-        print("Clearing list", "\n", "Number of cards:", len(cards))
-
-        """ print("Adding columns")
-        mylist.InsertColumn(0, "", format=ULC.ULC_FORMAT_LEFT, width=50)
-        mylist.InsertColumn(1, "Tarea", format=ULC.ULC_FORMAT_LEFT, width=150)
-        mylist.InsertColumn(2, "Clase", format=ULC.ULC_FORMAT_LEFT, width=100)
-        mylist.InsertColumn(3, "Fecha de Entrega", width=130)
-        mylist.InsertColumn(4, "URL", format=ULC.ULC_FORMAT_CENTER, width=120)
-
-        self.checkboxes = []
-        self.hyperlinks = {}
-        self.boxes = [] """
-
         boxes = 0
-        print("Generating tuples")
         list_of_tuples = []
         for card in cards:
             list_of_tuples.append(
                 (card["is_due_complete"], card["name"], card["class"], card["date"], "")
             )
-        print("Adding items")
         for local_index, card in enumerate(cards):
-            print("Index:", local_index)
             index = local_index + main_index
             name_of_checkbox = card["name"]
             mylist.InsertStringItem(index, "")
@@ -268,10 +241,8 @@ class MyUltimateListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
             )
             self.checkBox.SetValue(card["is_due_complete"])
             self.checkboxes.append(self.checkBox)
-            print("Setting first window")
             mylist.SetItemWindow(index, boxes, self.checkBox, True)
             self.boxes.append(self.checkBox)
-
             mylist.SetStringItem(index, 1, card["name"])
             mylist.SetStringItem(index, 2, card["class"])
             mylist.SetStringItem(index, 3, card["date"])
@@ -279,7 +250,6 @@ class MyUltimateListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
             self.link = Link(mylist, label="Ver en Trello")
             self.link.SetUrl(card["url"])
             self.hyperlinks[self.link.GetId()] = index
-            print("Setting second window")
             mylist.SetItemWindow(index, boxes + 4, self.link, True)
             mylist.SetItemData(index, list_of_tuples[local_index])
 
@@ -308,7 +278,9 @@ class MyUltimateListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
         index = event.GetIndex()
         item = self.cards[index]
         self.description_textctrl.Clear()
-        self.description_textctrl.AppendText(item["name"] + "\n" + item["description"])
+        self.description_textctrl.AppendText(
+            item["name"] + "\n\n" + item["description"]
+        )
 
     def OnChecked(self, event):
         clicked = event.GetEventObject()
@@ -318,26 +290,13 @@ class MyUltimateListCtrlPanel(wx.Panel, listmix.ColumnSorterMixin):
     def OnGetData(self, event):
         day_dict = {}
         day_list = []
-        for i in self.boxes:
+        for i in self.checkboxes:
             if i.IsChecked():
                 n = i.GetName()
                 day_dict[n] = "Checked"
                 day_list.append((n, "Checked"))
         print(day_dict)
         print(day_list)
-
-    """ def OnDeleteDoneTasks(self, event):
-        index_list = []
-        for counter, checkBox in enumerate(self.checkboxes):
-            if checkBox.IsChecked():
-                index_list.append(counter)
-        for i in reversed(index_list):
-            self.mylist.DeleteItem(i)
-
-    def OnReloadDoneTasks(self, event):
-        done_cards = get_cards(True)
-        # self.mylist.ClearAll()
-        self.InitUltimateListCtrl(done_cards, self.mylist.GetItemCount() - 1) """
 
     def OnQuit(self, e):
         self.Close()
@@ -406,27 +365,10 @@ class MyFrame(wx.Frame):
             for i in reversed(index_list):
                 self.mylist.DeleteItem(i)
 
-    def on_plot(self, event):
-        index = event.GetIndex()
-        item = self.cards[index]
-        self.description_textctrl.Clear()
-        self.description_textctrl.AppendText(item["name"] + "\n" + item["description"])
-
     def OnChecked(self, event):
         clicked = event.GetEventObject()
         print(clicked.GetName())
         print(event.IsChecked())
-
-    def OnGetData(self, event):
-        day_dict = {}
-        day_list = []
-        for i in self.boxes:
-            if i.IsChecked():
-                n = i.GetName()
-                day_dict[n] = "Checked"
-                day_list.append((n, "Checked"))
-        print(day_dict)
-        print(day_list)
 
     def OnQuit(self, e):
         self.Close()
