@@ -4,12 +4,6 @@ from polical import configuration
 
 import logging
 
-logging.basicConfig(
-    filename=configuration.get_file_location("Running.log"),
-    level=logging.INFO,
-    format="%(asctime)s:%(levelname)s:%(message)s",
-)
-
 
 def get_db():
     """This function returns the sqlite3 database connection that storages all tasks and subjects.
@@ -52,9 +46,6 @@ def save_task(task, username: str):
     Args:
         task (Tarea): Tasks that would be added to the database.
         username(str): User owner of the task.
-
-    Returns:
-        cur (Cursor): Database cursor that access to tasks and subjects.
     """
     cur = get_db().cursor()
     checker = "select count(TarUID) from Tareas where TarUID = '" + task.id + "'"
@@ -82,7 +73,7 @@ def save_task(task, username: str):
             ("N", tarea_id, usuario_id),
         )
     cur.connection.commit()
-    return cur
+    cur.connection.close()
 
 
 def save_subject(subject):
@@ -133,7 +124,7 @@ def save_subject_id(subject):
     cur.connection.commit()
     for row in cur.fetchall():
         logging.info("fila: " + str(row))
-    cur.close()
+    cur.connection.close()
 
 
 def get_cards_from_db() -> list:

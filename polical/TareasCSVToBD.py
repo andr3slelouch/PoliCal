@@ -60,7 +60,6 @@ def load_csv_tasks_to_db(username: str, user_dict: dict):
                     sql = connectSQLite.save_task(task, username)
                     # print("Las tareas nuevas se agregaron a la BD")
                     logging.info("Las tareas nuevas se agregaron a la BD")
-                    sql.connection.close()
     except (FileNotFoundError):
         print("!FNF")
 
