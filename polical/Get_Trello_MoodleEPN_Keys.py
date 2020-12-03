@@ -54,9 +54,8 @@ def onboard(no_open: bool, output_path="polical.yaml"):
     request_token_url = "https://trello.com/1/OAuthGetRequestToken"
     authorize_url = "https://trello.com/1/OAuthAuthorizeToken"
     access_token_url = "https://trello.com/1/OAuthGetAccessToken"
-    calendar_moodle_epn_url = (
-        "https://educacionvirtual.epn.edu.ec/calendar/view.php?view=upcoming&course=1"
-    )
+    calendar_moodle_epn_url = "https://aulasvirtuales.epn.edu.ec/calendar/export.php?"
+    # Nuevo link https://aulasvirtuales.epn.edu.ec/calendar/export.php?
     # First, open the URL that allows the user to get an auth token. Tell them to copy both into the program
     logging.info("Mostrando print-board al usuario")
     print(
