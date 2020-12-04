@@ -127,20 +127,20 @@ def save_subject_id(subject):
     cur.connection.close()
 
 
-def get_cards_from_db() -> list:
-    """This function get all cards from Tareas table.
+# def get_cards_from_db() -> list:
+#     """This function get all cards from Tareas table.
 
-    Returns:
-        cards (list): List contanining all cards from Tareas table.
-    """
-    cur = exec(
-        "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Tareas';",
-        get_cur(),
-    )
-    cards = []
-    for row in cur.fetchall():
-        cards.append(row[0])
-    return cards
+#     Returns:
+#         cards (list): List contanining all cards from Tareas table.
+#     """
+#     cur = exec(
+#         "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'Tareas';",
+#         get_cur(),
+#     )
+#     cards = []
+#     for row in cur.fetchall():
+#         cards.append(row[0])
+#     return cards
 
 
 def get_subject_id(subject_code: str) -> str:
