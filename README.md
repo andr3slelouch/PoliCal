@@ -52,6 +52,7 @@ py -m polical
 ### NOTAS
 Actualmente se encuentran precargadas todas las materias obtenidas desde el SAEW de las siguientes carreras:
 - Ingeniería en Sistemas Informáticos y de Computación PENSUM: 2009B
+- Ingeniería en Computación PENSUM: 2015-ICCR162101
 - Ingeniería Eléctrica PENSUM: 2010
 - Ingeniería en Electrónica y Redes de Información PENSUM: 2010
 - Ingeniería en Electrónica y Telecomunicaciones PENSUM: 2010

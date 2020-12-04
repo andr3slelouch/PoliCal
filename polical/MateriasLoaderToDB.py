@@ -33,3 +33,6 @@ def load_subject_to_db():
         print(error)
     #            line_count += 1
     #    print(f'Processed {line_count} lines.')
+
+
+load_subject_to_db()
