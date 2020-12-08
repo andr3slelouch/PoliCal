@@ -21,7 +21,7 @@ def save_tasks_to_db(url: str, username: str, user_dict: dict):
             task_event.end.to("America/Guayaquil").datetime,
             subject_id,
         )
-        sql = connectSQLite.save_task(task, username)
+        connectSQLite.save_task(task, username)
 
 
 def send_tasks_to_trello(username: str, user_dict: dict):

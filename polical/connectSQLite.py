@@ -75,6 +75,8 @@ def save_task(task, username: str):
     cur.connection.commit()
     cur.connection.close()
 
+def check_task_user_existence(task, username: str) -> bool:
+    # TODO Add new logics for multiple users
 
 def save_subject(subject):
     """This function saves a subject into the database
@@ -194,6 +196,9 @@ def get_user_id(username: str) -> str:
     Returns:
         idUsuarios (str): The user id from the database.
     """
+    username = str(username)
+    if check_user_existence(username) == 0:
+        save_user(username)
     query = "select idUsuarios from Usuarios where UsrNombre = '" + username + "'"
     cur = get_db().cursor()
     cur.execute(query)
