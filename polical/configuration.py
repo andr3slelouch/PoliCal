@@ -103,13 +103,14 @@ def check_for_url(url: str) -> bool:
         return False
 
 
-def create_subject(subject_code: str, task_title: str, user_dict: str):
+def create_subject(subject_code: str, task_title: str, user_dict: dict, username: str):
     """This function creates a subject in Trello and adds it to local database.
 
     Args:
         subject_code (str): Subject Code to check with local database and trello.
         task_title (str): Subject title for showing to the user if subject is not founded in local database.
         user_dict (dict): User dictionary with keys to connect to trello.
+        username (str): The username for the owner of the current subject.
     """
     client = TrelloClient(
         api_key=user_dict["api_key"],
@@ -118,11 +119,14 @@ def create_subject(subject_code: str, task_title: str, user_dict: str):
         token_secret=user_dict["oauth_token_secret"],
     )
     subjects_board = client.get_board(user_dict["board_id"])
-    if connectSQLite.check_no_subject_id(subject_code) == 1:
+    subject = MateriaClass.Materia("", subject_code)
+    materia_id = connectSQLite.get_subject_id(subject_code)
+    if not connectSQLite.check_user_subject_existence(materia_id, username):
+        connectSQLite.save_user_subject(subject, username)
+    if connectSQLite.check_no_subject_id(subject_code, username) == 1:
         subject_name = connectSQLite.get_subject_name(subject_code)
         logging.info(subject_name)
-        print(subject_name)
-        add_subject_to_trello_list(subjects_board, subject_name, subject_code)
+        add_subject_to_trello_list(subjects_board, subject_name, subject_code, username)
     elif connectSQLite.get_subject_name(subject_code) == "":
         logging.info(
             "Nombre de materia no encontrado, titulo de la tarea:" + str(task_title)
@@ -140,20 +144,24 @@ def create_subject(subject_code: str, task_title: str, user_dict: str):
             logging.info(response)
         subject = MateriaClass.Materia(subject_name, subject_code)
         connectSQLite.save_subject(subject)
-        add_subject_to_trello_list(subjects_board, subject_name, subject_code)
+        add_subject_to_trello_list(subjects_board, subject_name, subject_code, username)
 
 
-def add_subject_to_trello_list(subjects_board, subject_name: str, subject_code: str):
+def add_subject_to_trello_list(
+    subjects_board, subject_name: str, subject_code: str, username: str
+):
     """This function adds a list to trello board with subject name.
 
     Args:
         subjects_board (Trello.Board): Tareas Poli's Board object from Trello library
         subject_name (str): Subject name to create new list.
         subject_code (str): Subject code to add it to name list.
+        username (str): The username for the owner of the current subject.
     """
     trello_list_id = ""
     for trello_list in subjects_board.list_lists():
         if trello_list.name == subject_name:
+            print(trello_list.name, subject_name)
             trello_list_id = trello_list.id
     if trello_list_id == "":
         subjects_board.add_list(subject_name)
@@ -161,8 +169,7 @@ def add_subject_to_trello_list(subjects_board, subject_name: str, subject_code: 
             if trello_list.name == subject_name:
                 trello_list_id = trello_list.id
     subject = MateriaClass.Materia(subject_name, subject_code, trello_list_id)
-    logging.info(subject.print())
-    connectSQLite.save_subject_id(subject)
+    connectSQLite.save_user_subject(subject, username)
 
 
 def get_subject_name_from_ics_event_category(full_subject_name):

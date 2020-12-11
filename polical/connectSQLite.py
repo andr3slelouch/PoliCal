@@ -40,21 +40,22 @@ def exec(command: str):
     return cur
 
 
-def save_task(task, username: str):
+def save_task(task):
     """This function saves a task from a user into the database
 
     Args:
         task (Tarea): Tasks that would be added to the database.
         username(str): User owner of the task.
     """
-    cur = get_db().cursor()
+
+    """ cur = get_db().cursor()
     checker = "select count(TarUID) from Tareas where TarUID = '" + task.id + "'"
     cur.execute(checker, ())
     exists = 0
     for row in cur.fetchall():
-        exists = row[0]
-    if exists == 0:
-        logging.info("Ejecutando..." + str(exists))
+        exists = row[0] """
+    cur = get_db().cursor()
+    if not check_task_existence(task):
         cur.execute(
             "INSERT INTO Tareas(TarUID, TarTitulo, TarDescripcion, TarFechaLim, Materias_idMaterias) VALUES (?, ?, ?, ?, ?);",
             (
@@ -66,17 +67,73 @@ def save_task(task, username: str):
             ),
         )
         cur.connection.commit()
-        tarea_id = get_task_id(task.id)
+        """ tarea_id = get_task_id(task.id)
         usuario_id = get_user_id(username)
         cur.execute(
             "INSERT INTO TareasUsuarios(TarUsrEstado, idTareas, idUsuarios) VALUES (?,?,?);",
             ("N", tarea_id, usuario_id),
-        )
-    cur.connection.commit()
+        ) """
     cur.connection.close()
 
-def check_task_user_existence(task, username: str) -> bool:
-    # TODO Add new logics for multiple users
+
+def save_user_task(task, username: str):
+    save_task(task)
+    cur = get_db().cursor()
+    tarea_id = get_task_id(task.id)
+    usuario_id = get_user_id(username)
+    if not check_user_task_existence(task, username):
+        cur.execute(
+            "INSERT INTO TareasUsuarios(TarUsrEstado, idTareas, idUsuarios) VALUES (?,?,?);",
+            ("N", tarea_id, usuario_id),
+        )
+        cur.connection.commit()
+    cur.connection.close()
+
+
+def check_user_task_existence(task, username: str):
+    """This function checks if a task exists in the database
+
+    Args:
+        task (Tarea): Tasks that would be added to the database.
+        username(str): User owner of the task.
+    """
+    cur = get_db().cursor()
+    tarea_id = get_task_id(task.id)
+    usuario_id = get_user_id(username)
+    checker = (
+        "select count(TarUsrEstado) from TareasUsuarios where idTareas = '"
+        + tarea_id
+        + "' and idUsuarios = '"
+        + usuario_id
+        + "'"
+    )
+    cur.execute(checker, ())
+    exists = 0
+    for row in cur.fetchall():
+        exists = row[0]
+    if exists == 0:
+        return False
+    else:
+        return True
+
+
+def check_task_existence(task) -> bool:
+    """This function checks if a task exists in the database
+
+    Args:
+        task (Tarea): Tasks that would be added to the database.
+    """
+    cur = get_db().cursor()
+    checker = "select count(TarUID) from Tareas where TarUID = '" + task.id + "'"
+    cur.execute(checker, ())
+    exists = 0
+    for row in cur.fetchall():
+        exists = row[0]
+    if exists == 0:
+        return False
+    else:
+        return True
+
 
 def save_subject(subject):
     """This function saves a subject into the database
@@ -87,11 +144,59 @@ def save_subject(subject):
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
     """
-    query = "INSERT INTO Materias (MatNombre, MatCodigo, MatID) values (?, ?, ?);"
+    query = "INSERT INTO Materias (MatNombre, MatCodigo) values (?, ?);"
     cur = get_db().cursor()
-    cur.execute(query, (subject.name, subject.codigo, subject.id))
+    cur.execute(query, (subject.name, subject.codigo))
     cur.connection.commit()
     return cur
+
+
+def save_user_subject(subject, username: str):
+    materia_id = get_subject_id(subject.codigo)
+    usuario_id = get_user_id(username)
+    print(subject.codigo, username, materia_id, usuario_id)
+    if not check_user_subject_existence(materia_id, username):
+        query = "INSERT INTO MateriasUsuarios (idMateria, idUsuario, MatID) values (?, ?, ?);"
+        cur = get_db().cursor()
+        cur.execute(query, (materia_id, usuario_id, subject.id))
+        cur.connection.commit()
+        return cur
+    else:
+        cur = get_db().cursor()
+        cur.execute(
+            "UPDATE MateriasUsuarios SET MatID = ? WHERE idMateria = ? AND idUsuario = ?;",
+            (subject.id, materia_id, usuario_id),
+        )
+        cur.connection.commit()
+        for row in cur.fetchall():
+            logging.info("fila: " + str(row))
+        cur.connection.close()
+
+
+def check_user_subject_existence(subject_id, username: str):
+    """This function checks if a task exists in the database
+
+    Args:
+        task (Tarea): Tasks that would be added to the database.
+        username(str): User owner of the task.
+    """
+    cur = get_db().cursor()
+    usuario_id = get_user_id(username)
+    checker = (
+        "select count(MatID) from MateriasUsuarios where idMateria = '"
+        + subject_id
+        + "' and idUsuario = '"
+        + usuario_id
+        + "'"
+    )
+    cur.execute(checker, ())
+    exists = 0
+    for row in cur.fetchall():
+        exists = row[0]
+    if exists == 0:
+        return False
+    else:
+        return True
 
 
 def save_user(username: str):
@@ -264,7 +369,14 @@ def get_unsended_tasks(username: str) -> list:
     """
     user_id = get_user_id(username)
     query = (
-        "select TarUsrEstado, TarUID, TarTitulo, TarDescripcion, TarFechaLim, MatID from Materias, Tareas, TareasUsuarios where Tareas.Materias_idMaterias = Materias.idMaterias AND TareasUsuarios.TarUsrEstado = 'N' AND TareasUsuarios.idTareas = Tareas.idTareas AND TareasUsuarios.idUsuarios = '"
+        "select TarUsrEstado, TarUID, TarTitulo, TarDescripcion, TarFechaLim, MateriasUsuarios.MatID "
+        + "from Materias, Tareas, TareasUsuarios, MateriasUsuarios "
+        + "where Tareas.Materias_idMaterias = Materias.idMaterias AND "
+        + "TareasUsuarios.TarUsrEstado = 'N' AND "
+        + "TareasUsuarios.idTareas = Tareas.idTareas AND "
+        + "MateriasUsuarios.idMateria = Materias.idMaterias AND "
+        + "MateriasUsuarios.idUsuario = TareasUsuarios.idUsuarios AND "
+        + "TareasUsuarios.idUsuarios = '"
         + user_id
         + "';"
     )
@@ -277,7 +389,7 @@ def get_unsended_tasks(username: str) -> list:
     return tasks
 
 
-def check_no_subject_id(subject_code: str) -> str:
+def check_no_subject_id(subject_code: str, username: str) -> str:
     """This function checks if the subject has an ID in the database.
 
     Args:
@@ -286,10 +398,17 @@ def check_no_subject_id(subject_code: str) -> str:
     Returns:
         result (str): Returns '0' if does not has the ID and '1' if it has it.
     """
+    usuario_id = get_user_id(username)
     query = (
-        "select count(MatCodigo) from Materias where MatCodigo='"
+        "select count(MatCodigo) from Materias, MateriasUsuarios "
+        + "where MatCodigo='"
         + subject_code
-        + '\'AND MatID="";'
+        + "'AND "
+        + "Materias.idMaterias = MateriasUsuarios.idMateria AND "
+        + "MateriasUsuarios.MatID='' AND "
+        + "MateriasUsuarios.idUsuario='"
+        + usuario_id
+        + "';"
     )
     cur = get_db().cursor()
     cur.execute(query)

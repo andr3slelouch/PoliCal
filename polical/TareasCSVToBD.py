@@ -57,7 +57,7 @@ def load_csv_tasks_to_db(username: str, user_dict: dict):
                         datetime.strptime(row[7][0:8], "%Y%m%d"),
                         subject_id,
                     )
-                    sql = connectSQLite.save_task(task, username)
+                    connectSQLite.save_user_task(task, username)
                     # print("Las tareas nuevas se agregaron a la BD")
                     logging.info("Las tareas nuevas se agregaron a la BD")
     except (FileNotFoundError):
