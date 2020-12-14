@@ -12,7 +12,9 @@ def save_tasks_to_db(url: str, username: str, user_dict: dict):
         task_subject = configuration.get_subject_name_from_ics_event_category(
             event_category
         )
-        configuration.create_subject(task_subject, task_event.name, user_dict, username)
+        configuration.create_subject(
+            task_subject, task_event.name, user_dict, username
+        )  # Crea lista a Trello
         subject_id = connectSQLite.get_subject_id(task_subject)
         task = TareaClass.Tarea(
             task_event.uid,

@@ -161,7 +161,6 @@ def add_subject_to_trello_list(
     trello_list_id = ""
     for trello_list in subjects_board.list_lists():
         if trello_list.name == subject_name:
-            print(trello_list.name, subject_name)
             trello_list_id = trello_list.id
     if trello_list_id == "":
         subjects_board.add_list(subject_name)
