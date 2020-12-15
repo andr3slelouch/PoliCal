@@ -12,7 +12,9 @@ def save_tasks_to_db(url: str, username: str, user_dict: dict):
         task_subject = configuration.get_subject_name_from_ics_event_category(
             event_category
         )
-        configuration.create_subject(task_subject, task_event.name, user_dict)
+        configuration.create_subject(
+            task_subject, task_event.name, user_dict, username
+        )  # Crea lista a Trello
         subject_id = connectSQLite.get_subject_id(task_subject)
         task = TareaClass.Tarea(
             task_event.uid,
@@ -21,14 +23,14 @@ def save_tasks_to_db(url: str, username: str, user_dict: dict):
             task_event.end.to("America/Guayaquil").datetime,
             subject_id,
         )
-        sql = connectSQLite.save_task(task, username)
+        connectSQLite.save_user_task(task, username)
 
 
 def send_tasks_to_trello(username: str, user_dict: dict):
     """This function sends tasks from database that are stored as not sended to trello.
 
     Args:
-        username (str): The username for the current task.
+        username (str): The username for the owner of the tasks.
         user_dict (dict): User dictionary with keys to acces to trello.
     """
     client = TrelloClient(
