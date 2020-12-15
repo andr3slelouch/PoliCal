@@ -156,7 +156,7 @@ def onboard(no_open: bool, output_path="polical.yaml"):
     print("\n\n")
     print("PASO 3: Obtención del calendario del Aula Virtual")
     print(
-        "Recuerde ingresar e iniciar sesion previamente a https://educacionvirtual.epn.edu.ec/"
+        "Recuerde ingresar e iniciar sesion previamente a https://aulasvirtuales.epn.edu.ec/"
     )
     print(
         "A continuación se abrirá un link hacia el Aula Virtual EPN, en proximos eventos para: elija Todos los cursos"
@@ -274,7 +274,7 @@ def check_user_on_file(output_file: str, username: str):
         with open(output_file) as file:
             # use safe_load instead load
             users = yaml.safe_load(file)
-            if username in users.keys():
+            if users and username in users.keys():
                 overwrite = input(
                     "El nombre de usuario actualmente ya existe, sobreescribir? s/N:"
                 )
