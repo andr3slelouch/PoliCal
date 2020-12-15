@@ -369,7 +369,7 @@ def get_unsended_tasks(username: str) -> list:
     return tasks
 
 
-def check_no_subject_id(subject_code: str, username: str) -> str:
+def check_no_subject_id(subject_code: str, username: str) -> bool:
     """This function checks if the subject code is registered and has an ID in the database.
 
     Args:
