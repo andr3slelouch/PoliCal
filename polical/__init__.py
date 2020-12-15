@@ -1,3 +1,3 @@
 __program__ = "polical"
-__version__ = "v0.2.1"
+__version__ = "v1.0.0"
 __author__ = "andr3slelouch"
