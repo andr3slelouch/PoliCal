@@ -31,10 +31,8 @@ def get_working_directory() -> str:
     userdir = os.path.expanduser("~")
     working_directory = os.path.join(userdir, "PoliCal")
     tasks_db = Path(os.path.join(working_directory, db_filename))
-    # Check for existence
     if not os.path.exists(working_directory):
         os.makedirs(working_directory)
-    # Check for existence
     if not tasks_db.is_file():
         dir_path = os.path.dirname(__file__)
         tasks_src = os.path.join(dir_path, db_filename)
@@ -44,7 +42,7 @@ def get_working_directory() -> str:
 
 
 def get_file_location(filename: str) -> str:
-    """This function is for getting full path location of a file from its filename
+    """This function gets the full path location of a file
 
     Args:
         filename (str): Filename that needs the full path location
@@ -94,7 +92,7 @@ def check_for_url(url: str) -> bool:
         bool.  The return code::
 
           False -- If the url does not start with https and ends with recentupcoming
-          True -- If the url starts with https and ends with recentupcoming
+          True -- If the url is correct
     """
     checker = re.search("^https.*recentupcoming$", url)
     if checker:
@@ -103,54 +101,69 @@ def check_for_url(url: str) -> bool:
         return False
 
 
-def create_subject(subject_code: str, task_title: str, user_dict: dict, username: str):
-    """This function creates a subject in Trello and adds it to local database.
+def create_subject(
+    subject_code: str,
+    task_title: str,
+    user_dict: dict,
+    username: str,
+    trello_account=True,
+) -> bool:
+    """This function creates a subject in Trello if trello_account is True, and adds it to local database associating to a user.
 
     Args:
         subject_code (str): Subject Code to check with local database and trello.
         task_title (str): Subject title for showing to the user if subject is not founded in local database.
         user_dict (dict): User dictionary with keys to connect to trello.
         username (str): The username for the owner of the current subject.
+        trello_account (bool): Flag to indicate if the subject would be created in Trello.
+    Returns:
+        bool.  The return code::
+
+          False -- If the Trello account flag is deactivated and the subject is not founded in local database
+          True -- If the process to create the subject was successful
     """
-    client = TrelloClient(
-        api_key=user_dict["api_key"],
-        api_secret=user_dict["api_secret"],
-        token=user_dict["oauth_token"],
-        token_secret=user_dict["oauth_token_secret"],
-    )
-    subjects_board = client.get_board(user_dict["board_id"])
     subject = MateriaClass.Materia("", subject_code)
     materia_id = connectSQLite.get_subject_id(subject_code)
+    if trello_account:
+        client = TrelloClient(
+            api_key=user_dict["api_key"],
+            api_secret=user_dict["api_secret"],
+            token=user_dict["oauth_token"],
+            token_secret=user_dict["oauth_token_secret"],
+        )
+        subjects_board = client.get_board(user_dict["board_id"])
+        if connectSQLite.check_no_subject_id(subject_code, username):
+            subject_name = connectSQLite.get_subject_name(subject_code)
+            logging.info(subject_name)
+            add_subject_to_trello_list(
+                subjects_board, subject_name, subject_code, username
+            )
+        elif connectSQLite.get_subject_name(subject_code) == "":
+            print(
+                "\n Nombre de materia no encontrado, titulo de la tarea:" + task_title
+            )
+            subject_name = input("Por favor agregue el nombre de la materia:")
+            response = "N"
+            while response == "N" or response == "n":
+                print("¿El nombre de la materia " + subject_name + " es correcto?")
+                response = input("¿Guardar? S/N:")
+            subject = MateriaClass.Materia(subject_name, subject_code)
+            connectSQLite.save_subject(subject)
+            add_subject_to_trello_list(
+                subjects_board, subject_name, subject_code, username
+            )
+    else:
+        if connectSQLite.get_subject_name(subject_code) == "":
+            return False
     if not connectSQLite.check_user_subject_existence(materia_id, username):
         connectSQLite.save_user_subject(subject, username)
-    if connectSQLite.check_no_subject_id(subject_code, username) == 1:
-        subject_name = connectSQLite.get_subject_name(subject_code)
-        logging.info(subject_name)
-        add_subject_to_trello_list(subjects_board, subject_name, subject_code, username)
-    elif connectSQLite.get_subject_name(subject_code) == "":
-        logging.info(
-            "Nombre de materia no encontrado, titulo de la tarea:" + str(task_title)
-        )
-        print("\n Nombre de materia no encontrado, titulo de la tarea:" + task_title)
-        logging.info("Por favor agregue el nombre de la materia:")
-        subject_name = input("Por favor agregue el nombre de la materia:")
-        logging.info(subject_name)
-        response = "N"
-        while response == "N" or response == "n":
-            logging.info("¿El nombre de la materia " + subject_name + " es correcto?")
-            print("¿El nombre de la materia " + subject_name + " es correcto?")
-            logging.info("¿Guardar? S/N:")
-            response = input("¿Guardar? S/N:")
-            logging.info(response)
-        subject = MateriaClass.Materia(subject_name, subject_code)
-        connectSQLite.save_subject(subject)
-        add_subject_to_trello_list(subjects_board, subject_name, subject_code, username)
+    return True
 
 
 def add_subject_to_trello_list(
     subjects_board, subject_name: str, subject_code: str, username: str
 ):
-    """This function adds a list to trello board with subject name.
+    """This function adds a subject as list to trello board.
 
     Args:
         subjects_board (Trello.Board): Tareas Poli's Board object from Trello library
