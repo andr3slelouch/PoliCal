@@ -196,3 +196,44 @@ def get_subject_name_from_ics_event_category(full_subject_name):
     full_subject_name_list = full_subject_name.split("_", 3)
     subject_name = full_subject_name_list[1]
     return subject_name
+
+
+def get_preferred_dbms(config_file_path: str) -> str:
+    try:
+        with open(get_file_location(config_file_path), "r") as config_yaml:
+            file_config = yaml.safe_load(config_yaml)
+            return file_config["preferred_dbms"]
+    except IOError:
+        print("Archivo de configuración no encontrado, generando archivo")
+        generate_db_selector_file(config_file_path)
+
+
+def generate_db_selector_file(config_file_path: str):
+    db_selector = {
+        "preferred_dbms": "default",
+        "mysql_credentials": {
+            "host": "",
+            "database": "",
+            "user": "",
+            "password": "",
+        },
+    }
+    with open(config_file_path, "w") as f:
+        f.write(yaml.safe_dump(db_selector, default_flow_style=False))
+
+
+def get_mysql_credentials(config_file_path: str) -> dict:
+    try:
+        with open(get_file_location(config_file_path), "r") as config_yaml:
+            file_config = yaml.safe_load(config_yaml)
+            return file_config["mysql_credentials"]
+    except IOError:
+        print("Archivo de configuración no encontrado, generando archivo")
+        generate_db_selector_file(config_file_path)
+
+
+def prepare_mysql_query(query: str) -> str:
+    if get_preferred_dbms(get_file_location("db_selector.yaml")) == "mysql":
+        return query.replace("?", "%s")
+    else:
+        return query
