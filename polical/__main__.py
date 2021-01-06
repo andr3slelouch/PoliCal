@@ -5,6 +5,7 @@ from polical import configuration
 import sys
 from polical import Get_Trello_MoodleEPN_Keys
 from polical import tasks_processor
+from polical import todo_generator
 
 
 def main(argv):
@@ -12,6 +13,8 @@ def main(argv):
         argument = argv[1]
         if argument == "--addUser":
             Get_Trello_MoodleEPN_Keys.onboard(False)
+        if argument == "--todo":
+            todo_generator.generate_todo_txt()
     else:
         users = None
         while users is None:

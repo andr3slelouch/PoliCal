@@ -194,7 +194,8 @@ def save_user_subject(subject, username: str):
     """
     materia_id = get_subject_id(subject.codigo)
     usuario_id = get_user_id(username)
-    print(subject.codigo, username, materia_id, usuario_id)
+    if not username:
+        return
     if not check_user_subject_existence(materia_id, username):
         query = configuration.prepare_mysql_query(
             "INSERT INTO MateriasUsuarios (idMateria, idUsuario, MatID) values (?, ?, ?);"
@@ -338,7 +339,7 @@ def get_user_id(username: str) -> str:
         idUsuarios (str): The user id from the database.
     """
     username = str(username)
-    if check_user_existence(username):
+    if not check_user_existence(username):
         save_user(username)
     query = "select idUsuarios from Usuarios where UsrNombre = '" + username + "'"
     conn = get_db()
@@ -465,14 +466,15 @@ def check_no_subject_id(subject_code: str, username: str) -> bool:
         return True
 
 
-def check_user_existence(username: str):
+def check_user_existence(username: str) -> bool:
     """This function checks if the username has an ID in the database.
 
     Args:
         username (str): username from the database to check if it has ID or not.
 
     Returns:
-        result (str): Returns '0' if does not has the ID and '1' if it has it.
+        False: If does not has the ID
+        True: If it has it.
     """
     query = "select count(UsrNombre) from Usuarios where UsrNombre='" + username + "';"
     conn = get_db()

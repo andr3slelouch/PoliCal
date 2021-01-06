@@ -19,7 +19,7 @@ def save_tasks_to_db(url: str, username: str, user_dict: dict):
         task = TareaClass.Tarea(
             task_event.uid,
             task_event.name,
-            task_event.description,
+            task_event.description.replace("\t*", "*"),
             task_event.end.to("America/Guayaquil").datetime,
             subject_id,
         )
