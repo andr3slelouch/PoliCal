@@ -26,7 +26,7 @@ DROP TABLE IF EXISTS `Materias`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `Materias` (
   `idMaterias` int(11) NOT NULL AUTO_INCREMENT,
-  `MatNombre` varchar(45) NOT NULL,
+  `MatNombre` varchar(100) NOT NULL,
   `MatCodigo` varchar(45) NOT NULL,
   PRIMARY KEY (`idMaterias`),
   UNIQUE KEY `sqlite_autoindex_Materias_1` (`MatCodigo`)

@@ -2,6 +2,7 @@ import sqlite3
 from mysql.connector import MySQLConnection, Error
 from polical import TareaClass
 from polical import configuration
+from polical import MateriaClass
 
 import logging
 
@@ -13,21 +14,17 @@ def get_db():
         db (Connection): Database connection that access to tasks and subjects.
     """
     if (
-        configuration.get_preferred_dbms(
-            configuration.get_file_location("db_selector.yaml")
-        )
+        configuration.get_preferred_dbms(configuration.get_file_location("config.yaml"))
         == "default"
     ):
         db = sqlite3.connect(configuration.get_file_location("tasks.db"))
         return db
     elif (
-        configuration.get_preferred_dbms(
-            configuration.get_file_location("db_selector.yaml")
-        )
+        configuration.get_preferred_dbms(configuration.get_file_location("config.yaml"))
         == "mysql"
     ):
         mysql_credentials = configuration.get_mysql_credentials(
-            configuration.get_file_location("db_selector.yaml")
+            configuration.get_file_location("config.yaml")
         )
         if mysql_credentials:
             db = MySQLConnection(
@@ -183,6 +180,25 @@ def save_subject(subject):
     return cur
 
 
+def update_subject(subject):
+    """This function saves a subject into the database
+
+    Args:
+        subject (Materia): Subject that would be added to the database.
+
+    Returns:
+        cur (Cursor): Database cursor that access to tasks and subjects.
+    """
+    query = configuration.prepare_mysql_query(
+        "UPDATE Materias SET MatNombre = ? WHERE MatCodigo = ?;"
+    )
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(query, (subject.name, subject.codigo))
+    conn.commit()
+    return cur
+
+
 def save_user_subject(subject, username: str):
     """This function saves a subject and associates to a user into the database
 
@@ -265,6 +281,52 @@ def save_user(username: str):
     return cur
 
 
+def save_user_calendar_url(calendar_url: str, username: str):
+    """This function saves a calendar_url to a user
+
+    Args:
+        calendar_url (str): Calendar
+        username(str): User owner of the calendar.
+    """
+    usuario_id = get_user_id(username)
+    if not username:
+        return
+    else:
+        query = configuration.prepare_mysql_query(
+            "UPDATE Usuarios SET UsrUrl = ? WHERE idUsuarios = ?;"
+        )
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(
+            query,
+            (calendar_url, usuario_id),
+        )
+        conn.commit()
+        conn.close()
+
+
+def get_user_calendar_url(username: str) -> str:
+    """This function gets the subject ID from the database
+
+    Args:
+        subject_code (str): Subject code from the subject to get the ID.
+
+    Returns:
+        subject_id (str): Subject ID from the subject.
+    """
+    user_id = get_user_id(username)
+    query = "select UsrURL from Usuarios where idUsuarios = '" + str(user_id) + "'"
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(query)
+    calendar_url = ""
+
+    for row in cur.fetchall():
+        calendar_url = row[0]
+    conn.close()
+    return calendar_url
+
+
 def save_subject_id(subject):
     """DEPRECATED This function saves the trello list ID into the database
 
@@ -298,7 +360,7 @@ def get_subject_id(subject_code: str) -> str:
     conn = get_db()
     cur = conn.cursor()
     cur.execute(query)
-    subject_id = ""
+    subject_id = None
 
     for row in cur.fetchall():
         subject_id = row[0]
@@ -412,7 +474,7 @@ def get_unsended_tasks(username: str) -> list:
     """
     user_id = get_user_id(username)
     query = (
-        "select TarUsrEstado, TarUID, TarTitulo, TarDescripcion, TarFechaLim, MateriasUsuarios.MatID "
+        "select TarUsrEstado, TarUID, TarTitulo, TarDescripcion, TarFechaLim, MateriasUsuarios.MatID, MateriasUsuarios.idMateria "
         + "from Materias, Tareas, TareasUsuarios, MateriasUsuarios "
         + "where Tareas.Materias_idMaterias = Materias.idMaterias AND "
         + "TareasUsuarios.TarUsrEstado = 'N' AND "
@@ -428,9 +490,37 @@ def get_unsended_tasks(username: str) -> list:
     cur.execute(query)
     tasks = []
     for row in cur.fetchall():
-        tasks.append(TareaClass.Tarea(row[1], row[2], row[3], row[4], row[5]))
+        tarea = TareaClass.Tarea(row[1], row[2], row[3], row[4], row[5])
+        subject = get_subject_from_id(row[6])
+        tarea.define_subject(subject)
+        tasks.append(tarea)
     conn.close()
     return tasks
+
+
+def get_subject_from_id(subject_id):
+    """This function gets a subject object from the database
+
+    Args:
+        subject_code (str): Subject code for get the subject name.
+
+    Returns:
+        subject_name (str): The subject name from the subject code.
+    """
+    query = configuration.prepare_mysql_query(
+        "select MatNombre, MatCodigo from Materias where idMaterias = '"
+        + str(subject_id)
+        + "'"
+    )
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(query)
+    subject = None
+
+    for row in cur.fetchall():
+        subject = MateriaClass.Materia(row[0], row[1], id=subject_id)
+    conn.close()
+    return subject
 
 
 def check_no_subject_id(subject_code: str, username: str) -> bool:
@@ -476,7 +566,9 @@ def check_user_existence(username: str) -> bool:
         False: If does not has the ID
         True: If it has it.
     """
-    query = "select count(UsrNombre) from Usuarios where UsrNombre='" + username + "';"
+    query = (
+        "select count(UsrNombre) from Usuarios where UsrNombre='" + str(username) + "';"
+    )
     conn = get_db()
     cur = conn.cursor()
     cur.execute(query)

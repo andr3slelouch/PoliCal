@@ -11,7 +11,7 @@ logging.basicConfig(
 )
 
 
-def load_subject_to_db():
+def load_subjects_to_db():
     """This function loads any subject located on materias.csv to the database."""
     try:
         with open(configuration.get_file_location("materias.csv")) as csv_file:
@@ -35,4 +35,39 @@ def load_subject_to_db():
     #    print(f'Processed {line_count} lines.')
 
 
-load_subject_to_db()
+def update_subjects_to_db():
+    """This function loads any subject located on materias.csv to the database."""
+    """ try:
+        with open(configuration.get_file_location("materias.csv")) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=";")
+            line_count = 0
+            for row in csv_reader:
+                if line_count == 0:
+                    logging.info(f'Column names are {", ".join(row)}')
+                    line_count += 1
+                else:
+                    subject = MateriaClass.Materia(row[1], row[0])
+                    logging.info(subject.print())
+                    sql = connectSQLite.update_subject(subject)
+                    for row in sql.fetchall():
+                        logging.info(row)
+                    sql = connectSQLite.get_db().close()
+    except Exception as error:
+        logging.info("FALSE, exception ocurred")
+        print(error) """
+    with open(configuration.get_file_location("materias.csv")) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=";")
+        line_count = 0
+        for row in csv_reader:
+            if line_count == 0:
+                logging.info(f'Column names are {", ".join(row)}')
+                line_count += 1
+            else:
+                subject = MateriaClass.Materia(row[1], row[0])
+                logging.info(subject.print())
+                connectSQLite.update_subject(subject)
+    #            line_count += 1
+    #    print(f'Processed {line_count} lines.')
+
+
+# update_subjects_to_db()

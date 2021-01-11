@@ -3,4 +3,4 @@ import sys
 
 if __name__ == "__main__":
     main(sys.argv)
-    input("Pulse ENTER para salir")
+    # input("Pulse ENTER para salir")
