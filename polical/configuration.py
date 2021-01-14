@@ -208,7 +208,9 @@ def get_preferred_dbms(config_file_path: str) -> str:
         generate_db_selector_file(config_file_path)
 
 
-def set_preffered_dbms(config_file_path: str, preffered_dbms: str):
+def set_preffered_dbms(
+    preffered_dbms: str, config_file_path=get_file_location("config.yaml")
+):
     try:
         with open(get_file_location(config_file_path), "r") as config_yaml:
             file_config = yaml.safe_load(config_yaml)

@@ -1,6 +1,6 @@
 from ics import Calendar
 from trello import TrelloClient
-from polical import TareaClass, configuration, connectSQLite
+from polical import TareaClass, configuration, connectSQLite, MateriaClass
 from datetime import datetime
 import requests
 
@@ -17,7 +17,9 @@ def save_tasks_to_db(url: str, username: str, user_dict: dict, trello_account=Tr
         )  # Crea lista a Trello
         subject_id = connectSQLite.get_subject_id(task_subject)
         if not subject_id:
-            return None
+            temporalSubject = MateriaClass.Materia("Desconocido", task_subject)
+            connectSQLite.save_subject(temporalSubject)
+            subject_id = connectSQLite.get_subject_id(task_subject)
         task = TareaClass.Tarea(
             task_event.uid,
             task_event.name,
@@ -26,7 +28,6 @@ def save_tasks_to_db(url: str, username: str, user_dict: dict, trello_account=Tr
             subject_id,
         )
         connectSQLite.save_user_task(task, username)
-        return True
 
 
 def send_tasks_to_trello(username: str, user_dict: dict):

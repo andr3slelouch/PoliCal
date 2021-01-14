@@ -235,6 +235,47 @@ def save_user_subject(subject, username: str):
         conn.close()
 
 
+def save_user_subject_name(subject, username):
+    """This function saves a name for subject into MateriasUsuarios table
+
+    Args:
+        subject (Materia): Subject that would be added to the database.
+        username(str): User owner of the task.
+    Returns:
+        cur (Cursor): Database cursor that access to tasks and subjects.
+    """
+
+    materia_id = get_subject_id(subject.codigo)
+    if not materia_id:
+        temporalSubject = MateriaClass.Materia("Desconocido", subject.codigo)
+        save_subject(temporalSubject)
+        materia_id = get_subject_id(subject.codigo)
+    usuario_id = get_user_id(username)
+    if not username:
+        return
+    if not check_user_subject_existence(materia_id, username):
+        query = configuration.prepare_mysql_query(
+            "INSERT INTO MateriasUsuarios (idMateria, idUsuario, MatID, MatUsrNombre) values (?, ?, ?, ?);"
+        )
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(query, (materia_id, usuario_id, subject.id, subject.name))
+        conn.commit()
+        conn.close()
+    else:
+        query = configuration.prepare_mysql_query(
+            "UPDATE MateriasUsuarios SET MatUsrNombre = ? WHERE idMateria = ? AND idUsuario = ?;"
+        )
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(
+            query,
+            (subject.name, materia_id, usuario_id),
+        )
+        conn.commit()
+        conn.close()
+
+
 def check_user_subject_existence(subject_id, username: str):
     """This function checks if a subject exists in the database
 
@@ -365,8 +406,10 @@ def get_subject_id(subject_code: str) -> str:
     for row in cur.fetchall():
         subject_id = row[0]
     conn.close()
-    subject_id = str(subject_id)
-    return subject_id
+    if subject_id:
+        return str(subject_id)
+    else:
+        return None
 
 
 def get_task_id(task_uid: str) -> str:

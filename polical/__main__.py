@@ -12,9 +12,7 @@ from polical import MateriasLoaderToDB
 
 
 def main(argv):
-    configuration.set_preffered_dbms(
-        configuration.get_file_location("config.yaml"), "default"
-    )
+    configuration.set_preffered_dbms("default")
     if len(argv) == 2:
         argument = argv[1]
         if argument == "--addUser":

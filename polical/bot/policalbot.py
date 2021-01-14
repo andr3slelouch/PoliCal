@@ -17,10 +17,12 @@ from telegram.ext import (
 from polical import configuration
 from polical import connectSQLite
 from polical import tasks_processor
-
+from polical import MateriaClass
+import re
 import json
 import logging
 import traceback
+import pytz
 
 # Enable logging
 logging.basicConfig(
@@ -28,6 +30,7 @@ logging.basicConfig(
 )
 
 logger = logging.getLogger(__name__)
+CALENDAR_MOODLE_EPN_URL = "https://aulasvirtuales.epn.edu.ec/calendar/export.php?"
 
 
 def start(update, context):
@@ -62,24 +65,35 @@ def get_moodle_epn_url(update, context):
     )
 
 
+def save_subject_command(update, context):
+    username = update.message.from_user["id"]
+    new_subject = " ".join(context.args)
+
+    subject_code = re.search("\(([^)]+)", new_subject).group(1)
+
+    subject_new_name = MateriaClass.Materia(new_subject, subject_code)
+    connectSQLite.save_user_subject_name(subject_new_name, username)
+
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="Materia " + new_subject + " registrada",
+    )
+
+
 def get_tasks(update, context):
     username = update.message.from_user["id"]
     calendar_url = connectSQLite.get_user_calendar_url(username)
-    task_saved = tasks_processor.save_tasks_to_db(calendar_url, username, {}, False)
-    if not task_saved:
+    tasks_processor.save_tasks_to_db(calendar_url, username, {}, False)
+    tasks = connectSQLite.get_unsended_tasks(username)
+    if len(tasks) == 0:
         context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text="Error, tarea con materia no registrada, envíe su malla curricular(la puede obtener en: https://saew.epn.edu.ec/SAEINF/HorariosMaterias.aspx) en formato xlsx o csv a este enlace https://github.com/andr3slelouch/PoliCal/issues/new",
+            text="No existen tareas nuevas, verifique consultando el calendario",
         )
     else:
-        tasks = connectSQLite.get_unsended_tasks(username)
-        if len(tasks) == 0:
-            context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text="No existen tareas nuevas, verifique consultando el calendario",
-            )
-        else:
-            for task in tasks:
+        timezone = pytz.timezone("America/Guayaquil")
+        for task in tasks:
+            if timezone.localize(task.due_date) > update.message.date:
                 message = task.summary()
                 context.bot.send_message(
                     chat_id=update.effective_chat.id,
@@ -116,12 +130,7 @@ def error_handler(update: Update, context: CallbackContext) -> None:
 
 
 def run():
-    # updater = Updater(
-    #     token="1425250826:AAFJ7GpSzA5aObwH0_oyRQcSdL-fqpxdby0", use_context=True
-    # )
-    configuration.set_preffered_dbms(
-        configuration.get_file_location("config.yaml"), "mysql"
-    )
+    configuration.set_preffered_dbms("mysql")
     print("BOT STARTED...")
     updater = Updater(
         token=configuration.get_bot_token(
@@ -133,8 +142,10 @@ def run():
     start_handler = CommandHandler("start", start)
     moodle_epn_handler = CommandHandler("url", get_moodle_epn_url)
     get_tasks_handler = CommandHandler("update", get_tasks)
+    save_subject_handler = CommandHandler("subject", save_subject_command)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(moodle_epn_handler)
     dispatcher.add_handler(get_tasks_handler)
+    dispatcher.add_handler(save_subject_handler)
     dispatcher.add_error_handler(error_handler)
     updater.start_polling()
