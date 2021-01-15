@@ -91,22 +91,13 @@ def get_tasks(update, context):
             text="No existen tareas nuevas, verifique consultando el calendario",
         )
     else:
-        timezone = pytz.timezone("America/Guayaquil")
         for task in tasks:
-            if timezone.localize(task.due_date) > update.message.date:
-                temp_subject_name = ""
-                if task.subject.name == "Desconocido":
-                    temp_subject_name = connectSQLite.get_user_subject_name(
-                        str(task.subject.id), str(username)
-                    )
-                    if temp_subject_name:
-                        task.subject.name = temp_subject_name
-                message = task.summary()
-                context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text=message,
-                    parse_mode=ParseMode.MARKDOWN,
-                )
+            message = task.summary()
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=message,
+                parse_mode=ParseMode.MARKDOWN,
+            )
 
 
 def error_handler(update: Update, context: CallbackContext) -> None:
