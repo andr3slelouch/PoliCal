@@ -289,9 +289,9 @@ def get_user_subject_name(subject_id: str, username: str):
     usuario_id = get_user_id(username)
     checker = (
         "select MatUsrNombre from MateriasUsuarios where idMateria = '"
-        + subject_id
+        + str(subject_id)
         + "' and idUsuario = '"
-        + usuario_id
+        + str(usuario_id)
         + "'"
     )
     cur.execute(checker, ())
@@ -316,9 +316,9 @@ def check_user_subject_existence(subject_id: str, username: str):
     usuario_id = get_user_id(username)
     checker = (
         "select count(MatID) from MateriasUsuarios where idMateria = '"
-        + subject_id
+        + str(subject_id)
         + "' and idUsuario = '"
-        + usuario_id
+        + str(usuario_id)
         + "'"
     )
     cur.execute(checker, ())
@@ -598,10 +598,10 @@ def get_tasks_for_bot(username: str, message_date: datetime) -> list:
     timezone = pytz.timezone("America/Guayaquil")
     for row in cur.fetchall():
         tarea = TareaClass.Tarea(row[1], row[2], row[3], row[4], row[5])
-        subject = get_subject_from_id(row[6])
-        tarea.define_subject(subject)
-        tarea.define_username(username)
         if timezone.localize(tarea.due_date) > message_date:
+            subject = get_subject_from_id(row[6])
+            tarea.define_username(username)
+            tarea.define_subject(subject)
             tasks.append(tarea)
     conn.close()
     return tasks

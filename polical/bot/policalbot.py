@@ -2,10 +2,7 @@ import os
 import sys
 import html
 import telegram
-import trello
 import yaml
-from requests_oauthlib import OAuth1Session
-from requests_oauthlib.oauth1_session import TokenRequestDenied
 from telegram import Update, ParseMode
 from telegram.ext import (
     Updater,
@@ -55,7 +52,7 @@ def start(update, context):
 
 def get_moodle_epn_url(update, context):
     username = update.message.from_user["id"]
-    calendar_url = " ".join(context.args)
+    calendar_url = " ".join(context.args).replace("\n", "")
 
     connectSQLite.save_user_calendar_url(calendar_url, username)
 

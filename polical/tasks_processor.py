@@ -3,6 +3,7 @@ from trello import TrelloClient
 from polical import TareaClass, configuration, connectSQLite, MateriaClass
 from datetime import datetime
 import requests
+import time
 
 
 def save_tasks_to_db(url: str, username: str, user_dict: dict, trello_account=True):
