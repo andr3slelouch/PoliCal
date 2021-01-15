@@ -152,14 +152,11 @@ def create_subject(
             add_subject_to_trello_list(
                 subjects_board, subject_name, subject_code, username
             )
-    else:
-        if connectSQLite.get_subject_name(subject_code) == "":
-            return False
-    if not connectSQLite.check_user_subject_existence(materia_id, username):
-        connectSQLite.save_user_subject(subject, username)
     if not connectSQLite.get_subject_id(subject_code):
         temporalSubject = MateriaClass.Materia("Desconocido", subject_code)
         connectSQLite.save_subject(temporalSubject)
+    if not connectSQLite.check_user_subject_existence(materia_id, username):
+        connectSQLite.save_user_subject(subject, username)
     return True
 
 
