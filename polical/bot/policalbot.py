@@ -84,7 +84,7 @@ def get_tasks(update, context):
     username = update.message.from_user["id"]
     calendar_url = connectSQLite.get_user_calendar_url(username)
     tasks_processor.save_tasks_to_db(calendar_url, username, {}, False)
-    tasks = connectSQLite.get_unsended_tasks(username)
+    tasks = connectSQLite.get_tasks_for_bot(username, update.message.date)
     if len(tasks) == 0:
         context.bot.send_message(
             chat_id=update.effective_chat.id,
