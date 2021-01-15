@@ -16,10 +16,6 @@ def save_tasks_to_db(url: str, username: str, user_dict: dict, trello_account=Tr
             task_subject, task_event.name, user_dict, username, trello_account
         )  # Crea lista a Trello
         subject_id = connectSQLite.get_subject_id(task_subject)
-        if not subject_id:
-            temporalSubject = MateriaClass.Materia("Desconocido", task_subject)
-            connectSQLite.save_subject(temporalSubject)
-            subject_id = connectSQLite.get_subject_id(task_subject)
         task = TareaClass.Tarea(
             task_event.uid,
             task_event.name,

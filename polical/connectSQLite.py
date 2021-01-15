@@ -600,6 +600,7 @@ def get_tasks_for_bot(username: str, message_date: datetime) -> list:
         tarea = TareaClass.Tarea(row[1], row[2], row[3], row[4], row[5])
         subject = get_subject_from_id(row[6])
         tarea.define_subject(subject)
+        tarea.define_username(username)
         if timezone.localize(tarea.due_date) > message_date:
             tasks.append(tarea)
     conn.close()

@@ -157,6 +157,9 @@ def create_subject(
             return False
     if not connectSQLite.check_user_subject_existence(materia_id, username):
         connectSQLite.save_user_subject(subject, username)
+    if not connectSQLite.get_subject_id(subject_code):
+        temporalSubject = MateriaClass.Materia("Desconocido", subject_code)
+        connectSQLite.save_subject(temporalSubject)
     return True
 
 
