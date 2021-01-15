@@ -1,5 +1,6 @@
 from datetime import datetime
 from polical import MateriaClass
+from polical import connectSQLite
 
 
 class Tarea:
@@ -17,12 +18,22 @@ class Tarea:
     def define_subject(self, subject):
         self.subject = subject
 
+    def define_username(self, username):
+        self.username = username
+
     def summary(self):
         summary = "*Titulo*: " + str(self.title)
         summary += "\n*Descripción*: " + str(self.description).replace(
             "_", "\_"
         ).replace("*", "\*").replace("`", "\`").replace("[", "\[")
         summary += "\n*Fecha de Entrega*: " + str(self.due_date)
+        if self.subject.name == "Desconocido":
+            temp_subject_name = connectSQLite.get_user_subject_name(
+                str(self.subject.id), str(self.username)
+            )
+            self.subject.name = (
+                temp_subject_name if temp_subject_name != None else self.subject.name
+            )
         if self.subject.name == "Desconocido":
             summary += (
                 "\n*Materia*: "

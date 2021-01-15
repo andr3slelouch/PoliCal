@@ -3,7 +3,8 @@ from mysql.connector import MySQLConnection, Error
 from polical import TareaClass
 from polical import configuration
 from polical import MateriaClass
-
+from datetime import datetime
+import pytz
 import logging
 
 
@@ -564,6 +565,43 @@ def get_unsended_tasks(username: str) -> list:
         subject = get_subject_from_id(row[6])
         tarea.define_subject(subject)
         tasks.append(tarea)
+    conn.close()
+    return tasks
+
+
+def get_tasks_for_bot(username: str, message_date: datetime) -> list:
+    """This function gets all unsended tasks from the user.
+
+    Args:
+        username (str): Username from the user that owns the task
+
+    Returns:
+        tasks (list): Database cursor that access to tasks and subjects.
+    """
+    user_id = get_user_id(username)
+    query = (
+        "select TarUsrEstado, TarUID, TarTitulo, TarDescripcion, TarFechaLim, MateriasUsuarios.MatID, MateriasUsuarios.idMateria "
+        + "from Materias, Tareas, TareasUsuarios, MateriasUsuarios "
+        + "where Tareas.Materias_idMaterias = Materias.idMaterias AND "
+        + "TareasUsuarios.TarUsrEstado = 'N' AND "
+        + "TareasUsuarios.idTareas = Tareas.idTareas AND "
+        + "MateriasUsuarios.idMateria = Materias.idMaterias AND "
+        + "MateriasUsuarios.idUsuario = TareasUsuarios.idUsuarios AND "
+        + "TareasUsuarios.idUsuarios = '"
+        + user_id
+        + "';"
+    )
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(query)
+    tasks = []
+    timezone = pytz.timezone("America/Guayaquil")
+    for row in cur.fetchall():
+        tarea = TareaClass.Tarea(row[1], row[2], row[3], row[4], row[5])
+        subject = get_subject_from_id(row[6])
+        tarea.define_subject(subject)
+        if timezone.localize(tarea.due_date) > message_date:
+            tasks.append(tarea)
     conn.close()
     return tasks
 
