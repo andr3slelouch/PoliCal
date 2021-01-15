@@ -1,18 +1,39 @@
 import sqlite3
+from mysql.connector import MySQLConnection, Error
 from polical import TareaClass
 from polical import configuration
+from polical import MateriaClass
 
 import logging
 
 
 def get_db():
-    """This function returns the database connection.
+    """This function returns the database connection. Selects between sqlite3 or mysql
 
     Returns:
         db (Connection): Database connection that access to tasks and subjects.
     """
-    db = sqlite3.connect(configuration.get_file_location("tasks.db"))
-    return db
+    if (
+        configuration.get_preferred_dbms(configuration.get_file_location("config.yaml"))
+        == "default"
+    ):
+        db = sqlite3.connect(configuration.get_file_location("tasks.db"))
+        return db
+    elif (
+        configuration.get_preferred_dbms(configuration.get_file_location("config.yaml"))
+        == "mysql"
+    ):
+        mysql_credentials = configuration.get_mysql_credentials(
+            configuration.get_file_location("config.yaml")
+        )
+        if mysql_credentials:
+            db = MySQLConnection(
+                host=mysql_credentials["host"],
+                database=mysql_credentials["database"],
+                user=mysql_credentials["user"],
+                password=mysql_credentials["password"],
+            )
+            return db
 
 
 def get_cur():
@@ -21,7 +42,8 @@ def get_cur():
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
     """
-    cur = get_db().cursor()
+    conn = get_db()
+    cur = conn.cursor()
     return cur
 
 
@@ -34,9 +56,10 @@ def exec(command: str):
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
     """
-    cur = get_db().cursor()
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(command)
-    get_db().commit()
+    conn.commit()
     return cur
 
 
@@ -47,10 +70,14 @@ def save_task(task):
         task (Tarea): Tasks that would be added to the database.
     """
 
-    cur = get_db().cursor()
+    conn = get_db()
+    cur = conn.cursor()
+    query = configuration.prepare_mysql_query(
+        "INSERT INTO Tareas(TarUID, TarTitulo, TarDescripcion, TarFechaLim, Materias_idMaterias) VALUES (?, ?, ?, ?, ?);"
+    )
     if not check_task_existence(task):
         cur.execute(
-            "INSERT INTO Tareas(TarUID, TarTitulo, TarDescripcion, TarFechaLim, Materias_idMaterias) VALUES (?, ?, ?, ?, ?);",
+            query,
             (
                 task.id,
                 task.title,
@@ -59,8 +86,8 @@ def save_task(task):
                 task.subject_id,
             ),
         )
-        cur.connection.commit()
-    cur.connection.close()
+        conn.commit()
+    conn.close()
 
 
 def save_user_task(task, username: str):
@@ -71,16 +98,20 @@ def save_user_task(task, username: str):
         username(str): User owner of the task.
     """
     save_task(task)
-    cur = get_db().cursor()
+    conn = get_db()
+    cur = conn.cursor()
     tarea_id = get_task_id(task.id)
     usuario_id = get_user_id(username)
+    query = configuration.prepare_mysql_query(
+        "INSERT INTO TareasUsuarios(TarUsrEstado, idTareas, idUsuarios) VALUES (?,?,?);"
+    )
     if not check_user_task_existence(task, username):
         cur.execute(
-            "INSERT INTO TareasUsuarios(TarUsrEstado, idTareas, idUsuarios) VALUES (?,?,?);",
+            query,
             ("N", tarea_id, usuario_id),
         )
-        cur.connection.commit()
-    cur.connection.close()
+        conn.commit()
+    conn.close()
 
 
 def check_user_task_existence(task, username: str):
@@ -90,7 +121,8 @@ def check_user_task_existence(task, username: str):
         task (Tarea): Tasks that would be added to the database.
         username(str): User owner of the task.
     """
-    cur = get_db().cursor()
+    conn = get_db()
+    cur = conn.cursor()
     tarea_id = get_task_id(task.id)
     usuario_id = get_user_id(username)
     checker = (
@@ -116,7 +148,8 @@ def check_task_existence(task) -> bool:
     Args:
         task (Tarea): Tasks that would be added to the database.
     """
-    cur = get_db().cursor()
+    conn = get_db()
+    cur = conn.cursor()
     checker = "select count(TarUID) from Tareas where TarUID = '" + task.id + "'"
     cur.execute(checker, ())
     exists = 0
@@ -137,10 +170,32 @@ def save_subject(subject):
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
     """
-    query = "INSERT INTO Materias (MatNombre, MatCodigo) values (?, ?);"
-    cur = get_db().cursor()
+    query = configuration.prepare_mysql_query(
+        "INSERT INTO Materias (MatNombre, MatCodigo) values (?, ?);"
+    )
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(query, (subject.name, subject.codigo))
-    cur.connection.commit()
+    conn.commit()
+    return cur
+
+
+def update_subject(subject):
+    """This function saves a subject into the database
+
+    Args:
+        subject (Materia): Subject that would be added to the database.
+
+    Returns:
+        cur (Cursor): Database cursor that access to tasks and subjects.
+    """
+    query = configuration.prepare_mysql_query(
+        "UPDATE Materias SET MatNombre = ? WHERE MatCodigo = ?;"
+    )
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(query, (subject.name, subject.codigo))
+    conn.commit()
     return cur
 
 
@@ -155,31 +210,108 @@ def save_user_subject(subject, username: str):
     """
     materia_id = get_subject_id(subject.codigo)
     usuario_id = get_user_id(username)
-    print(subject.codigo, username, materia_id, usuario_id)
+    if not username:
+        return
     if not check_user_subject_existence(materia_id, username):
-        query = "INSERT INTO MateriasUsuarios (idMateria, idUsuario, MatID) values (?, ?, ?);"
-        cur = get_db().cursor()
+        query = configuration.prepare_mysql_query(
+            "INSERT INTO MateriasUsuarios (idMateria, idUsuario, MatID) values (?, ?, ?);"
+        )
+        conn = get_db()
+        cur = conn.cursor()
         cur.execute(query, (materia_id, usuario_id, subject.id))
-        cur.connection.commit()
-        cur.connection.close()
+        conn.commit()
+        conn.close()
     else:
-        cur = get_db().cursor()
+        query = configuration.prepare_mysql_query(
+            "UPDATE MateriasUsuarios SET MatID = ? WHERE idMateria = ? AND idUsuario = ?;"
+        )
+        conn = get_db()
+        cur = conn.cursor()
         cur.execute(
-            "UPDATE MateriasUsuarios SET MatID = ? WHERE idMateria = ? AND idUsuario = ?;",
+            query,
             (subject.id, materia_id, usuario_id),
         )
-        cur.connection.commit()
-        cur.connection.close()
+        conn.commit()
+        conn.close()
 
 
-def check_user_subject_existence(subject_id, username: str):
+def save_user_subject_name(subject, username):
+    """This function saves a name for subject into MateriasUsuarios table
+
+    Args:
+        subject (Materia): Subject that would be added to the database.
+        username(str): User owner of the task.
+    Returns:
+        cur (Cursor): Database cursor that access to tasks and subjects.
+    """
+
+    materia_id = get_subject_id(subject.codigo)
+    if not materia_id:
+        temporalSubject = MateriaClass.Materia("Desconocido", subject.codigo)
+        save_subject(temporalSubject)
+        materia_id = get_subject_id(subject.codigo)
+    usuario_id = get_user_id(username)
+    if not username:
+        return
+    if not check_user_subject_existence(materia_id, username):
+        query = configuration.prepare_mysql_query(
+            "INSERT INTO MateriasUsuarios (idMateria, idUsuario, MatID, MatUsrNombre) values (?, ?, ?, ?);"
+        )
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(query, (materia_id, usuario_id, subject.id, subject.name))
+        conn.commit()
+        conn.close()
+    else:
+        query = configuration.prepare_mysql_query(
+            "UPDATE MateriasUsuarios SET MatUsrNombre = ? WHERE idMateria = ? AND idUsuario = ?;"
+        )
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(
+            query,
+            (subject.name, materia_id, usuario_id),
+        )
+        conn.commit()
+        conn.close()
+
+
+def get_user_subject_name(subject_id: str, username: str):
+    """[summary]
+
+    Args:
+        subject_id (str): [description]
+        username (str): [description]
+    """
+    conn = get_db()
+    cur = conn.cursor()
+    usuario_id = get_user_id(username)
+    checker = (
+        "select MatUsrNombre from MateriasUsuarios where idMateria = '"
+        + subject_id
+        + "' and idUsuario = '"
+        + usuario_id
+        + "'"
+    )
+    cur.execute(checker, ())
+    subject_name = ""
+    for row in cur.fetchall():
+        subject_name = row[0]
+    if subject_name:
+        return subject_name
+    else:
+        return None
+
+
+def check_user_subject_existence(subject_id: str, username: str):
     """This function checks if a subject exists in the database
 
     Args:
         task (Tarea): Tasks that would be added to the database.
         username(str): User owner of the task.
     """
-    cur = get_db().cursor()
+    conn = get_db()
+    cur = conn.cursor()
     usuario_id = get_user_id(username)
     checker = (
         "select count(MatID) from MateriasUsuarios where idMateria = '"
@@ -207,11 +339,60 @@ def save_user(username: str):
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
     """
-    query = "INSERT INTO Usuarios (UsrNombre) values (?);"
-    cur = get_db().cursor()
+    query = configuration.prepare_mysql_query(
+        "INSERT INTO Usuarios(UsrNombre) VALUES (?)"
+    )
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(query, (username,))
-    cur.connection.commit()
+    conn.commit()
     return cur
+
+
+def save_user_calendar_url(calendar_url: str, username: str):
+    """This function saves a calendar_url to a user
+
+    Args:
+        calendar_url (str): Calendar
+        username(str): User owner of the calendar.
+    """
+    usuario_id = get_user_id(username)
+    if not username:
+        return
+    else:
+        query = configuration.prepare_mysql_query(
+            "UPDATE Usuarios SET UsrUrl = ? WHERE idUsuarios = ?;"
+        )
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute(
+            query,
+            (calendar_url, usuario_id),
+        )
+        conn.commit()
+        conn.close()
+
+
+def get_user_calendar_url(username: str) -> str:
+    """This function gets the subject ID from the database
+
+    Args:
+        subject_code (str): Subject code from the subject to get the ID.
+
+    Returns:
+        subject_id (str): Subject ID from the subject.
+    """
+    user_id = get_user_id(username)
+    query = "select UsrURL from Usuarios where idUsuarios = '" + str(user_id) + "'"
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(query)
+    calendar_url = ""
+
+    for row in cur.fetchall():
+        calendar_url = row[0]
+    conn.close()
+    return calendar_url
 
 
 def save_subject_id(subject):
@@ -221,13 +402,17 @@ def save_subject_id(subject):
         subject (Materia): Subject that owns the ID that would be added to the database.
 
     """
-    cur = get_db().cursor()
+    query = configuration.prepare_mysql_query(
+        "UPDATE Materias SET MatID = ? WHERE MatCodigo = ?;"
+    )
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(
-        "UPDATE Materias SET MatID = ? WHERE MatCodigo = ?;",
+        query,
         (subject.id, subject.codigo),
     )
-    cur.connection.commit()
-    cur.connection.close()
+    conn.commit()
+    conn.close()
 
 
 def get_subject_id(subject_code: str) -> str:
@@ -240,15 +425,18 @@ def get_subject_id(subject_code: str) -> str:
         subject_id (str): Subject ID from the subject.
     """
     query = "select idMaterias from Materias where MatCodigo = '" + subject_code + "'"
-    cur = get_db().cursor()
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(query)
-    subject_id = ""
+    subject_id = None
 
     for row in cur.fetchall():
         subject_id = row[0]
-    cur.connection.close()
-    subject_id = str(subject_id)
-    return subject_id
+    conn.close()
+    if subject_id:
+        return str(subject_id)
+    else:
+        return None
 
 
 def get_task_id(task_uid: str) -> str:
@@ -261,13 +449,14 @@ def get_task_id(task_uid: str) -> str:
         task_id (str): Task ID from the task.
     """
     query = "select idTareas from Tareas where TarUID = '" + task_uid + "'"
-    cur = get_db().cursor()
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(query)
 
     task_id = ""
     for row in cur.fetchall():
         task_id = row[0]
-    cur.connection.close()
+    conn.close()
     task_id = str(task_id)
     return task_id
 
@@ -282,16 +471,17 @@ def get_user_id(username: str) -> str:
         idUsuarios (str): The user id from the database.
     """
     username = str(username)
-    if check_user_existence(username) == 0:
+    if not check_user_existence(username):
         save_user(username)
     query = "select idUsuarios from Usuarios where UsrNombre = '" + username + "'"
-    cur = get_db().cursor()
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(query)
 
     user_id = ""
     for row in cur.fetchall():
         user_id = row[0]
-    cur.connection.close()
+    conn.close()
     user_id = str(user_id)
     return user_id
 
@@ -306,13 +496,14 @@ def get_subject_name(subject_code: str):
         subject_name (str): The subject name from the subject code.
     """
     query = "select MatNombre from Materias where MatCodigo = '" + subject_code + "'"
-    cur = get_db().cursor()
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(query)
     subject_name = ""
 
     for row in cur.fetchall():
         subject_name = row[0]
-    cur.connection.close()
+    conn.close()
     return subject_name
 
 
@@ -327,14 +518,18 @@ def add_task_tid(task_uid: str, task_tid: str, username: str):
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
     """
-    cur = get_db().cursor()
+    query = configuration.prepare_mysql_query(
+        "UPDATE TareasUsuarios SET TarUsrTID = ?, TarUsrEstado = ? WHERE idUsuarios = ? AND idTareas = ?;"
+    )
+    conn = get_db()
+    cur = conn.cursor()
     task_id = get_task_id(task_uid)
     user_id = get_user_id(username)
     cur.execute(
-        "UPDATE TareasUsuarios SET TarUsrTID = ?, TarUsrEstado = ? WHERE idUsuarios = ? AND idTareas = ?;",
+        query,
         (task_tid, "E", user_id, task_id),
     )
-    cur.connection.commit()
+    conn.commit()
     return cur
 
 
@@ -349,7 +544,7 @@ def get_unsended_tasks(username: str) -> list:
     """
     user_id = get_user_id(username)
     query = (
-        "select TarUsrEstado, TarUID, TarTitulo, TarDescripcion, TarFechaLim, MateriasUsuarios.MatID "
+        "select TarUsrEstado, TarUID, TarTitulo, TarDescripcion, TarFechaLim, MateriasUsuarios.MatID, MateriasUsuarios.idMateria "
         + "from Materias, Tareas, TareasUsuarios, MateriasUsuarios "
         + "where Tareas.Materias_idMaterias = Materias.idMaterias AND "
         + "TareasUsuarios.TarUsrEstado = 'N' AND "
@@ -360,13 +555,42 @@ def get_unsended_tasks(username: str) -> list:
         + user_id
         + "';"
     )
-    cur = get_db().cursor()
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(query)
     tasks = []
     for row in cur.fetchall():
-        tasks.append(TareaClass.Tarea(row[1], row[2], row[3], row[4], row[5]))
-    cur.connection.close()
+        tarea = TareaClass.Tarea(row[1], row[2], row[3], row[4], row[5])
+        subject = get_subject_from_id(row[6])
+        tarea.define_subject(subject)
+        tasks.append(tarea)
+    conn.close()
     return tasks
+
+
+def get_subject_from_id(subject_id):
+    """This function gets a subject object from the database
+
+    Args:
+        subject_code (str): Subject code for get the subject name.
+
+    Returns:
+        subject: The subject name from the subject code.
+    """
+    query = configuration.prepare_mysql_query(
+        "select MatNombre, MatCodigo from Materias where idMaterias = '"
+        + str(subject_id)
+        + "'"
+    )
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(query)
+    subject = None
+
+    for row in cur.fetchall():
+        subject = MateriaClass.Materia(row[0], row[1], id=subject_id)
+    conn.close()
+    return subject
 
 
 def check_no_subject_id(subject_code: str, username: str) -> bool:
@@ -390,30 +614,38 @@ def check_no_subject_id(subject_code: str, username: str) -> bool:
         + usuario_id
         + "';"
     )
-    cur = get_db().cursor()
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(query)
     for row in cur.fetchall():
         result = row[0]
-    cur.connection.close()
+    conn.close()
     if result == 0:
         return False
     else:
         return True
 
 
-def check_user_existence(username: str):
+def check_user_existence(username: str) -> bool:
     """This function checks if the username has an ID in the database.
 
     Args:
         username (str): username from the database to check if it has ID or not.
 
     Returns:
-        result (str): Returns '0' if does not has the ID and '1' if it has it.
+        False: If does not has the ID
+        True: If it has it.
     """
-    query = "select count(UsrNombre) from Usuarios where UsrNombre='" + username + "';"
-    cur = get_db().cursor()
+    query = (
+        "select count(UsrNombre) from Usuarios where UsrNombre='" + str(username) + "';"
+    )
+    conn = get_db()
+    cur = conn.cursor()
     cur.execute(query)
     for row in cur.fetchall():
         result = row[0]
-    cur.connection.close()
-    return result
+    conn.close()
+    if result:
+        return True
+    else:
+        return False

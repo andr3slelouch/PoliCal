@@ -1,11 +1,11 @@
 from ics import Calendar
 from trello import TrelloClient
-from polical import TareaClass, configuration, connectSQLite
+from polical import TareaClass, configuration, connectSQLite, MateriaClass
 from datetime import datetime
 import requests
 
 
-def save_tasks_to_db(url: str, username: str, user_dict: dict):
+def save_tasks_to_db(url: str, username: str, user_dict: dict, trello_account=True):
     virtual_class_calendar = Calendar(requests.get(url).text)
     for task_event in virtual_class_calendar.events:
         event_category = list(task_event.categories)[0]
@@ -13,13 +13,17 @@ def save_tasks_to_db(url: str, username: str, user_dict: dict):
             event_category
         )
         configuration.create_subject(
-            task_subject, task_event.name, user_dict, username
+            task_subject, task_event.name, user_dict, username, trello_account
         )  # Crea lista a Trello
         subject_id = connectSQLite.get_subject_id(task_subject)
+        if not subject_id:
+            temporalSubject = MateriaClass.Materia("Desconocido", task_subject)
+            connectSQLite.save_subject(temporalSubject)
+            subject_id = connectSQLite.get_subject_id(task_subject)
         task = TareaClass.Tarea(
             task_event.uid,
             task_event.name,
-            task_event.description,
+            task_event.description.replace("\t*", "*"),
             task_event.end.to("America/Guayaquil").datetime,
             subject_id,
         )
