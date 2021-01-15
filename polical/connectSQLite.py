@@ -276,7 +276,34 @@ def save_user_subject_name(subject, username):
         conn.close()
 
 
-def check_user_subject_existence(subject_id, username: str):
+def get_user_subject_name(subject_id: str, username: str):
+    """[summary]
+
+    Args:
+        subject_id (str): [description]
+        username (str): [description]
+    """
+    conn = get_db()
+    cur = conn.cursor()
+    usuario_id = get_user_id(username)
+    checker = (
+        "select MatUsrNombre from MateriasUsuarios where idMateria = '"
+        + subject_id
+        + "' and idUsuario = '"
+        + usuario_id
+        + "'"
+    )
+    cur.execute(checker, ())
+    subject_name = ""
+    for row in cur.fetchall():
+        subject_name = row[0]
+    if subject_name:
+        return subject_name
+    else:
+        return None
+
+
+def check_user_subject_existence(subject_id: str, username: str):
     """This function checks if a subject exists in the database
 
     Args:
@@ -548,7 +575,7 @@ def get_subject_from_id(subject_id):
         subject_code (str): Subject code for get the subject name.
 
     Returns:
-        subject_name (str): The subject name from the subject code.
+        subject: The subject name from the subject code.
     """
     query = configuration.prepare_mysql_query(
         "select MatNombre, MatCodigo from Materias where idMaterias = '"
