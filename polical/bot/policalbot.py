@@ -52,29 +52,48 @@ def start(update, context):
 
 def get_moodle_epn_url(update, context):
     username = update.message.from_user["id"]
-    calendar_url = " ".join(context.args).replace("\n", "")
-
-    connectSQLite.save_user_calendar_url(calendar_url, username)
-
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="Utilice /update para obtener sus tareas",
-    )
+    try:
+        calendar_url = " ".join(context.args).replace("\n", "")
+        if configuration.check_for_url(calendar_url):
+            connectSQLite.save_user_calendar_url(calendar_url, username)
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="Utilice /update para obtener sus tareas",
+            )
+        else:
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="Algo salió mal mientras se registraba la url,"
+                + " verifique y reintente",
+            )
+    except:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Algo salió mal mientras se registraba la url,"
+            + " verifique y reintente",
+        )
 
 
 def save_subject_command(update, context):
     username = update.message.from_user["id"]
     new_subject = " ".join(context.args)
 
-    subject_code = re.search("\(([^)]+)", new_subject).group(1)
+    try:
+        subject_code = re.search("\(([^)]+)", new_subject).group(1)
 
-    subject_new_name = MateriaClass.Materia(new_subject, subject_code)
-    connectSQLite.save_user_subject_name(subject_new_name, username)
+        subject_new_name = MateriaClass.Materia(new_subject, subject_code)
+        connectSQLite.save_user_subject_name(subject_new_name, username)
 
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="Materia " + new_subject + " registrada",
-    )
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Materia " + new_subject + " registrada",
+        )
+    except:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Algo salió mal mientras se registraba la materia,"
+            + " recuerde incluir el código de la materia dentro de parentesis",
+        )
 
 
 def get_tasks(update, context):
@@ -90,11 +109,14 @@ def get_tasks(update, context):
     else:
         for task in tasks:
             message = task.summary()
-            context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=message,
-                parse_mode=ParseMode.MARKDOWN,
-            )
+            try:
+                context.bot.send_message(
+                    chat_id=update.effective_chat.id,
+                    text=message,
+                    parse_mode=ParseMode.MARKDOWN,
+                )
+            except:
+                context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 
 def error_handler(update: Update, context: CallbackContext) -> None:
