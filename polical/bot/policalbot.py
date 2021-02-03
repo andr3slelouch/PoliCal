@@ -11,6 +11,7 @@ from telegram.ext import (
     MessageHandler,
     Filters,
 )
+from telegram.ext.dispatcher import run_async
 from polical import configuration
 from polical import connectSQLite
 from polical import tasks_processor
@@ -20,6 +21,7 @@ import json
 import logging
 import traceback
 import pytz
+from datetime import datetime, timezone
 
 # Enable logging
 logging.basicConfig(
@@ -96,6 +98,40 @@ def save_subject_command(update, context):
         )
 
 
+def get_new_tasks(context):
+    users_with_url = connectSQLite.get_all_users_with_URL()
+    task_bot_datetime = datetime.now(timezone.utc)
+    for user_with_url in users_with_url:
+        username = user_with_url[0]
+        calendar_url = user_with_url[1]
+        tasks_processor.save_tasks_to_db(calendar_url, username, {}, False)
+        tasks = connectSQLite.get_tasks_for_bot(username, task_bot_datetime)
+        if len(tasks) > 0:
+            for task in tasks:
+                message = task.summary()
+                sended_msg = None
+                try:
+                    sended_msg = context.bot.send_message(
+                        chat_id=username,
+                        text=message,
+                        parse_mode=ParseMode.MARKDOWN,
+                    )
+                except:
+                    sended_msg = context.bot.send_message(
+                        chat_id=username, text=message
+                    )
+                task.define_tid(sended_msg.message_id)
+            for task in tasks:
+                if task.tid:
+                    connectSQLite.add_task_tid(
+                        str(task.id), str(task.tid), str(username)
+                    )
+
+
+def get_new_tasks_timer(bot, update, job_queue):
+    job_queue.run_repeating(get_new_tasks, interval=28800)
+
+
 def get_tasks(update, context):
     username = update.message.from_user["id"]
     calendar_url = connectSQLite.get_user_calendar_url(username)
@@ -169,14 +205,23 @@ def run():
         ),
         use_context=True,
     )
+
     dispatcher = updater.dispatcher
+
+    job_queue_manager = updater.job_queue
+
     start_handler = CommandHandler("start", start)
     moodle_epn_handler = CommandHandler("url", get_moodle_epn_url)
     get_tasks_handler = CommandHandler("update", get_tasks)
     save_subject_handler = CommandHandler("subject", save_subject_command)
+
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(moodle_epn_handler)
     dispatcher.add_handler(get_tasks_handler)
     dispatcher.add_handler(save_subject_handler)
+
+    job_queue_manager.run_repeating(get_new_tasks, interval=60 * 60 * 8, first=0)
+
     dispatcher.add_error_handler(error_handler)
     updater.start_polling()
+    updater.idle()

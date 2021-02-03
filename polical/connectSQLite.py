@@ -487,6 +487,18 @@ def get_user_id(username: str) -> str:
     return user_id
 
 
+def get_all_users_with_URL() -> list:
+    query = "select UsrNombre, UsrUrl from Usuarios where UsrUrl IS NOT NULL"
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(query)
+    list_users = []
+    for user in cur.fetchall():
+        list_users.append(user)
+    conn.close()
+    return list_users
+
+
 def get_subject_name(subject_code: str):
     """This function gets the subject Name from the database
 
