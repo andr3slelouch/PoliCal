@@ -101,22 +101,36 @@ def get_tasks(update, context):
     calendar_url = connectSQLite.get_user_calendar_url(username)
     tasks_processor.save_tasks_to_db(calendar_url, username, {}, False)
     tasks = connectSQLite.get_tasks_for_bot(username, update.message.date)
-    if len(tasks) == 0:
+    sended_tasks = connectSQLite.get_sended_tasks_for_bot(username, update.message.date)
+    if len(tasks) == 0 and len(sended_tasks) == 0:
         context.bot.send_message(
             chat_id=update.effective_chat.id,
             text="No existen tareas nuevas, verifique consultando el calendario",
         )
     else:
+        for task in sended_tasks:
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text=task[1],
+                reply_to_message_id=int(task[0]),
+            )
         for task in tasks:
             message = task.summary()
+            sended_msg = None
             try:
-                context.bot.send_message(
+                sended_msg = context.bot.send_message(
                     chat_id=update.effective_chat.id,
                     text=message,
                     parse_mode=ParseMode.MARKDOWN,
                 )
             except:
-                context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+                sended_msg = context.bot.send_message(
+                    chat_id=update.effective_chat.id, text=message
+                )
+            task.define_tid(sended_msg.message_id)
+        for task in tasks:
+            if task.tid:
+                connectSQLite.add_task_tid(str(task.id), str(task.tid), str(username))
 
 
 def error_handler(update: Update, context: CallbackContext) -> None:

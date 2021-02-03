@@ -531,7 +531,7 @@ def add_task_tid(task_uid: str, task_tid: str, username: str):
         (task_tid, "E", user_id, task_id),
     )
     conn.commit()
-    return cur
+    conn.close()
 
 
 def get_unsended_tasks(username: str) -> list:
@@ -574,6 +574,7 @@ def get_tasks_for_bot(username: str, message_date: datetime) -> list:
 
     Args:
         username (str): Username from the user that owns the task
+        message_date (datetime): Tasks should be after this date
 
     Returns:
         tasks (list): Database cursor that access to tasks and subjects.
@@ -602,6 +603,42 @@ def get_tasks_for_bot(username: str, message_date: datetime) -> list:
             subject = get_subject_from_id(row[6])
             tarea.define_username(username)
             tarea.define_subject(subject)
+            tasks.append(tarea)
+    conn.close()
+    return tasks
+
+
+def get_sended_tasks_for_bot(username: str, message_date: datetime) -> list:
+    """This function gets all sended tasks from the user and with due after message_date.
+
+    Args:
+        username (str): Username from the user that owns the task
+        message_date (datetime): Tasks should be after this date
+
+    Returns:
+        tasks (list): Database cursor that access to tasks and subjects.
+    """
+    user_id = get_user_id(username)
+    query = (
+        "select TarFechaLim, TarUsrTID, TarTitulo "
+        + "from Materias, Tareas, TareasUsuarios, MateriasUsuarios "
+        + "where Tareas.Materias_idMaterias = Materias.idMaterias AND "
+        + "TareasUsuarios.TarUsrEstado = 'E' AND "
+        + "TareasUsuarios.idTareas = Tareas.idTareas AND "
+        + "MateriasUsuarios.idMateria = Materias.idMaterias AND "
+        + "MateriasUsuarios.idUsuario = TareasUsuarios.idUsuarios AND "
+        + "TareasUsuarios.idUsuarios = '"
+        + user_id
+        + "';"
+    )
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute(query)
+    tasks = []
+    timezone = pytz.timezone("America/Guayaquil")
+    for row in cur.fetchall():
+        tarea = [row[1], row[2]]
+        if timezone.localize(row[0]) > message_date:
             tasks.append(tarea)
     conn.close()
     return tasks

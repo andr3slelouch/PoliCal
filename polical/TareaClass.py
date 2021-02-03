@@ -11,6 +11,7 @@ class Tarea:
         self.due_date = due_date
         self.subject_id = subject_id
         self.subject = MateriaClass.Materia("Desconocido", subject_id)
+        self.tid = None
 
     def print(self):
         print(self.id, self.title, self.due_date, self.subject_id)
@@ -32,8 +33,11 @@ class Tarea:
     def define_username(self, username):
         self.username = username
 
+    def define_tid(self, tid):
+        self.tid = tid
+
     def summary(self):
-        summary = "*Titulo*: " + str(self.title)
+        summary = "*Título*: " + str(self.title)
         summary += "\n*Descripción*: " + str(self.description).replace(
             "_", "\_"
         ).replace("*", "\*").replace("`", "\`").replace("[", "\[")
