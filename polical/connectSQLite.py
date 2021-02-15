@@ -3,7 +3,7 @@ from mysql.connector import MySQLConnection, Error
 from polical import TareaClass
 from polical import configuration
 from polical import MateriaClass
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 import logging
 
@@ -649,8 +649,12 @@ def get_sended_tasks_for_bot(username: str, message_date: datetime) -> list:
     tasks = []
     timezone = pytz.timezone("America/Guayaquil")
     for row in cur.fetchall():
-        tarea = [row[1], row[2]]
-        if timezone.localize(row[0]) > message_date:
+        tarea = [
+            row[1],
+            row[2],
+            timezone.localize(row[0]) - timedelta(minutes=30),
+        ]
+        if tarea[2] > message_date:
             tasks.append(tarea)
     conn.close()
     return tasks

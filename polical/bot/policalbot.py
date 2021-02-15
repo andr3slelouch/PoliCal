@@ -21,7 +21,7 @@ import json
 import logging
 import traceback
 import pytz
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 # Enable logging
 logging.basicConfig(
@@ -30,6 +30,8 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 CALENDAR_MOODLE_EPN_URL = "https://aulasvirtuales.epn.edu.ec/calendar/export.php?"
+CREATED_REMINDERS_OLD_TASKS = True
+START_BOT_DATETIME = datetime.now(timezone.utc)
 
 
 def start(update, context):
@@ -98,38 +100,86 @@ def save_subject_command(update, context):
         )
 
 
+def callback_reminder_message(context: CallbackContext):
+    (chat_id, text_message, message_id) = context.job.context
+    logger.info(
+        "Added new reminder for task: "
+        + str(text_message)
+        + " for user: "
+        + str(chat_id)
+    )
+    try:
+        context.bot.send_message(
+            chat_id=chat_id, text=text_message, reply_to_message_id=message_id
+        )
+    except Exception as e:
+        logger.warning("cannot reply message {}: {}".format(message_id, e))
+
+
 def get_new_tasks(context):
     users_with_url = connectSQLite.get_all_users_with_URL()
     task_bot_datetime = datetime.now(timezone.utc)
+    logger.info("get_new_tasks started")
+    print("get_new_tasks started")
     for user_with_url in users_with_url:
         username = user_with_url[0]
         calendar_url = user_with_url[1]
         tasks_processor.save_tasks_to_db(calendar_url, username, {}, False)
         tasks = connectSQLite.get_tasks_for_bot(username, task_bot_datetime)
+        sended_tasks = connectSQLite.get_sended_tasks_for_bot(
+            username, START_BOT_DATETIME
+        )
+        global CREATED_REMINDERS_OLD_TASKS
+        if len(sended_tasks) > 0 and CREATED_REMINDERS_OLD_TASKS:
+            for sended_task in sended_tasks:
+                context.job_queue.run_once(
+                    callback_reminder_message,
+                    sended_task[2],
+                    context=(
+                        username,
+                        "La tarea " + sended_task[0] + " expirará pronto",
+                        sended_task[1],
+                    ),
+                )
         if len(tasks) > 0:
-            for task in tasks:
-                message = task.summary()
-                sended_msg = None
-                try:
-                    sended_msg = context.bot.send_message(
-                        chat_id=username,
-                        text=message,
-                        parse_mode=ParseMode.MARKDOWN,
-                    )
-                except:
-                    sended_msg = context.bot.send_message(
-                        chat_id=username, text=message
-                    )
-                task.define_tid(sended_msg.message_id)
-            for task in tasks:
-                if task.tid:
-                    connectSQLite.add_task_tid(
-                        str(task.id), str(task.tid), str(username)
-                    )
+            send_new_tasks(context, username, tasks)
+        CREATED_REMINDERS_OLD_TASKS = False
 
 
-def get_new_tasks_timer(bot, update, job_queue):
-    job_queue.run_repeating(get_new_tasks, interval=28800)
+def send_new_tasks(context, username, tasks):
+    for task in tasks:
+        message = task.summary()
+        sended_msg = None
+        try:
+            sended_msg = context.bot.send_message(
+                chat_id=username,
+                text=message,
+                parse_mode=ParseMode.MARKDOWN,
+            )
+        except:
+            sended_msg = context.bot.send_message(chat_id=username, text=message)
+        task.define_tid(sended_msg.message_id)
+    for task in tasks:
+        if task.tid:
+            connectSQLite.add_task_tid(str(task.id), str(task.tid), str(username))
+            context.job_queue.run_once(
+                callback_reminder_message,
+                task.due_date - timedelta(minutes=30),
+                context=(
+                    username,
+                    "La tarea " + task.title + " expirará pronto",
+                    task.tid,
+                ),
+            )
+
+
+def get_jobs(update, context):
+    username = update.message.from_user["id"]
+    if username == 232424901:
+        context.bot.send_message(
+            chat_id=232424901,
+            text="Number of jobs " + str(len(context.job_queue.jobs())),
+        )
 
 
 def get_tasks(update, context):
@@ -150,23 +200,7 @@ def get_tasks(update, context):
                 text=task[1],
                 reply_to_message_id=int(task[0]),
             )
-        for task in tasks:
-            message = task.summary()
-            sended_msg = None
-            try:
-                sended_msg = context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text=message,
-                    parse_mode=ParseMode.MARKDOWN,
-                )
-            except:
-                sended_msg = context.bot.send_message(
-                    chat_id=update.effective_chat.id, text=message
-                )
-            task.define_tid(sended_msg.message_id)
-        for task in tasks:
-            if task.tid:
-                connectSQLite.add_task_tid(str(task.id), str(task.tid), str(username))
+        send_new_tasks(context, username, tasks)
 
 
 def error_handler(update: Update, context: CallbackContext) -> None:
@@ -214,13 +248,15 @@ def run():
     moodle_epn_handler = CommandHandler("url", get_moodle_epn_url)
     get_tasks_handler = CommandHandler("update", get_tasks)
     save_subject_handler = CommandHandler("subject", save_subject_command)
+    get_jobs_handler = CommandHandler("jobs", get_jobs)
 
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(moodle_epn_handler)
     dispatcher.add_handler(get_tasks_handler)
     dispatcher.add_handler(save_subject_handler)
+    dispatcher.add_handler(get_jobs_handler)
 
-    job_queue_manager.run_repeating(get_new_tasks, interval=60 * 60 * 8, first=0)
+    job_queue_manager.run_repeating(get_new_tasks, interval=60 * 60 * 1, first=10)
 
     dispatcher.add_error_handler(error_handler)
     updater.start_polling()
