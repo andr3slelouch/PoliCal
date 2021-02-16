@@ -13,6 +13,11 @@ import argparse
 
 
 def define_args():
+    """This function defines the arguments for cli
+
+    Returns:
+        args(Namespace): The namespace with the defined arguments
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--add_user",
@@ -55,8 +60,8 @@ def define_args():
         "-tk",
         help="Save the telegram token to config.yaml configuration file",
     )
-
-    return parser.parse_args()
+    args = parser.parse_args()
+    return args
 
 
 def main(argv):

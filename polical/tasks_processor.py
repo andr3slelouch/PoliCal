@@ -7,6 +7,14 @@ import time
 
 
 def save_tasks_to_db(url: str, username: str, user_dict: dict, trello_account=True):
+    """Save incoming tasks to the database
+
+    Args:
+        url (str): ICS url for look for new tasks
+        username (str): User owner of the tasks
+        user_dict (dict): Dictionary that has user configurations
+        trello_account (bool, optional): If tasks will be sended to trello. Defaults to True.
+    """
     START_BOT_DATETIME = datetime.now(timezone.utc)
     virtual_class_calendar = Calendar(requests.get(url).text)
     events = []

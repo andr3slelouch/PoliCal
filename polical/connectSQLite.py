@@ -64,11 +64,11 @@ def exec(command: str):
     return cur
 
 
-def save_task(task):
+def save_task(task: TareaClass.Tarea):
     """This function saves a task into the database
 
     Args:
-        task (Tarea): Tasks that would be added to the database.
+        task (TareaClass.Tarea): Tasks that would be added to the database.
     """
 
     conn = get_db()
@@ -91,11 +91,11 @@ def save_task(task):
     conn.close()
 
 
-def save_user_task(task, username: str):
+def save_user_task(task: TareaClass.Tarea, username: str):
     """This function saves a task from a user into the database
 
     Args:
-        task (Tarea): Tasks that would be added to the database.
+        task (TareaClass.Tarea): Tasks that would be added to the database.
         username(str): User owner of the task.
     """
     save_task(task)
@@ -115,11 +115,11 @@ def save_user_task(task, username: str):
     conn.close()
 
 
-def check_user_task_existence(task, username: str):
+def check_user_task_existence(task: TareaClass.Tarea, username: str):
     """This function checks if a task exists in the database
 
     Args:
-        task (Tarea): Tasks that would be added to the database.
+        task (TareaClass.Tarea): Tasks that would be added to the database.
         username(str): User owner of the task.
     """
     conn = get_db()
@@ -143,11 +143,14 @@ def check_user_task_existence(task, username: str):
         return True
 
 
-def check_task_existence(task) -> bool:
+def check_task_existence(task: TareaClass.Tarea) -> bool:
     """This function checks if a task exists in the database
 
     Args:
         task (Tarea): Tasks that would be added to the database.
+
+    Returns:
+        bool: If exits True if not False
     """
     conn = get_db()
     cur = conn.cursor()
@@ -162,11 +165,11 @@ def check_task_existence(task) -> bool:
         return True
 
 
-def save_subject(subject):
+def save_subject(subject: MateriaClass.Materia):
     """This function saves a subject into the database
 
     Args:
-        subject (Materia): Subject that would be added to the database.
+        subject (MateriaClass.Materia): Subject that would be added to the database.
 
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
@@ -181,11 +184,11 @@ def save_subject(subject):
     return cur
 
 
-def update_subject(subject):
+def update_subject(subject: MateriaClass.Materia):
     """This function saves a subject into the database
 
     Args:
-        subject (Materia): Subject that would be added to the database.
+        subject (MateriaClass.Materia): Subject that would be added to the database.
 
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
@@ -200,11 +203,11 @@ def update_subject(subject):
     return cur
 
 
-def save_user_subject(subject, username: str):
+def save_user_subject(subject: MateriaClass.Materia, username: str):
     """This function saves a subject and associates to a user into the database
 
     Args:
-        subject (Materia): Subject that would be added to the database.
+        subject (MateriaClass.Materia): Subject that would be added to the database.
         username(str): User owner of the task.
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
@@ -236,11 +239,11 @@ def save_user_subject(subject, username: str):
         conn.close()
 
 
-def save_user_subject_name(subject, username):
+def save_user_subject_name(subject: MateriaClass.Materia, username: str):
     """This function saves a name for subject into MateriasUsuarios table
 
     Args:
-        subject (Materia): Subject that would be added to the database.
+        subject (MateriaClass.Materia): Subject that would be added to the database.
         username(str): User owner of the task.
     Returns:
         cur (Cursor): Database cursor that access to tasks and subjects.
@@ -277,12 +280,15 @@ def save_user_subject_name(subject, username):
         conn.close()
 
 
-def get_user_subject_name(subject_id: str, username: str):
-    """[summary]
+def get_user_subject_name(subject_id: str, username: str) -> str:
+    """Returns the subject name
 
     Args:
-        subject_id (str): [description]
-        username (str): [description]
+        subject_id (str): ID associated to the subject
+        username (str): Username that has tasks from this subject
+
+    Returns:
+        subject_name (str): Subject name
     """
     conn = get_db()
     cur = conn.cursor()
@@ -304,12 +310,15 @@ def get_user_subject_name(subject_id: str, username: str):
         return None
 
 
-def check_user_subject_existence(subject_id: str, username: str):
-    """This function checks if a subject exists in the database
+def check_user_subject_existence(subject_id: str, username: str) -> bool:
+    """This function checks if a subject exists in the database and it is associated to a user
 
     Args:
-        task (Tarea): Tasks that would be added to the database.
-        username(str): User owner of the task.
+        subject_id (str): Subject id to be checked
+        username(str): User owner of the task with subjects associated to.
+
+    Returns:
+        (bool): Returns True if exists and False if not
     """
     conn = get_db()
     cur = conn.cursor()
@@ -354,7 +363,7 @@ def save_user_calendar_url(calendar_url: str, username: str):
     """This function saves a calendar_url to a user
 
     Args:
-        calendar_url (str): Calendar
+        calendar_url (str): Calendar url to ics
         username(str): User owner of the calendar.
     """
     usuario_id = get_user_id(username)
@@ -396,11 +405,11 @@ def get_user_calendar_url(username: str) -> str:
     return calendar_url
 
 
-def save_subject_id(subject):
+def save_subject_id(subject: MateriaClass.Materia):
     """DEPRECATED This function saves the trello list ID into the database
 
     Args:
-        subject (Materia): Subject that owns the ID that would be added to the database.
+        subject (MateriaClass.Materia): Subject that owns the ID that would be added to the database.
 
     """
     query = configuration.prepare_mysql_query(
@@ -469,7 +478,7 @@ def get_user_id(username: str) -> str:
         username (str): Username to get his ID.
 
     Returns:
-        idUsuarios (str): The user id from the database.
+        user_id (str): The user id from the database.
     """
     username = str(username)
     if not check_user_existence(username):
@@ -488,6 +497,11 @@ def get_user_id(username: str) -> str:
 
 
 def get_all_users_with_URL() -> list:
+    """This function returns all the users that has calendar url registered
+
+    Returns:
+        list: Contains a list of users containing username and calendar url
+    """
     query = "select UsrNombre, UsrUrl from Usuarios where UsrUrl IS NOT NULL"
     conn = get_db()
     cur = conn.cursor()
@@ -499,7 +513,7 @@ def get_all_users_with_URL() -> list:
     return list_users
 
 
-def get_subject_name(subject_code: str):
+def get_subject_name(subject_code: str) -> str:
     """This function gets the subject Name from the database
 
     Args:
@@ -660,14 +674,14 @@ def get_sended_tasks_for_bot(username: str, message_date: datetime) -> list:
     return tasks
 
 
-def get_subject_from_id(subject_id):
+def get_subject_from_id(subject_id) -> MateriaClass.Materia:
     """This function gets a subject object from the database
 
     Args:
         subject_code (str): Subject code for get the subject name.
 
     Returns:
-        subject: The subject name from the subject code.
+        subject (MateriaClass.Materia): The subject name from the subject code.
     """
     query = configuration.prepare_mysql_query(
         "select MatNombre, MatCodigo from Materias where idMaterias = '"
