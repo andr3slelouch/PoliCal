@@ -15,6 +15,7 @@ import sys
 import sphinx_rtd_theme
 
 sys.path.insert(0, os.path.abspath("../.."))
+sys.path.insert(0, os.path.abspath("../.."))
 sys.setrecursionlimit(1500)
 
 
@@ -35,8 +36,12 @@ release = "1.1.3"
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
-    "sphinx_rtd_theme",
-    "recommonmark",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.doctest",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.todo",
+    "sphinx.ext.ifconfig",
+    "sphinx.ext.githubpages",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
