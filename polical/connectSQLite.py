@@ -64,7 +64,7 @@ def exec(command: str):
     return cur
 
 
-def save_task(task: TareaClass.Tarea):
+def save_task(task):
     """This function saves a task into the database
 
     Args:
@@ -91,7 +91,7 @@ def save_task(task: TareaClass.Tarea):
     conn.close()
 
 
-def save_user_task(task: TareaClass.Tarea, username: str):
+def save_user_task(task, username: str):
     """This function saves a task from a user into the database
 
     Args:
@@ -115,7 +115,7 @@ def save_user_task(task: TareaClass.Tarea, username: str):
     conn.close()
 
 
-def check_user_task_existence(task: TareaClass.Tarea, username: str):
+def check_user_task_existence(task, username: str):
     """This function checks if a task exists in the database
 
     Args:
@@ -143,7 +143,7 @@ def check_user_task_existence(task: TareaClass.Tarea, username: str):
         return True
 
 
-def check_task_existence(task: TareaClass.Tarea) -> bool:
+def check_task_existence(task) -> bool:
     """This function checks if a task exists in the database
 
     Args:
