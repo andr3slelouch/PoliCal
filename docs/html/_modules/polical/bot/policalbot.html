@@ -1,0 +1,479 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>polical.bot.policalbot &mdash; PoliCal 1.1.3 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> PoliCal
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">PoliCal</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>polical.bot.policalbot</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for polical.bot.policalbot</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">html</span>
+<span class="kn">import</span> <span class="nn">telegram</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">from</span> <span class="nn">telegram</span> <span class="kn">import</span> <span class="n">Update</span><span class="p">,</span> <span class="n">ParseMode</span>
+<span class="kn">from</span> <span class="nn">telegram.ext</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Updater</span><span class="p">,</span>
+    <span class="n">CallbackContext</span><span class="p">,</span>
+    <span class="n">CommandHandler</span><span class="p">,</span>
+    <span class="n">MessageHandler</span><span class="p">,</span>
+    <span class="n">Filters</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">telegram.ext.dispatcher</span> <span class="kn">import</span> <span class="n">run_async</span>
+<span class="kn">from</span> <span class="nn">polical</span> <span class="kn">import</span> <span class="n">configuration</span>
+<span class="kn">from</span> <span class="nn">polical</span> <span class="kn">import</span> <span class="n">connectSQLite</span>
+<span class="kn">from</span> <span class="nn">polical</span> <span class="kn">import</span> <span class="n">tasks_processor</span>
+<span class="kn">from</span> <span class="nn">polical</span> <span class="kn">import</span> <span class="n">MateriaClass</span><span class="p">,</span> <span class="n">TareaClass</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+<span class="kn">import</span> <span class="nn">pytz</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span><span class="p">,</span> <span class="n">timedelta</span>
+
+<span class="c1"># Enable logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+    <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(name)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
+<span class="p">)</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">CALENDAR_MOODLE_EPN_URL</span> <span class="o">=</span> <span class="s2">&quot;https://aulasvirtuales.epn.edu.ec/calendar/export.php?&quot;</span>
+<span class="n">CREATED_REMINDERS_OLD_TASKS</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">START_BOT_DATETIME</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="start"><a class="viewcode-back" href="../../../index.html#polical.bot.policalbot.start">[docs]</a><span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="n">update</span><span class="p">:</span> <span class="n">Update</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">CallbackContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This command handler starts the bot interactions it sends a message to the user with the instructions to use the bot&quot;&quot;&quot;</span>
+
+    <span class="n">username</span> <span class="o">=</span> <span class="n">update</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Bienvenido a PoliCal!</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="s2">&quot;Recuerde que antes de iniciar el proceso de obtención de credenciales ud debe tener una cuenta en el Aula Virtual, y deben estar iniciadas las sesiones en el navegador predeterminado&quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Acceda al siguiente enlace: </span><span class="si">{</span><span class="n">CALENDAR_MOODLE_EPN_URL</span><span class="si">}</span><span class="s2"> &quot;</span>
+        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">A continuación se abrirá un link hacia el Aula Virtual EPN: </span><span class="se">\n</span><span class="s2"> 1. En proximos eventos para: elija Todos los cursos&quot;</span>
+        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> 2. A continuación desplácese a la parte más inferior de la página y de clic en el botón Exportar Calendario&quot;</span>
+        <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1"> 3. Luego, en la opción Exportar seleccione todos los eventos</span><span class="se">\n</span><span class="s1"> 4. Después en &quot;para&quot; seleccione los 60 días recientes y próximos&#39;</span>
+        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> 5. Finalmente de clic en el boton Obtener URL del calendario&quot;</span>
+        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> 6. Responda con /url y el enlace obtenido&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">connectSQLite</span><span class="o">.</span><span class="n">check_user_existence</span><span class="p">(</span><span class="n">username</span><span class="p">):</span>
+        <span class="n">connectSQLite</span><span class="o">.</span><span class="n">save_user</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+        <span class="n">chat_id</span><span class="o">=</span><span class="n">update</span><span class="o">.</span><span class="n">effective_chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_moodle_epn_url"><a class="viewcode-back" href="../../../index.html#polical.bot.policalbot.get_moodle_epn_url">[docs]</a><span class="k">def</span> <span class="nf">get_moodle_epn_url</span><span class="p">(</span><span class="n">update</span><span class="p">:</span> <span class="n">Update</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">CallbackContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This command handler is made for receiving the moodle url from the user and saves it to the database&quot;&quot;&quot;</span>
+
+    <span class="n">username</span> <span class="o">=</span> <span class="n">update</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">calendar_url</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">args</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">configuration</span><span class="o">.</span><span class="n">check_for_url</span><span class="p">(</span><span class="n">calendar_url</span><span class="p">):</span>
+            <span class="n">connectSQLite</span><span class="o">.</span><span class="n">save_user_calendar_url</span><span class="p">(</span><span class="n">calendar_url</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+                <span class="n">chat_id</span><span class="o">=</span><span class="n">update</span><span class="o">.</span><span class="n">effective_chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Utilice /update para obtener sus tareas&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+                <span class="n">chat_id</span><span class="o">=</span><span class="n">update</span><span class="o">.</span><span class="n">effective_chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Algo salió mal mientras se registraba la url,&quot;</span>
+                <span class="o">+</span> <span class="s2">&quot; verifique y reintente&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+            <span class="n">chat_id</span><span class="o">=</span><span class="n">update</span><span class="o">.</span><span class="n">effective_chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Algo salió mal mientras se registraba la url,&quot;</span>
+            <span class="o">+</span> <span class="s2">&quot; verifique y reintente&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="save_subject_command"><a class="viewcode-back" href="../../../index.html#polical.bot.policalbot.save_subject_command">[docs]</a><span class="k">def</span> <span class="nf">save_subject_command</span><span class="p">(</span><span class="n">update</span><span class="p">:</span> <span class="n">Update</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">CallbackContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This command handler saves a subject if is not registerd in the database&quot;&quot;&quot;</span>
+
+    <span class="n">username</span> <span class="o">=</span> <span class="n">update</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+    <span class="n">new_subject</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">subject_code</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;\(([^)]+)&quot;</span><span class="p">,</span> <span class="n">new_subject</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">subject_new_name</span> <span class="o">=</span> <span class="n">MateriaClass</span><span class="o">.</span><span class="n">Materia</span><span class="p">(</span><span class="n">new_subject</span><span class="p">,</span> <span class="n">subject_code</span><span class="p">)</span>
+        <span class="n">connectSQLite</span><span class="o">.</span><span class="n">save_user_subject_name</span><span class="p">(</span><span class="n">subject_new_name</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
+
+        <span class="n">context</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+            <span class="n">chat_id</span><span class="o">=</span><span class="n">update</span><span class="o">.</span><span class="n">effective_chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Materia &quot;</span> <span class="o">+</span> <span class="n">new_subject</span> <span class="o">+</span> <span class="s2">&quot; registrada&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+            <span class="n">chat_id</span><span class="o">=</span><span class="n">update</span><span class="o">.</span><span class="n">effective_chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Algo salió mal mientras se registraba la materia,&quot;</span>
+            <span class="o">+</span> <span class="s2">&quot; recuerde incluir el código de la materia dentro de parentesis&quot;</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="callback_reminder_message"><a class="viewcode-back" href="../../../index.html#polical.bot.policalbot.callback_reminder_message">[docs]</a><span class="k">def</span> <span class="nf">callback_reminder_message</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">CallbackContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This callback handler registers a new job for remind the user about a task 30 minutes before due the task&quot;&quot;&quot;</span>
+
+    <span class="p">(</span><span class="n">chat_id</span><span class="p">,</span> <span class="n">text_message</span><span class="p">,</span> <span class="n">message_id</span><span class="p">)</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">job</span><span class="o">.</span><span class="n">context</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Added new reminder for task: &quot;</span>
+        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">text_message</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot; for user: &quot;</span>
+        <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">chat_id</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+            <span class="n">chat_id</span><span class="o">=</span><span class="n">chat_id</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">text_message</span><span class="p">,</span> <span class="n">reply_to_message_id</span><span class="o">=</span><span class="n">message_id</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;cannot reply message </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">message_id</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="get_new_tasks"><a class="viewcode-back" href="../../../index.html#polical.bot.policalbot.get_new_tasks">[docs]</a><span class="k">def</span> <span class="nf">get_new_tasks</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">CallbackContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This functions repeats in specific times, looks for new tasks for every user that has a valid url registered in the database,</span>
+<span class="sd">    also defines new jobs for reminder incoming tasks for the users&quot;&quot;&quot;</span>
+
+    <span class="n">users_with_url</span> <span class="o">=</span> <span class="n">connectSQLite</span><span class="o">.</span><span class="n">get_all_users_with_URL</span><span class="p">()</span>
+    <span class="n">task_bot_datetime</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;get_new_tasks started&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;get_new_tasks started&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">user_with_url</span> <span class="ow">in</span> <span class="n">users_with_url</span><span class="p">:</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">user_with_url</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">calendar_url</span> <span class="o">=</span> <span class="n">user_with_url</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">tasks_processor</span><span class="o">.</span><span class="n">save_tasks_to_db</span><span class="p">(</span><span class="n">calendar_url</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="p">{},</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="n">connectSQLite</span><span class="o">.</span><span class="n">get_tasks_for_bot</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">task_bot_datetime</span><span class="p">)</span>
+        <span class="n">sended_tasks</span> <span class="o">=</span> <span class="n">connectSQLite</span><span class="o">.</span><span class="n">get_sended_tasks_for_bot</span><span class="p">(</span>
+            <span class="n">username</span><span class="p">,</span> <span class="n">START_BOT_DATETIME</span>
+        <span class="p">)</span>
+        <span class="k">global</span> <span class="n">CREATED_REMINDERS_OLD_TASKS</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sended_tasks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">CREATED_REMINDERS_OLD_TASKS</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">sended_task</span> <span class="ow">in</span> <span class="n">sended_tasks</span><span class="p">:</span>
+                <span class="n">context</span><span class="o">.</span><span class="n">job_queue</span><span class="o">.</span><span class="n">run_once</span><span class="p">(</span>
+                    <span class="n">callback_reminder_message</span><span class="p">,</span>
+                    <span class="n">sended_task</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                    <span class="n">context</span><span class="o">=</span><span class="p">(</span>
+                        <span class="n">username</span><span class="p">,</span>
+                        <span class="s2">&quot;La tarea &quot;</span> <span class="o">+</span> <span class="n">sended_task</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot; expirará pronto&quot;</span><span class="p">,</span>
+                        <span class="n">sended_task</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="p">),</span>
+                <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">send_new_tasks</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">tasks</span><span class="p">)</span>
+        <span class="n">CREATED_REMINDERS_OLD_TASKS</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="send_new_tasks"><a class="viewcode-back" href="../../../index.html#polical.bot.policalbot.send_new_tasks">[docs]</a><span class="k">def</span> <span class="nf">send_new_tasks</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">CallbackContext</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">tasks</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This function sends the tasks as messages to the users also registers josb for new task and remidner to the user</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        context (CallbackContext): Context sended by the main command handler</span>
+<span class="sd">        username (str): username to send the message</span>
+<span class="sd">        tasks (list): List of tasks to be sended to the user</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">summary</span><span class="p">()</span>
+        <span class="n">sended_msg</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">sended_msg</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+                <span class="n">chat_id</span><span class="o">=</span><span class="n">username</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+                <span class="n">parse_mode</span><span class="o">=</span><span class="n">ParseMode</span><span class="o">.</span><span class="n">MARKDOWN</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="n">sended_msg</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="n">chat_id</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">task</span><span class="o">.</span><span class="n">define_tid</span><span class="p">(</span><span class="n">sended_msg</span><span class="o">.</span><span class="n">message_id</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">tid</span><span class="p">:</span>
+            <span class="n">connectSQLite</span><span class="o">.</span><span class="n">add_task_tid</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">tid</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">username</span><span class="p">))</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">job_queue</span><span class="o">.</span><span class="n">run_once</span><span class="p">(</span>
+                <span class="n">callback_reminder_message</span><span class="p">,</span>
+                <span class="n">task</span><span class="o">.</span><span class="n">due_date</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">30</span><span class="p">),</span>
+                <span class="n">context</span><span class="o">=</span><span class="p">(</span>
+                    <span class="n">username</span><span class="p">,</span>
+                    <span class="s2">&quot;La tarea &quot;</span> <span class="o">+</span> <span class="n">task</span><span class="o">.</span><span class="n">title</span> <span class="o">+</span> <span class="s2">&quot; expirará pronto&quot;</span><span class="p">,</span>
+                    <span class="n">task</span><span class="o">.</span><span class="n">tid</span><span class="p">,</span>
+                <span class="p">),</span>
+            <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_jobs"><a class="viewcode-back" href="../../../index.html#polical.bot.policalbot.get_jobs">[docs]</a><span class="k">def</span> <span class="nf">get_jobs</span><span class="p">(</span><span class="n">update</span><span class="p">:</span> <span class="n">Update</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">CallbackContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This function is made to kno how much jobs are currently executing&quot;&quot;&quot;</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">update</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">username</span> <span class="o">==</span> <span class="mi">232424901</span><span class="p">:</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+            <span class="n">chat_id</span><span class="o">=</span><span class="mi">232424901</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;Number of jobs &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">job_queue</span><span class="o">.</span><span class="n">jobs</span><span class="p">())),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_tasks"><a class="viewcode-back" href="../../../index.html#polical.bot.policalbot.get_tasks">[docs]</a><span class="k">def</span> <span class="nf">get_tasks</span><span class="p">(</span><span class="n">update</span><span class="p">:</span> <span class="n">Update</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">CallbackContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This command handler is made for updating and sending the tasks to the users&quot;&quot;&quot;</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">update</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">from_user</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+    <span class="n">calendar_url</span> <span class="o">=</span> <span class="n">connectSQLite</span><span class="o">.</span><span class="n">get_user_calendar_url</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+    <span class="n">tasks_processor</span><span class="o">.</span><span class="n">save_tasks_to_db</span><span class="p">(</span><span class="n">calendar_url</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="p">{},</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="n">connectSQLite</span><span class="o">.</span><span class="n">get_tasks_for_bot</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">update</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">date</span><span class="p">)</span>
+    <span class="n">sended_tasks</span> <span class="o">=</span> <span class="n">connectSQLite</span><span class="o">.</span><span class="n">get_sended_tasks_for_bot</span><span class="p">(</span><span class="n">username</span><span class="p">,</span> <span class="n">update</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">date</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">sended_tasks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+            <span class="n">chat_id</span><span class="o">=</span><span class="n">update</span><span class="o">.</span><span class="n">effective_chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="s2">&quot;No existen tareas nuevas, verifique consultando el calendario&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">sended_tasks</span><span class="p">:</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span>
+                <span class="n">chat_id</span><span class="o">=</span><span class="n">update</span><span class="o">.</span><span class="n">effective_chat</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="n">task</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="n">reply_to_message_id</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">task</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="p">)</span>
+        <span class="n">send_new_tasks</span><span class="p">(</span><span class="n">context</span><span class="p">,</span> <span class="n">username</span><span class="p">,</span> <span class="n">tasks</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="error_handler"><a class="viewcode-back" href="../../../index.html#polical.bot.policalbot.error_handler">[docs]</a><span class="k">def</span> <span class="nf">error_handler</span><span class="p">(</span><span class="n">update</span><span class="p">:</span> <span class="n">Update</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">CallbackContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Log the error and send a telegram message to notify the developer.&quot;&quot;&quot;</span>
+    <span class="c1"># Log the error before we do anything else, so we can see it even if something breaks.</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Exception while handling an update:&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="n">context</span><span class="o">.</span><span class="n">error</span><span class="p">)</span>
+
+    <span class="c1"># traceback.format_exception returns the usual python message about an exception, but as a</span>
+    <span class="c1"># list of strings rather than a single string, so we have to join them together.</span>
+    <span class="n">tb_list</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">error</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">error</span><span class="o">.</span><span class="n">__traceback__</span>
+    <span class="p">)</span>
+    <span class="n">tb_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tb_list</span><span class="p">)</span>
+
+    <span class="c1"># Build the message with some markup and additional information about what happened.</span>
+    <span class="c1"># You might need to add some logic to deal with messages longer than the 4096 character limit.</span>
+    <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;An exception was raised while handling an update</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;pre&gt;update = </span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">update</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;&lt;/pre&gt;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;pre&gt;context.chat_data = </span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">chat_data</span><span class="p">))</span><span class="si">}</span><span class="s2">&lt;/pre&gt;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;pre&gt;context.user_data = </span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">user_data</span><span class="p">))</span><span class="si">}</span><span class="s2">&lt;/pre&gt;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;&lt;pre&gt;</span><span class="si">{</span><span class="n">html</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">tb_string</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/pre&gt;&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Finally, send the message</span>
+    <span class="n">context</span><span class="o">.</span><span class="n">bot</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="n">chat_id</span><span class="o">=</span><span class="mi">232424901</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">message</span><span class="p">,</span> <span class="n">parse_mode</span><span class="o">=</span><span class="n">ParseMode</span><span class="o">.</span><span class="n">HTML</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">run</span><span class="p">():</span>
+    <span class="n">configuration</span><span class="o">.</span><span class="n">set_preffered_dbms</span><span class="p">(</span><span class="s2">&quot;mysql&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;BOT STARTED...&quot;</span><span class="p">)</span>
+    <span class="n">updater</span> <span class="o">=</span> <span class="n">Updater</span><span class="p">(</span>
+        <span class="n">token</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">get_bot_token</span><span class="p">(</span>
+            <span class="n">configuration</span><span class="o">.</span><span class="n">get_file_location</span><span class="p">(</span><span class="s2">&quot;config.yaml&quot;</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="n">use_context</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">dispatcher</span> <span class="o">=</span> <span class="n">updater</span><span class="o">.</span><span class="n">dispatcher</span>
+
+    <span class="n">job_queue_manager</span> <span class="o">=</span> <span class="n">updater</span><span class="o">.</span><span class="n">job_queue</span>
+
+    <span class="n">start_handler</span> <span class="o">=</span> <span class="n">CommandHandler</span><span class="p">(</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
+    <span class="n">moodle_epn_handler</span> <span class="o">=</span> <span class="n">CommandHandler</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">,</span> <span class="n">get_moodle_epn_url</span><span class="p">)</span>
+    <span class="n">get_tasks_handler</span> <span class="o">=</span> <span class="n">CommandHandler</span><span class="p">(</span><span class="s2">&quot;update&quot;</span><span class="p">,</span> <span class="n">get_tasks</span><span class="p">)</span>
+    <span class="n">save_subject_handler</span> <span class="o">=</span> <span class="n">CommandHandler</span><span class="p">(</span><span class="s2">&quot;subject&quot;</span><span class="p">,</span> <span class="n">save_subject_command</span><span class="p">)</span>
+    <span class="n">get_jobs_handler</span> <span class="o">=</span> <span class="n">CommandHandler</span><span class="p">(</span><span class="s2">&quot;jobs&quot;</span><span class="p">,</span> <span class="n">get_jobs</span><span class="p">)</span>
+
+    <span class="n">dispatcher</span><span class="o">.</span><span class="n">add_handler</span><span class="p">(</span><span class="n">start_handler</span><span class="p">)</span>
+    <span class="n">dispatcher</span><span class="o">.</span><span class="n">add_handler</span><span class="p">(</span><span class="n">moodle_epn_handler</span><span class="p">)</span>
+    <span class="n">dispatcher</span><span class="o">.</span><span class="n">add_handler</span><span class="p">(</span><span class="n">get_tasks_handler</span><span class="p">)</span>
+    <span class="n">dispatcher</span><span class="o">.</span><span class="n">add_handler</span><span class="p">(</span><span class="n">save_subject_handler</span><span class="p">)</span>
+    <span class="n">dispatcher</span><span class="o">.</span><span class="n">add_handler</span><span class="p">(</span><span class="n">get_jobs_handler</span><span class="p">)</span>
+
+    <span class="n">job_queue_manager</span><span class="o">.</span><span class="n">run_repeating</span><span class="p">(</span><span class="n">get_new_tasks</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">1</span><span class="p">,</span> <span class="n">first</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+    <span class="n">dispatcher</span><span class="o">.</span><span class="n">add_error_handler</span><span class="p">(</span><span class="n">error_handler</span><span class="p">)</span>
+    <span class="n">updater</span><span class="o">.</span><span class="n">start_polling</span><span class="p">()</span>
+    <span class="n">updater</span><span class="o">.</span><span class="n">idle</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, andr3slelouch.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,423 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>polical.SimpleIcsToCSV &mdash; PoliCal 1.1.3 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PoliCal
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PoliCal</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>polical.SimpleIcsToCSV</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for polical.SimpleIcsToCSV</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: SimpleIcsToCSV</span>
+<span class="sd">   :platform: Unix, Windows</span>
+<span class="sd">   :synopsis: This module converts ICS calendar file from moodle to CSV file.</span>
+
+<span class="sd">.. moduleauthor:: Luis Andrade &lt;andr3slelouch@github.com&gt;</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">wget</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">polical</span> <span class="kn">import</span> <span class="n">configuration</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">EXPORT_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;calendar.csv&quot;</span>
+<span class="n">VEVENT_WITH_LINE_BREAK</span> <span class="o">=</span> <span class="s2">&quot;VEVENT</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">get_file_location</span><span class="p">(</span><span class="s2">&quot;Running.log&quot;</span><span class="p">),</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+    <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2">:</span><span class="si">%(levelname)s</span><span class="s2">:</span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="add_event"><a class="viewcode-back" href="../../index.html#polical.SimpleIcsToCSV.add_event">[docs]</a><span class="k">def</span> <span class="nf">add_event</span><span class="p">(</span><span class="n">header</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function adds a event as a new line in csv file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        header (list): Header for the csv.</span>
+<span class="sd">        filename (str): The filename where file would be written.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        None. If not has headers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">header</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">get_file_location</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">f2</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">get_file_location</span><span class="p">(</span><span class="n">EXPORT_FILENAME</span><span class="p">),</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span>
+    <span class="n">f1</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="c1"># print(header)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">header</span><span class="p">:</span>  <span class="c1"># Write the defenitive header</span>
+        <span class="n">f2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="s2">&quot;END&quot;</span><span class="p">:</span>
+            <span class="n">f2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+    <span class="n">f2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">begin_writing_bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Flag to detect the line BEGIN:VEVENT</span>
+    <span class="c1"># , and start saving the parameters of the event</span>
+    <span class="c1"># in this case is for getting the headers for the CSV</span>
+    <span class="n">normal_writing_bool</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="kc">False</span>  <span class="c1"># Flag to say that is writting everything but no description</span>
+    <span class="p">)</span>
+    <span class="n">description_writing_bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Flag to say that is writting a description</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">f1</span><span class="p">:</span>  <span class="c1"># Read all of the lines between BEGIN:VEVENT and END:VEVENT</span>
+        <span class="c1"># Separate the tags from the content, the results are limited to 2</span>
+        <span class="n">line_list</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># list for looking the first character on the line</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">line_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">line_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;BEGIN&quot;</span> <span class="ow">and</span> <span class="n">line_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">VEVENT_WITH_LINE_BREAK</span>
+        <span class="p">):</span>  <span class="c1"># Here an event begins</span>
+            <span class="n">normal_writing_bool</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Flag activated, for ONE EVENT</span>
+            <span class="n">begin_writing_bool</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Flag activated, for the whole set of events</span>
+            <span class="n">line_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;VEVENT&quot;</span>  <span class="c1"># ERASED the &quot;\n&quot; character</span>
+        <span class="c1"># Here a DESCRIPTION begins, can have a lot of lines.</span>
+        <span class="k">elif</span> <span class="n">line_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DESCRIPTION&quot;</span><span class="p">:</span>
+            <span class="n">description_writing_bool</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Flag activated, for the DESCRIPTION</span>
+            <span class="c1"># A description can be conformed by a lot of especial characters so</span>
+            <span class="c1"># the description will be between &quot;&quot;</span>
+            <span class="n">f2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span>
+        <span class="c1"># If the lines are not beginning  with an space or an &quot;\t&quot;, means that</span>
+        <span class="c1"># is another tag and not currently a decription, but it can change</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">chars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot; &quot;</span>
+            <span class="ow">and</span> <span class="n">chars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span>
+            <span class="ow">and</span> <span class="n">chars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="ow">and</span> <span class="n">description_writing_bool</span>
+        <span class="p">):</span>
+            <span class="n">description_writing_bool</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="kc">False</span>  <span class="c1"># Flag deactivated, it means a description content ends</span>
+            <span class="p">)</span>
+            <span class="n">f2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span><span class="p">)</span>  <span class="c1"># Also finished with a semicolon</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">line_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;END&quot;</span> <span class="ow">and</span> <span class="n">line_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">VEVENT_WITH_LINE_BREAK</span>
+        <span class="p">):</span>  <span class="c1"># An event fisnish</span>
+            <span class="n">normal_writing_bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Flag deactivated, a event ends</span>
+
+        <span class="k">if</span> <span class="n">normal_writing_bool</span> <span class="ow">and</span> <span class="n">description_writing_bool</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="c1"># If normal_writing_bool is activated and description_writing_bool deactivated means that</span>
+            <span class="c1"># is every posible tag except a description</span>
+            <span class="c1"># print(list)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Delete the especial character</span>
+                <span class="n">removebsn</span> <span class="o">=</span> <span class="n">line_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">f2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">removebsn</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span><span class="p">)</span>
+                <span class="c1"># Adds semicolon and avoids double &quot;;&quot;</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">normal_writing_bool</span> <span class="ow">and</span> <span class="n">description_writing_bool</span><span class="p">:</span>
+            <span class="c1"># If normal_writing_bool and description_writing_bool are</span>
+            <span class="c1"># activated it is a description and can have differentes kind of</span>
+            <span class="c1"># lines</span>
+
+            <span class="n">new_list</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">x</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;DESCRIPTION&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">line_list</span>
+            <span class="p">}</span>
+            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">new_list</span><span class="p">:</span>  <span class="c1"># A for loop to add the contents to the description</span>
+                <span class="n">f2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">normal_writing_bool</span> <span class="o">==</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">begin_writing_bool</span><span class="p">:</span>
+            <span class="c1"># if normal_writing_bool is deactivated and begin_writing_bool activated, that means that</span>
+            <span class="c1"># a event has ended so a &quot;\n&quot; is added</span>
+            <span class="n">f2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="convert_ics_to_csv"><a class="viewcode-back" href="../../index.html#polical.SimpleIcsToCSV.convert_ics_to_csv">[docs]</a><span class="k">def</span> <span class="nf">convert_ics_to_csv</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function downloads the moodle calendar and addEvents to a CSV file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        url (str): URL to download moodle calendar</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Descargando calendario desde Aula Virtual...&quot;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Descargando calendario desde Aula Virtual...&quot;</span><span class="p">)</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">configuration</span><span class="o">.</span><span class="n">get_file_location</span><span class="p">(</span><span class="s2">&quot;mycalendar.ics&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="n">wget</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="n">add_event</span><span class="p">(</span><span class="n">find_header</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Espere...&quot;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Descarga de calendario finalizada.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="find_header"><a class="viewcode-back" href="../../index.html#polical.SimpleIcsToCSV.find_header">[docs]</a><span class="k">def</span> <span class="nf">find_header</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This function looks for all the file to get the most longest header.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        icsCal (str): The ics file location.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        (list): List containing the largest header list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">get_file_location</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">f2</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">get_file_location</span><span class="p">(</span><span class="n">EXPORT_FILENAME</span><span class="p">),</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span>
+    <span class="n">f1</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+    <span class="n">begin_writing_bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Flag to detect the line BEGIN:VEVENT</span>
+    <span class="c1"># , and start saving the parameters of the event</span>
+    <span class="c1"># in this case is for getting the headers for the CSV</span>
+    <span class="n">normal_writing_bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">description_writing_bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Saving a description that could be large</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">f1</span><span class="p">:</span>
+        <span class="n">line_list</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">line_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="c1"># Looking for the line that begins an event</span>
+        <span class="k">if</span> <span class="n">line_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;BEGIN&quot;</span> <span class="ow">and</span> <span class="n">line_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">VEVENT_WITH_LINE_BREAK</span><span class="p">:</span>
+            <span class="n">normal_writing_bool</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">begin_writing_bool</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># Looking for the line where the description begins to activate its</span>
+        <span class="c1"># flag</span>
+        <span class="k">elif</span> <span class="n">line_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DESCRIPTION&quot;</span><span class="p">:</span>
+            <span class="n">description_writing_bool</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># If the lines are not beginning  with an space or an &quot;\t&quot;, means that</span>
+        <span class="c1"># is another tag and not currently a decription, but it can change</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">chars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot; &quot;</span>
+            <span class="ow">and</span> <span class="n">chars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span>
+            <span class="ow">and</span> <span class="n">chars</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="ow">and</span> <span class="n">description_writing_bool</span>
+        <span class="p">):</span>
+            <span class="n">description_writing_bool</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">line_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;END&quot;</span><span class="p">:</span>  <span class="c1"># If the event comes to its end the flag</span>
+            <span class="c1"># deactivates</span>
+            <span class="n">normal_writing_bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="s2">&quot;&quot;</span>
+
+        <span class="c1"># If all of the headers are reached it only writes and \n and stops the for loop</span>
+        <span class="k">if</span> <span class="n">normal_writing_bool</span> <span class="o">==</span> <span class="kc">False</span> <span class="ow">and</span> <span class="n">begin_writing_bool</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">f2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;END</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">normal_writing_bool</span> <span class="ow">and</span> <span class="n">description_writing_bool</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="c1"># Everything that can be and tag inside an event is appended to the</span>
+            <span class="c1"># list, but if the events are irregulars this can cause errors</span>
+            <span class="n">f2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">normal_writing_bool</span>
+            <span class="ow">and</span> <span class="n">description_writing_bool</span>
+            <span class="ow">and</span> <span class="n">line_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DESCRIPTION&quot;</span>
+        <span class="p">):</span>
+            <span class="c1"># If the tag is description this is added, but can be lines that</span>
+            <span class="c1"># are part of the description</span>
+            <span class="n">f2</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span><span class="p">)</span>
+
+    <span class="n">f2</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>  <span class="c1"># File calendar.csv is closed</span>
+    <span class="n">headers_list</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># A list of every posible header if the ics file is</span>
+    <span class="c1"># IRREGULAR</span>
+
+    <span class="c1"># Reading the calendar.csv temporary to get the header with the most number</span>
+    <span class="c1"># of tags</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">get_file_location</span><span class="p">(</span><span class="n">EXPORT_FILENAME</span><span class="p">))</span> <span class="k">as</span> <span class="n">csv_file</span><span class="p">:</span>
+        <span class="n">csv_reader</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">reader</span><span class="p">(</span><span class="n">csv_file</span><span class="p">,</span> <span class="n">delimiter</span><span class="o">=</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">csv_reader</span><span class="p">:</span>
+            <span class="n">headers_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+    <span class="c1"># File name to erase the calendar.csv that is temporary</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">configuration</span><span class="o">.</span><span class="n">get_file_location</span><span class="p">(</span><span class="n">EXPORT_FILENAME</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="c1"># Get the header with the most number of tags</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">headers_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">headers_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">len</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">argv</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">argv</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># Arguments</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">add_event</span><span class="p">(</span><span class="n">find_header</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;python SimpleIcsToCSV.py file/location/file.ics&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;python SimpleIcsToCSV.py file/location/file.ics&quot;</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, andr3slelouch.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
