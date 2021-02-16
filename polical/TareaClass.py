@@ -4,7 +4,7 @@ from polical import connectSQLite
 
 
 class Tarea:
-    """Main class of PoliCal it manages the task its owner and its subject asocciated"""
+    """Main class of PoliCal it manages the task its owner and its subject associated"""
 
     def __init__(
         self, id: str, title: str, description: str, due_date: datetime, subject_id: str
@@ -58,10 +58,10 @@ class Tarea:
         self.username = username
 
     def define_tid(self, tid: str):
-        """Defines Trello o Telegram ID asocciated to this task
+        """Defines Trello o Telegram ID associated to this task
 
         Args:
-            tid (str): Trello o Telegram ID asocciated to this task
+            tid (str): Trello o Telegram ID associated to this task
         """
         self.tid = tid
 
