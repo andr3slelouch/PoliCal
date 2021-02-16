@@ -2,10 +2,7 @@ import os
 import sys
 import html
 import telegram
-import trello
 import yaml
-from requests_oauthlib import OAuth1Session
-from requests_oauthlib.oauth1_session import TokenRequestDenied
 from telegram import Update, ParseMode
 from telegram.ext import (
     Updater,
@@ -14,15 +11,17 @@ from telegram.ext import (
     MessageHandler,
     Filters,
 )
+from telegram.ext.dispatcher import run_async
 from polical import configuration
 from polical import connectSQLite
 from polical import tasks_processor
-from polical import MateriaClass
+from polical import MateriaClass, TareaClass
 import re
 import json
 import logging
 import traceback
 import pytz
+from datetime import datetime, timezone, timedelta
 
 # Enable logging
 logging.basicConfig(
@@ -31,9 +30,13 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 CALENDAR_MOODLE_EPN_URL = "https://aulasvirtuales.epn.edu.ec/calendar/export.php?"
+CREATED_REMINDERS_OLD_TASKS = True
+START_BOT_DATETIME = datetime.now(timezone.utc)
 
 
-def start(update, context):
+def start(update: Update, context: CallbackContext) -> None:
+    """This command handler starts the bot interactions it sends a message to the user with the instructions to use the bot"""
+
     username = update.message.from_user["id"]
     message = (
         "Bienvenido a PoliCal!\n"
@@ -53,51 +56,171 @@ def start(update, context):
     )
 
 
-def get_moodle_epn_url(update, context):
+def get_moodle_epn_url(update: Update, context: CallbackContext) -> None:
+    """This command handler is made for receiving the moodle url from the user and saves it to the database"""
+
     username = update.message.from_user["id"]
-    calendar_url = " ".join(context.args)
+    try:
+        calendar_url = " ".join(context.args).replace("\n", "")
+        if configuration.check_for_url(calendar_url):
+            connectSQLite.save_user_calendar_url(calendar_url, username)
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="Utilice /update para obtener sus tareas",
+            )
+        else:
+            context.bot.send_message(
+                chat_id=update.effective_chat.id,
+                text="Algo salió mal mientras se registraba la url,"
+                + " verifique y reintente",
+            )
+    except:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Algo salió mal mientras se registraba la url,"
+            + " verifique y reintente",
+        )
 
-    connectSQLite.save_user_calendar_url(calendar_url, username)
 
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="Utilice /update para obtener sus tareas",
-    )
+def save_subject_command(update: Update, context: CallbackContext) -> None:
+    """This command handler saves a subject if is not registerd in the database"""
 
-
-def save_subject_command(update, context):
     username = update.message.from_user["id"]
     new_subject = " ".join(context.args)
 
-    subject_code = re.search("\(([^)]+)", new_subject).group(1)
+    try:
+        subject_code = re.search("\(([^)]+)", new_subject).group(1)
 
-    subject_new_name = MateriaClass.Materia(new_subject, subject_code)
-    connectSQLite.save_user_subject_name(subject_new_name, username)
+        subject_new_name = MateriaClass.Materia(new_subject, subject_code)
+        connectSQLite.save_user_subject_name(subject_new_name, username)
 
-    context.bot.send_message(
-        chat_id=update.effective_chat.id,
-        text="Materia " + new_subject + " registrada",
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Materia " + new_subject + " registrada",
+        )
+    except:
+        context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text="Algo salió mal mientras se registraba la materia,"
+            + " recuerde incluir el código de la materia dentro de parentesis",
+        )
+
+
+def callback_reminder_message(context: CallbackContext) -> None:
+    """This callback handler registers a new job for remind the user about a task 30 minutes before due the task"""
+
+    (chat_id, text_message, message_id) = context.job.context
+    logger.info(
+        "Added new reminder for task: "
+        + str(text_message)
+        + " for user: "
+        + str(chat_id)
     )
+    try:
+        context.bot.send_message(
+            chat_id=chat_id, text=text_message, reply_to_message_id=message_id
+        )
+    except Exception as e:
+        logger.warning("cannot reply message {}: {}".format(message_id, e))
 
 
-def get_tasks(update, context):
+def get_new_tasks(context: CallbackContext) -> None:
+    """This functions repeats in specific times, looks for new tasks for every user that has a valid url registered in the database,
+    also defines new jobs for reminder incoming tasks for the users"""
+
+    users_with_url = connectSQLite.get_all_users_with_URL()
+    task_bot_datetime = datetime.now(timezone.utc)
+    logger.info("get_new_tasks started")
+    print("get_new_tasks started")
+    for user_with_url in users_with_url:
+        username = user_with_url[0]
+        calendar_url = user_with_url[1]
+        tasks_processor.save_tasks_to_db(calendar_url, username, {}, False)
+        tasks = connectSQLite.get_tasks_for_bot(username, task_bot_datetime)
+        sended_tasks = connectSQLite.get_sended_tasks_for_bot(
+            username, START_BOT_DATETIME
+        )
+        global CREATED_REMINDERS_OLD_TASKS
+        if len(sended_tasks) > 0 and CREATED_REMINDERS_OLD_TASKS:
+            for sended_task in sended_tasks:
+                context.job_queue.run_once(
+                    callback_reminder_message,
+                    sended_task[2],
+                    context=(
+                        username,
+                        "La tarea " + sended_task[0] + " expirará pronto",
+                        sended_task[0],
+                    ),
+                )
+        if len(tasks) > 0:
+            send_new_tasks(context, username, tasks)
+        CREATED_REMINDERS_OLD_TASKS = False
+
+
+def send_new_tasks(context: CallbackContext, username: str, tasks: list) -> None:
+    """This function sends the tasks as messages to the users also registers josb for new task and remidner to the user
+
+    Args:
+        context (CallbackContext): Context sended by the main command handler
+        username (str): username to send the message
+        tasks (list): List of tasks to be sended to the user
+    """
+    for task in tasks:
+        message = task.summary()
+        sended_msg = None
+        try:
+            sended_msg = context.bot.send_message(
+                chat_id=username,
+                text=message,
+                parse_mode=ParseMode.MARKDOWN,
+            )
+        except:
+            sended_msg = context.bot.send_message(chat_id=username, text=message)
+        task.define_tid(sended_msg.message_id)
+    for task in tasks:
+        if task.tid:
+            connectSQLite.add_task_tid(str(task.id), str(task.tid), str(username))
+            context.job_queue.run_once(
+                callback_reminder_message,
+                task.due_date - timedelta(minutes=30),
+                context=(
+                    username,
+                    "La tarea " + task.title + " expirará pronto",
+                    task.tid,
+                ),
+            )
+
+
+def get_jobs(update: Update, context: CallbackContext) -> None:
+    """This function is made to kno how much jobs are currently executing"""
+    username = update.message.from_user["id"]
+    if username == 232424901:
+        context.bot.send_message(
+            chat_id=232424901,
+            text="Number of jobs " + str(len(context.job_queue.jobs())),
+        )
+
+
+def get_tasks(update: Update, context: CallbackContext) -> None:
+    """This command handler is made for updating and sending the tasks to the users"""
     username = update.message.from_user["id"]
     calendar_url = connectSQLite.get_user_calendar_url(username)
     tasks_processor.save_tasks_to_db(calendar_url, username, {}, False)
-    tasks = connectSQLite.get_unsended_tasks(username)
-    if len(tasks) == 0:
+    tasks = connectSQLite.get_tasks_for_bot(username, update.message.date)
+    sended_tasks = connectSQLite.get_sended_tasks_for_bot(username, update.message.date)
+    if len(tasks) == 0 and len(sended_tasks) == 0:
         context.bot.send_message(
             chat_id=update.effective_chat.id,
             text="No existen tareas nuevas, verifique consultando el calendario",
         )
     else:
-        for task in tasks:
-            message = task.summary()
+        for task in sended_tasks:
             context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text=message,
-                parse_mode=ParseMode.MARKDOWN,
+                text=task[1],
+                reply_to_message_id=int(task[0]),
             )
+        send_new_tasks(context, username, tasks)
 
 
 def error_handler(update: Update, context: CallbackContext) -> None:
@@ -136,14 +259,25 @@ def run():
         ),
         use_context=True,
     )
+
     dispatcher = updater.dispatcher
+
+    job_queue_manager = updater.job_queue
+
     start_handler = CommandHandler("start", start)
     moodle_epn_handler = CommandHandler("url", get_moodle_epn_url)
     get_tasks_handler = CommandHandler("update", get_tasks)
     save_subject_handler = CommandHandler("subject", save_subject_command)
+    get_jobs_handler = CommandHandler("jobs", get_jobs)
+
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(moodle_epn_handler)
     dispatcher.add_handler(get_tasks_handler)
     dispatcher.add_handler(save_subject_handler)
+    dispatcher.add_handler(get_jobs_handler)
+
+    job_queue_manager.run_repeating(get_new_tasks, interval=60 * 60 * 1, first=10)
+
     dispatcher.add_error_handler(error_handler)
     updater.start_polling()
+    updater.idle()

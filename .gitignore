@@ -27,3 +27,5 @@ config.yaml
 polical_bk.sql
 
 polical_env.txt
+
+.idea/workspace.xml

@@ -1,0 +1,1162 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Documentation for the Code &mdash; PoliCal 1.1.3 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="#" class="icon icon-home"> PoliCal
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Documentation for the Code</a><ul>
+<li><a class="reference internal" href="#module-polical.__main__">PoliCal main</a></li>
+<li><a class="reference internal" href="#module-polical.Get_Trello_MoodleEPN_Keys">PoliCal Get_Trello_MoodleEPN_Keys</a></li>
+<li><a class="reference internal" href="#module-polical.configuration">PoliCal configuration</a></li>
+<li><a class="reference internal" href="#module-polical.SendTaskToTrello">PoliCal SendTaskToTrello</a></li>
+<li><a class="reference internal" href="#module-polical.SimpleIcsToCSV">PoliCal SimpleIcsToCSV</a></li>
+<li><a class="reference internal" href="#module-polical.TareasCSVToBD">PoliCal TareasCSVToBD</a></li>
+<li><a class="reference internal" href="#module-polical.MateriasLoaderToDB">PoliCal MateriasLoaderToDB</a></li>
+<li><a class="reference internal" href="#module-polical.connectSQLite">PoliCal connectSQLite</a></li>
+<li><a class="reference internal" href="#module-polical.bot.policalbot">PoliCal policalbot</a></li>
+<li><a class="reference internal" href="#module-polical.MateriaClass">PoliCal MateriaClass</a></li>
+<li><a class="reference internal" href="#module-polical.TareaClass">PoliCal TareaClass</a></li>
+<li><a class="reference internal" href="#module-polical.tasks_processor">PoliCal tasks_processor</a></li>
+<li><a class="reference internal" href="#module-polical.todo_generator">PoliCal todo_generator</a></li>
+</ul>
+</li>
+</ul>
+</div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">PoliCal</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Documentation for the Code</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="documentation-for-the-code">
+<h1>Documentation for the Code<a class="headerlink" href="#documentation-for-the-code" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<div class="section" id="module-polical.__main__">
+<span id="polical-main"></span><h2>PoliCal main<a class="headerlink" href="#module-polical.__main__" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="polical.__main__.define_args">
+<code class="sig-prename descclassname"><span class="pre">polical.__main__.</span></code><code class="sig-name descname"><span class="pre">define_args</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#polical.__main__.define_args" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function defines the arguments for cli</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>args(Namespace): The namespace with the defined arguments</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-polical.Get_Trello_MoodleEPN_Keys">
+<span id="polical-get-trello-moodleepn-keys"></span><h2>PoliCal Get_Trello_MoodleEPN_Keys<a class="headerlink" href="#module-polical.Get_Trello_MoodleEPN_Keys" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-Get_Trello_MoodleEPN_Keys"></span><dl class="py class">
+<dt id="polical.Get_Trello_MoodleEPN_Keys.DevNullRedirect">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">polical.Get_Trello_MoodleEPN_Keys.</span></code><code class="sig-name descname"><span class="pre">DevNullRedirect</span></code><a class="headerlink" href="#polical.Get_Trello_MoodleEPN_Keys.DevNullRedirect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Temporarily eat stdout/stderr to allow no output.
+This is used to suppress browser messages in webbrowser.open</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.Get_Trello_MoodleEPN_Keys.check_file_existence">
+<code class="sig-prename descclassname"><span class="pre">polical.Get_Trello_MoodleEPN_Keys.</span></code><code class="sig-name descname"><span class="pre">check_file_existence</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="headerlink" href="#polical.Get_Trello_MoodleEPN_Keys.check_file_existence" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions checks if the file already exists on filesystem</p>
+<dl>
+<dt>Args:</dt><dd><p>output_file (str):  File location</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool.  The return code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kc">False</span> <span class="o">--</span> <span class="n">If</span> <span class="n">the</span> <span class="n">file</span> <span class="ow">not</span> <span class="n">exists</span> <span class="ow">or</span> <span class="ow">is</span> <span class="n">blank</span>
+<span class="kc">True</span> <span class="o">--</span> <span class="n">If</span> <span class="n">already</span> <span class="n">exists</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.Get_Trello_MoodleEPN_Keys.check_user_on_file">
+<code class="sig-prename descclassname"><span class="pre">polical.Get_Trello_MoodleEPN_Keys.</span></code><code class="sig-name descname"><span class="pre">check_user_on_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.Get_Trello_MoodleEPN_Keys.check_user_on_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions checks if an user already exists on yaml file.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>output_file (str):  File location
+username (str): The username that would be checked.</p>
+</dd>
+<dt>Returns:</dt><dd><p>Stop onboard function if the username already exists and the user answers N to overwrite it.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.Get_Trello_MoodleEPN_Keys.get_working_board_id">
+<code class="sig-prename descclassname"><span class="pre">polical.Get_Trello_MoodleEPN_Keys.</span></code><code class="sig-name descname"><span class="pre">get_working_board_id</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">api_key:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">api_secret:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">oauth_token:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">oauth_token_secret:</span> <span class="pre">str)</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'str'&gt;</span></em>, <em class="sig-param"><span class="pre">&lt;class</span> <span class="pre">'str'&gt;</span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.Get_Trello_MoodleEPN_Keys.get_working_board_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is for getting the TareasPoli Board ID that is created in the onboard process</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>api_key (str):  The api key to acceso Trello
+api_secret (str): The api secret to acceso Trello
+oauth_token (str): The oauth token to acceso Trello
+oauth_token_secret (str): The oauth token secret to acceso Trello</p>
+</dd>
+<dt>Returns:</dt><dd><p>board_id (str): This is the board id of TareasPoli board
+owner_id (str): This is the owner id of Trello user</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.Get_Trello_MoodleEPN_Keys.onboard">
+<code class="sig-prename descclassname"><span class="pre">polical.Get_Trello_MoodleEPN_Keys.</span></code><code class="sig-name descname"><span class="pre">onboard</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">no_open</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'polical.yaml'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.Get_Trello_MoodleEPN_Keys.onboard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Obtain Trello API credentials and put them into your config file.
+This is invoked automatically the first time you attempt to do an operation which requires authentication.
+The configuration file is put in an appropriate place for your operating system.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-polical.configuration">
+<span id="polical-configuration"></span><h2>PoliCal configuration<a class="headerlink" href="#module-polical.configuration" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-configuration"></span><dl class="py function">
+<dt id="polical.configuration.add_subject_to_trello_list">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">add_subject_to_trello_list</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subjects_board</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_code</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.configuration.add_subject_to_trello_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function adds a subject as list to trello board.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subjects_board (Trello.Board): Tareas Poli’s Board object from Trello library
+subject_name (str): Subject name to create new list.
+subject_code (str): Subject code to add it to name list.
+username (str): The username for the owner of the current subject.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.configuration.check_for_url">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">check_for_url</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="headerlink" href="#polical.configuration.check_for_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is for checking moodle calendar url</p>
+<dl>
+<dt>Args:</dt><dd><p>url (str): Moodle Calendar Address to be checked</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool.  The return code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kc">False</span> <span class="o">--</span> <span class="n">If</span> <span class="n">the</span> <span class="n">url</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">start</span> <span class="k">with</span> <span class="n">https</span> <span class="ow">and</span> <span class="n">ends</span> <span class="k">with</span> <span class="n">recentupcoming</span>
+<span class="kc">True</span> <span class="o">--</span> <span class="n">If</span> <span class="n">the</span> <span class="n">url</span> <span class="ow">is</span> <span class="n">correct</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.configuration.create_subject">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">create_subject</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_code</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_title</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_dict</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trello_account</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="headerlink" href="#polical.configuration.create_subject" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function creates a subject in Trello if trello_account is True, and adds it to local database associating to a user.</p>
+<dl>
+<dt>Args:</dt><dd><p>subject_code (str): Subject Code to check with local database and trello.
+task_title (str): Subject title for showing to the user if subject is not founded in local database.
+user_dict (dict): User dictionary with keys to connect to trello.
+username (str): The username for the owner of the current subject.
+trello_account (bool): Flag to indicate if the subject would be created in Trello.</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool.  The return code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kc">False</span> <span class="o">--</span> <span class="n">If</span> <span class="n">the</span> <span class="n">Trello</span> <span class="n">account</span> <span class="n">flag</span> <span class="ow">is</span> <span class="n">deactivated</span> <span class="ow">and</span> <span class="n">the</span> <span class="n">subject</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">founded</span> <span class="ow">in</span> <span class="n">local</span> <span class="n">database</span>
+<span class="kc">True</span> <span class="o">--</span> <span class="n">If</span> <span class="n">the</span> <span class="n">process</span> <span class="n">to</span> <span class="n">create</span> <span class="n">the</span> <span class="n">subject</span> <span class="n">was</span> <span class="n">successful</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.configuration.generate_db_selector_file">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">generate_db_selector_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.configuration.generate_db_selector_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function generates a db selector file template with the required parameters</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>config_file_path (str): Where the file should be stored</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.configuration.get_bot_token">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">get_bot_token</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#polical.configuration.get_bot_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the bot token stored in config_file_path</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>config_file_path (str): Where the file is stored</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: Token to access to Telegram Bot</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.configuration.get_file_location">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">get_file_location</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#polical.configuration.get_file_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets the full path location of a file</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>filename (str): Filename that needs the full path location</p>
+</dd>
+<dt>Returns:</dt><dd><p>full_path_file_location (str): Full path location of the file</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.configuration.get_mysql_credentials">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">get_mysql_credentials</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#polical.configuration.get_mysql_credentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns the credentials to access to mysql database stored in config.yaml config file</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>config_file_path (str): Where is the file stored</p>
+</dd>
+<dt>Returns:</dt><dd><p>dict: Dictionary that contains username and password for the MySQL database</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.configuration.get_preferred_dbms">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">get_preferred_dbms</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#polical.configuration.get_preferred_dbms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the dbms to be used stored in config_file_path</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>config_file_path (str): Where the file is stored</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: The database that is used</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.configuration.get_subject_name_from_ics_event_category">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">get_subject_name_from_ics_event_category</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_subject_name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#polical.configuration.get_subject_name_from_ics_event_category" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets subject name from the categories in ics event</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>full_subject_name (str): Full subject name with format XXX_YYY_ZZZ</p>
+</dd>
+<dt>Return:</dt><dd><p>subject_name (str): Subject name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.configuration.get_working_directory">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">get_working_directory</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#polical.configuration.get_working_directory" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions gets the working directory path.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>working_directory (str): The directory where database and yaml are located.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.configuration.load_config_file">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">load_config_file</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">dict</span><a class="headerlink" href="#polical.configuration.load_config_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is for loading yaml config file</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>config_file_path (str): File path for the config file to be loaded</p>
+</dd>
+<dt>Returns:</dt><dd><p>file_config (dict): Dictionary with config keys.</p>
+</dd>
+<dt>Raises:</dt><dd><p>IOError</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.configuration.prepare_mysql_query">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">prepare_mysql_query</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#polical.configuration.prepare_mysql_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function changes ? characters to %s for being used by MySQL Connection</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>query (str): Database query to execute</p>
+</dd>
+<dt>Returns:</dt><dd><p>str: SQLite3 query parsed to MySQL query</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.configuration.set_bot_token">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">set_bot_token</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.configuration.set_bot_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the telegram token for being used for the bot telegram</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>config_file_path (str): Where the file is stored
+token (str): A valid token to access to Telegram Bot</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.configuration.set_preffered_dbms">
+<code class="sig-prename descclassname"><span class="pre">polical.configuration.</span></code><code class="sig-name descname"><span class="pre">set_preffered_dbms</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preffered_dbms</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_file_path</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">'/home/andres/PoliCal/config.yaml'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.configuration.set_preffered_dbms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the database that polical is using</p>
+<dl>
+<dt>Args:</dt><dd><dl class="simple">
+<dt>preffered_dbms (str):</dt><dd><ul class="simple">
+<li><p>mysql: To use MySQL database</p></li>
+<li><p>default: To use SQLite3 database</p></li>
+</ul>
+</dd>
+</dl>
+<p>config_file_path (str, optional): Where the file is stored . Defaults to “config.yaml”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-polical.SendTaskToTrello">
+<span id="polical-sendtasktotrello"></span><h2>PoliCal SendTaskToTrello<a class="headerlink" href="#module-polical.SendTaskToTrello" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-SendTaskToTrello"></span><dl class="py function">
+<dt id="polical.SendTaskToTrello.send_task_to_trello">
+<code class="sig-prename descclassname"><span class="pre">polical.SendTaskToTrello.</span></code><code class="sig-name descname"><span class="pre">send_task_to_trello</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_dict</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.SendTaskToTrello.send_task_to_trello" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function sends tasks from database that are stored as not sended to trello.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>username (str): The username for the current task.
+user_dict (dict): User dictionary with keys to acces to trello.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-polical.SimpleIcsToCSV">
+<span id="polical-simpleicstocsv"></span><h2>PoliCal SimpleIcsToCSV<a class="headerlink" href="#module-polical.SimpleIcsToCSV" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-SimpleIcsToCSV"></span><dl class="py function">
+<dt id="polical.SimpleIcsToCSV.add_event">
+<code class="sig-prename descclassname"><span class="pre">polical.SimpleIcsToCSV.</span></code><code class="sig-name descname"><span class="pre">add_event</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.SimpleIcsToCSV.add_event" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function adds a event as a new line in csv file.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>header (list): Header for the csv.
+filename (str): The filename where file would be written.</p>
+</dd>
+<dt>Returns:</dt><dd><p>None. If not has headers</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.SimpleIcsToCSV.convert_ics_to_csv">
+<code class="sig-prename descclassname"><span class="pre">polical.SimpleIcsToCSV.</span></code><code class="sig-name descname"><span class="pre">convert_ics_to_csv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.SimpleIcsToCSV.convert_ics_to_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function downloads the moodle calendar and addEvents to a CSV file.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>url (str): URL to download moodle calendar</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.SimpleIcsToCSV.find_header">
+<code class="sig-prename descclassname"><span class="pre">polical.SimpleIcsToCSV.</span></code><code class="sig-name descname"><span class="pre">find_header</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="headerlink" href="#polical.SimpleIcsToCSV.find_header" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function looks for all the file to get the most longest header.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>icsCal (str): The ics file location.</p>
+</dd>
+<dt>Returns:</dt><dd><p>(list): List containing the largest header list.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-polical.TareasCSVToBD">
+<span id="polical-tareascsvtobd"></span><h2>PoliCal TareasCSVToBD<a class="headerlink" href="#module-polical.TareasCSVToBD" title="Permalink to this headline">¶</a></h2>
+<span class="target" id="module-TareasCSVtoBD"></span><dl class="py function">
+<dt id="polical.TareasCSVToBD.get_subject_name_from_csv">
+<code class="sig-prename descclassname"><span class="pre">polical.TareasCSVToBD.</span></code><code class="sig-name descname"><span class="pre">get_subject_name_from_csv</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_subject_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.TareasCSVToBD.get_subject_name_from_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets subject name from csv</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>full_subject_name (str): Full subject name with format XXX_YYY_ZZZ</p>
+</dd>
+<dt>Return:</dt><dd><p>subject_name (str): Subject name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.TareasCSVToBD.load_csv_tasks_to_db">
+<code class="sig-prename descclassname"><span class="pre">polical.TareasCSVToBD.</span></code><code class="sig-name descname"><span class="pre">load_csv_tasks_to_db</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_dict</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.TareasCSVToBD.load_csv_tasks_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function loads csv tasks to the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>username (str): The username for the current task.
+user_dict (dict): User dictionary with keys to acces to trello.</p>
+</dd>
+<dt>Raises:</dt><dd><p>FileNotFoundError</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-polical.MateriasLoaderToDB">
+<span id="polical-materiasloadertodb"></span><h2>PoliCal MateriasLoaderToDB<a class="headerlink" href="#module-polical.MateriasLoaderToDB" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="polical.MateriasLoaderToDB.load_subjects_to_db">
+<code class="sig-prename descclassname"><span class="pre">polical.MateriasLoaderToDB.</span></code><code class="sig-name descname"><span class="pre">load_subjects_to_db</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#polical.MateriasLoaderToDB.load_subjects_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function loads any subject located on materias.csv to the database.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.MateriasLoaderToDB.update_subjects_to_db">
+<code class="sig-prename descclassname"><span class="pre">polical.MateriasLoaderToDB.</span></code><code class="sig-name descname"><span class="pre">update_subjects_to_db</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#polical.MateriasLoaderToDB.update_subjects_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function loads any subject located on materias.csv to the database.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-polical.connectSQLite">
+<span id="polical-connectsqlite"></span><h2>PoliCal connectSQLite<a class="headerlink" href="#module-polical.connectSQLite" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="polical.connectSQLite.add_task_tid">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">add_task_tid</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_uid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_tid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.add_task_tid" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function adds the task trello ID into the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>task_uid (str): Task UID from ICS file.
+task_tid (str): New Task Trello ID from trello.
+username (str): Username from the user that owns the task</p>
+</dd>
+<dt>Returns:</dt><dd><p>cur (Cursor): Database cursor that access to tasks and subjects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.check_no_subject_id">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">check_no_subject_id</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_code</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="headerlink" href="#polical.connectSQLite.check_no_subject_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks if the subject code is registered and has an ID in the database.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subject_code (str): Subject code from the database to check if it has ID or not.</p>
+</dd>
+<dt>Returns:</dt><dd><p>(bool): Returns ‘False’ if does not has the ID and ‘True’ if it has it.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.check_task_existence">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">check_task_existence</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="headerlink" href="#polical.connectSQLite.check_task_existence" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks if a task exists in the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>task (Tarea): Tasks that would be added to the database.</p>
+</dd>
+<dt>Returns:</dt><dd><p>bool: If exits True if not False</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.check_user_existence">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">check_user_existence</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="headerlink" href="#polical.connectSQLite.check_user_existence" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks if the username has an ID in the database.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>username (str): username from the database to check if it has ID or not.</p>
+</dd>
+<dt>Returns:</dt><dd><p>False: If does not has the ID
+True: If it has it.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.check_user_subject_existence">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">check_user_subject_existence</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">bool</span><a class="headerlink" href="#polical.connectSQLite.check_user_subject_existence" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks if a subject exists in the database and it is associated to a user</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subject_id (str): Subject id to be checked
+username(str): User owner of the task with subjects associated to.</p>
+</dd>
+<dt>Returns:</dt><dd><p>(bool): Returns True if exists and False if not</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.check_user_task_existence">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">check_user_task_existence</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.check_user_task_existence" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks if a task exists in the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>task (TareaClass.Tarea): Tasks that would be added to the database.
+username(str): User owner of the task.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.exec">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">exec</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">command</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.exec" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function executes a coomand in the database.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>command (str): Query that needs to be executed on the database.</p>
+</dd>
+<dt>Returns:</dt><dd><p>cur (Cursor): Database cursor that access to tasks and subjects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.get_all_users_with_URL">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">get_all_users_with_URL</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="headerlink" href="#polical.connectSQLite.get_all_users_with_URL" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns all the users that has calendar url registered</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>list: Contains a list of users containing username and calendar url</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.get_cur">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">get_cur</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.get_cur" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns the database cursor</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>cur (Cursor): Database cursor that access to tasks and subjects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.get_db">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">get_db</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.get_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function returns the database connection. Selects between sqlite3 or mysql</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>db (Connection): Database connection that access to tasks and subjects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.get_sended_tasks_for_bot">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">get_sended_tasks_for_bot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_date</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">datetime.datetime</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="headerlink" href="#polical.connectSQLite.get_sended_tasks_for_bot" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets all sended tasks from the user and with due after message_date.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>username (str): Username from the user that owns the task
+message_date (datetime): Tasks should be after this date</p>
+</dd>
+<dt>Returns:</dt><dd><p>tasks (list): Database cursor that access to tasks and subjects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.get_subject_from_id">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">get_subject_from_id</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id</span></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#polical.MateriaClass.Materia" title="polical.MateriaClass.Materia"><span class="pre">polical.MateriaClass.Materia</span></a><a class="headerlink" href="#polical.connectSQLite.get_subject_from_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets a subject object from the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subject_code (str): Subject code for get the subject name.</p>
+</dd>
+<dt>Returns:</dt><dd><p>subject (MateriaClass.Materia): The subject name from the subject code.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.get_subject_id">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">get_subject_id</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_code</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#polical.connectSQLite.get_subject_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets the subject ID from the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subject_code (str): Subject code from the subject to get the ID.</p>
+</dd>
+<dt>Returns:</dt><dd><p>subject_id (str): Subject ID from the subject.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.get_subject_name">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">get_subject_name</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_code</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#polical.connectSQLite.get_subject_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets the subject Name from the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subject_code (str): Subject code for get the subject name.</p>
+</dd>
+<dt>Returns:</dt><dd><p>subject_name (str): The subject name from the subject code.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.get_task_id">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">get_task_id</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task_uid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#polical.connectSQLite.get_task_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets the task ID from the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>task_uid (str): Task UID from the task to get the ID.</p>
+</dd>
+<dt>Returns:</dt><dd><p>task_id (str): Task ID from the task.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.get_tasks_for_bot">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">get_tasks_for_bot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_date</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">datetime.datetime</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="headerlink" href="#polical.connectSQLite.get_tasks_for_bot" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets all unsended tasks from the user.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>username (str): Username from the user that owns the task
+message_date (datetime): Tasks should be after this date</p>
+</dd>
+<dt>Returns:</dt><dd><p>tasks (list): Database cursor that access to tasks and subjects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.get_unsended_tasks">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">get_unsended_tasks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="headerlink" href="#polical.connectSQLite.get_unsended_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets all unsended tasks from the user.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>username (str): Username from the user that owns the task</p>
+</dd>
+<dt>Returns:</dt><dd><p>tasks (list): Database cursor that access to tasks and subjects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.get_user_calendar_url">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">get_user_calendar_url</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#polical.connectSQLite.get_user_calendar_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets the subject ID from the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subject_code (str): Subject code from the subject to get the ID.</p>
+</dd>
+<dt>Returns:</dt><dd><p>subject_id (str): Subject ID from the subject.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.get_user_id">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">get_user_id</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#polical.connectSQLite.get_user_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets the User ID from the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>username (str): Username to get his ID.</p>
+</dd>
+<dt>Returns:</dt><dd><p>user_id (str): The user id from the database.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.get_user_subject_name">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">get_user_subject_name</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">str</span><a class="headerlink" href="#polical.connectSQLite.get_user_subject_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the subject name</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subject_id (str): ID associated to the subject
+username (str): Username that has tasks from this subject</p>
+</dd>
+<dt>Returns:</dt><dd><p>subject_name (str): Subject name</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.save_subject">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">save_subject</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#polical.MateriaClass.Materia" title="polical.MateriaClass.Materia"><span class="pre">polical.MateriaClass.Materia</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.save_subject" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function saves a subject into the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subject (MateriaClass.Materia): Subject that would be added to the database.</p>
+</dd>
+<dt>Returns:</dt><dd><p>cur (Cursor): Database cursor that access to tasks and subjects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.save_subject_id">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">save_subject_id</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#polical.MateriaClass.Materia" title="polical.MateriaClass.Materia"><span class="pre">polical.MateriaClass.Materia</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.save_subject_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>DEPRECATED This function saves the trello list ID into the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subject (MateriaClass.Materia): Subject that owns the ID that would be added to the database.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.save_task">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">save_task</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.save_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function saves a task into the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>task (TareaClass.Tarea): Tasks that would be added to the database.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.save_user">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">save_user</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.save_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function saves a user into the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>username (str): User to be added into the database</p>
+</dd>
+<dt>Returns:</dt><dd><p>cur (Cursor): Database cursor that access to tasks and subjects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.save_user_calendar_url">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">save_user_calendar_url</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">calendar_url</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.save_user_calendar_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function saves a calendar_url to a user</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>calendar_url (str): Calendar url to ics
+username(str): User owner of the calendar.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.save_user_subject">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">save_user_subject</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#polical.MateriaClass.Materia" title="polical.MateriaClass.Materia"><span class="pre">polical.MateriaClass.Materia</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.save_user_subject" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function saves a subject and associates to a user into the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subject (MateriaClass.Materia): Subject that would be added to the database.
+username(str): User owner of the task.</p>
+</dd>
+<dt>Returns:</dt><dd><p>cur (Cursor): Database cursor that access to tasks and subjects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.save_user_subject_name">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">save_user_subject_name</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#polical.MateriaClass.Materia" title="polical.MateriaClass.Materia"><span class="pre">polical.MateriaClass.Materia</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.save_user_subject_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function saves a name for subject into MateriasUsuarios table</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subject (MateriaClass.Materia): Subject that would be added to the database.
+username(str): User owner of the task.</p>
+</dd>
+<dt>Returns:</dt><dd><p>cur (Cursor): Database cursor that access to tasks and subjects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.save_user_task">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">save_user_task</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.save_user_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function saves a task from a user into the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>task (TareaClass.Tarea): Tasks that would be added to the database.
+username(str): User owner of the task.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.connectSQLite.update_subject">
+<code class="sig-prename descclassname"><span class="pre">polical.connectSQLite.</span></code><code class="sig-name descname"><span class="pre">update_subject</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#polical.MateriaClass.Materia" title="polical.MateriaClass.Materia"><span class="pre">polical.MateriaClass.Materia</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.connectSQLite.update_subject" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function saves a subject into the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subject (MateriaClass.Materia): Subject that would be added to the database.</p>
+</dd>
+<dt>Returns:</dt><dd><p>cur (Cursor): Database cursor that access to tasks and subjects.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-polical.bot.policalbot">
+<span id="polical-policalbot"></span><h2>PoliCal policalbot<a class="headerlink" href="#module-polical.bot.policalbot" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="polical.bot.policalbot.callback_reminder_message">
+<code class="sig-prename descclassname"><span class="pre">polical.bot.policalbot.</span></code><code class="sig-name descname"><span class="pre">callback_reminder_message</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.ext.callbackcontext.CallbackContext</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#polical.bot.policalbot.callback_reminder_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>This callback handler registers a new job for remind the user about a task 30 minutes before due the task</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.bot.policalbot.error_handler">
+<code class="sig-prename descclassname"><span class="pre">polical.bot.policalbot.</span></code><code class="sig-name descname"><span class="pre">error_handler</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.update.Update</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.ext.callbackcontext.CallbackContext</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#polical.bot.policalbot.error_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log the error and send a telegram message to notify the developer.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.bot.policalbot.get_jobs">
+<code class="sig-prename descclassname"><span class="pre">polical.bot.policalbot.</span></code><code class="sig-name descname"><span class="pre">get_jobs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.update.Update</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.ext.callbackcontext.CallbackContext</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#polical.bot.policalbot.get_jobs" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is made to kno how much jobs are currently executing</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.bot.policalbot.get_moodle_epn_url">
+<code class="sig-prename descclassname"><span class="pre">polical.bot.policalbot.</span></code><code class="sig-name descname"><span class="pre">get_moodle_epn_url</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.update.Update</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.ext.callbackcontext.CallbackContext</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#polical.bot.policalbot.get_moodle_epn_url" title="Permalink to this definition">¶</a></dt>
+<dd><p>This command handler is made for receiving the moodle url from the user and saves it to the database</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.bot.policalbot.get_new_tasks">
+<code class="sig-prename descclassname"><span class="pre">polical.bot.policalbot.</span></code><code class="sig-name descname"><span class="pre">get_new_tasks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.ext.callbackcontext.CallbackContext</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#polical.bot.policalbot.get_new_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions repeats in specific times, looks for new tasks for every user that has a valid url registered in the database,
+also defines new jobs for reminder incoming tasks for the users</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.bot.policalbot.get_tasks">
+<code class="sig-prename descclassname"><span class="pre">polical.bot.policalbot.</span></code><code class="sig-name descname"><span class="pre">get_tasks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.update.Update</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.ext.callbackcontext.CallbackContext</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#polical.bot.policalbot.get_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>This command handler is made for updating and sending the tasks to the users</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.bot.policalbot.save_subject_command">
+<code class="sig-prename descclassname"><span class="pre">polical.bot.policalbot.</span></code><code class="sig-name descname"><span class="pre">save_subject_command</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.update.Update</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.ext.callbackcontext.CallbackContext</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#polical.bot.policalbot.save_subject_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>This command handler saves a subject if is not registerd in the database</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.bot.policalbot.send_new_tasks">
+<code class="sig-prename descclassname"><span class="pre">polical.bot.policalbot.</span></code><code class="sig-name descname"><span class="pre">send_new_tasks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.ext.callbackcontext.CallbackContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tasks</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#polical.bot.policalbot.send_new_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function sends the tasks as messages to the users also registers josb for new task and remidner to the user</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>context (CallbackContext): Context sended by the main command handler
+username (str): username to send the message
+tasks (list): List of tasks to be sended to the user</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.bot.policalbot.start">
+<code class="sig-prename descclassname"><span class="pre">polical.bot.policalbot.</span></code><code class="sig-name descname"><span class="pre">start</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">update</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.update.Update</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">telegram.ext.callbackcontext.CallbackContext</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="headerlink" href="#polical.bot.policalbot.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>This command handler starts the bot interactions it sends a message to the user with the instructions to use the bot</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-polical.MateriaClass">
+<span id="polical-materiaclass"></span><h2>PoliCal MateriaClass<a class="headerlink" href="#module-polical.MateriaClass" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="polical.MateriaClass.Materia">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">polical.MateriaClass.</span></code><code class="sig-name descname"><span class="pre">Materia</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">codigo</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.MateriaClass.Materia" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class that stores subject attributes like code and id</p>
+<dl class="py method">
+<dt id="polical.MateriaClass.Materia.print">
+<code class="sig-name descname"><span class="pre">print</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#polical.MateriaClass.Materia.print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints a summary of the main attributes of the class</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-polical.TareaClass">
+<span id="polical-tareaclass"></span><h2>PoliCal TareaClass<a class="headerlink" href="#module-polical.TareaClass" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="polical.TareaClass.Tarea">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">polical.TareaClass.</span></code><code class="sig-name descname"><span class="pre">Tarea</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">due_date</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">datetime.datetime</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subject_id</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.TareaClass.Tarea" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main class of PoliCal it manages the task its owner and its subject associated</p>
+<dl class="py method">
+<dt id="polical.TareaClass.Tarea.define_subject">
+<code class="sig-name descname"><span class="pre">define_subject</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subject</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><a class="reference internal" href="#polical.MateriaClass.Materia" title="polical.MateriaClass.Materia"><span class="pre">polical.MateriaClass.Materia</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.TareaClass.Tarea.define_subject" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines a subject object for the task</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>subject (MateriaClass.Materia): [description]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="polical.TareaClass.Tarea.define_tid">
+<code class="sig-name descname"><span class="pre">define_tid</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tid</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.TareaClass.Tarea.define_tid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines Trello o Telegram ID associated to this task</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>tid (str): Trello o Telegram ID associated to this task</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="polical.TareaClass.Tarea.define_username">
+<code class="sig-name descname"><span class="pre">define_username</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.TareaClass.Tarea.define_username" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines task owner username</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>username (str): The username of the user that owns the task</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="polical.TareaClass.Tarea.print">
+<code class="sig-name descname"><span class="pre">print</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#polical.TareaClass.Tarea.print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints a summary ofthe main elements of the task</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="polical.TareaClass.Tarea.summary">
+<code class="sig-name descname"><span class="pre">summary</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#polical.TareaClass.Tarea.summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a Summary of the main elements of the task</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>str: Summary of the task generaly for being sended as Telegram Message</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-polical.tasks_processor">
+<span id="polical-tasks-processor"></span><h2>PoliCal tasks_processor<a class="headerlink" href="#module-polical.tasks_processor" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="polical.tasks_processor.save_tasks_to_db">
+<code class="sig-prename descclassname"><span class="pre">polical.tasks_processor.</span></code><code class="sig-name descname"><span class="pre">save_tasks_to_db</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_dict</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trello_account</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.tasks_processor.save_tasks_to_db" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save incoming tasks to the database</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>url (str): ICS url for look for new tasks
+username (str): User owner of the tasks
+user_dict (dict): Dictionary that has user configurations
+trello_account (bool, optional): If tasks will be sended to trello. Defaults to True.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.tasks_processor.send_tasks_to_trello">
+<code class="sig-prename descclassname"><span class="pre">polical.tasks_processor.</span></code><code class="sig-name descname"><span class="pre">send_tasks_to_trello</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">username</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_dict</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.tasks_processor.send_tasks_to_trello" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function sends tasks from database that are stored as not sended to trello.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>username (str): The username for the owner of the tasks.
+user_dict (dict): User dictionary with keys to acces to trello.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-polical.todo_generator">
+<span id="polical-todo-generator"></span><h2>PoliCal todo_generator<a class="headerlink" href="#module-polical.todo_generator" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt id="polical.todo_generator.get_cards_urls">
+<code class="sig-prename descclassname"><span class="pre">polical.todo_generator.</span></code><code class="sig-name descname"><span class="pre">get_cards_urls</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="headerlink" href="#polical.todo_generator.get_cards_urls" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets a all uncompleted cards from a board.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>uncompleted_cards (List): List of strings from all uncompleted cards</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.todo_generator.get_done_tasks">
+<code class="sig-prename descclassname"><span class="pre">polical.todo_generator.</span></code><code class="sig-name descname"><span class="pre">get_done_tasks</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="headerlink" href="#polical.todo_generator.get_done_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets a all tasks that exits on todo.txt.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>tasks_list (List): List of strings from all tasks that exits on todo.txt</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.todo_generator.get_todo_tasks">
+<code class="sig-prename descclassname"><span class="pre">polical.todo_generator.</span></code><code class="sig-name descname"><span class="pre">get_todo_tasks</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="headerlink" href="#polical.todo_generator.get_todo_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets a all tasks that exits on todo.txt.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>tasks_list (List): List of strings from all tasks that exits on todo.txt</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.todo_generator.get_trello_client">
+<code class="sig-prename descclassname"><span class="pre">polical.todo_generator.</span></code><code class="sig-name descname"><span class="pre">get_trello_client</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_dict</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">trello.trelloclient.TrelloClient</span><a class="headerlink" href="#polical.todo_generator.get_trello_client" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets a Trello Client Object to connect to Trello.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>user_dict (dict): File path for the config file to be loaded</p>
+</dd>
+<dt>Returns:</dt><dd><p>client (TrelloClient): Client object that has access to Trello.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.todo_generator.get_uncompleted_cards">
+<code class="sig-prename descclassname"><span class="pre">polical.todo_generator.</span></code><code class="sig-name descname"><span class="pre">get_uncompleted_cards</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">list</span><a class="headerlink" href="#polical.todo_generator.get_uncompleted_cards" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function gets a all uncompleted cards from a board.</p>
+<dl class="simple">
+<dt>Returns:</dt><dd><p>uncompleted_cards (List): List of strings from all uncompleted cards</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.todo_generator.update_done_taks">
+<code class="sig-prename descclassname"><span class="pre">polical.todo_generator.</span></code><code class="sig-name descname"><span class="pre">update_done_taks</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#polical.todo_generator.update_done_taks" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions gets new done tasks and updates to the cards on trello</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.todo_generator.update_new_taks">
+<code class="sig-prename descclassname"><span class="pre">polical.todo_generator.</span></code><code class="sig-name descname"><span class="pre">update_new_taks</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#polical.todo_generator.update_new_taks" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function collects all new tasks from trello and concatenates to existing todo.txt file</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="polical.todo_generator.write_todo_tasks">
+<code class="sig-prename descclassname"><span class="pre">polical.todo_generator.</span></code><code class="sig-name descname"><span class="pre">write_todo_tasks</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tasks_list</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#polical.todo_generator.write_todo_tasks" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function writes all tasks from a list.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>tasks_list (list): List containing tasks to be added to the todo.txt file</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, andr3slelouch.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

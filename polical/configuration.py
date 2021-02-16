@@ -152,9 +152,9 @@ def create_subject(
             add_subject_to_trello_list(
                 subjects_board, subject_name, subject_code, username
             )
-    else:
-        if connectSQLite.get_subject_name(subject_code) == "":
-            return False
+    if not materia_id:
+        temporalSubject = MateriaClass.Materia("Desconocido", subject_code)
+        connectSQLite.save_subject(temporalSubject)
     if not connectSQLite.check_user_subject_existence(materia_id, username):
         connectSQLite.save_user_subject(subject, username)
     return True
@@ -184,7 +184,7 @@ def add_subject_to_trello_list(
     connectSQLite.save_user_subject(subject, username)
 
 
-def get_subject_name_from_ics_event_category(full_subject_name):
+def get_subject_name_from_ics_event_category(full_subject_name: str) -> str:
     """This function gets subject name from the categories in ics event
 
     Args:
@@ -199,6 +199,14 @@ def get_subject_name_from_ics_event_category(full_subject_name):
 
 
 def get_preferred_dbms(config_file_path: str) -> str:
+    """Returns the dbms to be used stored in config_file_path
+
+    Args:
+        config_file_path (str): Where the file is stored
+
+    Returns:
+        str: The database that is used
+    """
     try:
         with open(get_file_location(config_file_path), "r") as config_yaml:
             file_config = yaml.safe_load(config_yaml)
@@ -209,8 +217,16 @@ def get_preferred_dbms(config_file_path: str) -> str:
 
 
 def set_preffered_dbms(
-    preffered_dbms: str, config_file_path=get_file_location("config.yaml")
+    preffered_dbms: str, config_file_path: str = get_file_location("config.yaml")
 ):
+    """Saves the database that polical is using
+
+    Args:
+        preffered_dbms (str):
+            - mysql: To use MySQL database
+            - default: To use SQLite3 database
+        config_file_path (str, optional): Where the file is stored . Defaults to "config.yaml".
+    """
     try:
         with open(get_file_location(config_file_path), "r") as config_yaml:
             file_config = yaml.safe_load(config_yaml)
@@ -224,6 +240,14 @@ def set_preffered_dbms(
 
 
 def get_bot_token(config_file_path: str) -> str:
+    """Returns the bot token stored in config_file_path
+
+    Args:
+        config_file_path (str): Where the file is stored
+
+    Returns:
+        str: Token to access to Telegram Bot
+    """
     try:
         with open(get_file_location(config_file_path), "r") as config_yaml:
             file_config = yaml.safe_load(config_yaml)
@@ -233,7 +257,31 @@ def get_bot_token(config_file_path: str) -> str:
         generate_db_selector_file(config_file_path)
 
 
+def set_bot_token(config_file_path: str, token: str):
+    """Saves the telegram token for being used for the bot telegram
+
+    Args:
+        config_file_path (str): Where the file is stored
+        token (str): A valid token to access to Telegram Bot
+
+    """
+    try:
+        with open(get_file_location(config_file_path), "r") as config_yaml:
+            file_config = yaml.safe_load(config_yaml)
+    except IOError:
+        print("Archivo de configuración no encontrado, generando archivo")
+        generate_db_selector_file(config_file_path)
+    file_config["token_bot"] = token
+    with open(config_file_path, "w") as f:
+        f.write(yaml.safe_dump(file_config, default_flow_style=False))
+
+
 def generate_db_selector_file(config_file_path: str):
+    """This function generates a db selector file template with the required parameters
+
+    Args:
+        config_file_path (str): Where the file should be stored
+    """
     db_selector = {
         "preferred_dbms": "default",
         "token_bot": "",
@@ -249,6 +297,14 @@ def generate_db_selector_file(config_file_path: str):
 
 
 def get_mysql_credentials(config_file_path: str) -> dict:
+    """This function returns the credentials to access to mysql database stored in config.yaml config file
+
+    Args:
+        config_file_path (str): Where is the file stored
+
+    Returns:
+        dict: Dictionary that contains username and password for the MySQL database
+    """
     try:
         with open(get_file_location(config_file_path), "r") as config_yaml:
             file_config = yaml.safe_load(config_yaml)
@@ -259,6 +315,14 @@ def get_mysql_credentials(config_file_path: str) -> dict:
 
 
 def prepare_mysql_query(query: str) -> str:
+    """This function changes ? characters to %s for being used by MySQL Connection
+
+    Args:
+        query (str): Database query to execute
+
+    Returns:
+        str: SQLite3 query parsed to MySQL query
+    """
     if get_preferred_dbms(get_file_location("config.yaml")) == "mysql":
         return query.replace("?", "%s")
     else:

@@ -17,14 +17,15 @@ import sphinx_rtd_theme
 sys.path.insert(0, os.path.abspath("../.."))
 sys.setrecursionlimit(1500)
 
+
 # -- Project information -----------------------------------------------------
 
 project = "PoliCal"
-copyright = "2020, Luis Andrade"
-author = "Luis Andrade"
+copyright = "2021, andr3slelouch"
+author = "andr3slelouch"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1.6"
+release = "1.1.3"
 
 
 # -- General configuration ---------------------------------------------------
@@ -33,7 +34,6 @@ release = "0.1.6"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "rinoh.frontend.sphinx",
     "sphinx.ext.autodoc",
     "sphinx_rtd_theme",
     "recommonmark",
@@ -59,3 +59,10 @@ html_theme = "sphinx_rtd_theme"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+# Added to suppourt markdown
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".txt": "markdown",
+    ".md": "markdown",
+}
