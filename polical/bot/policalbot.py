@@ -15,7 +15,7 @@ from telegram.ext.dispatcher import run_async
 from polical import configuration
 from polical import connectSQLite
 from polical import tasks_processor
-from polical import MateriaClass
+from polical import MateriaClass, TareaClass
 import re
 import json
 import logging
@@ -34,7 +34,9 @@ CREATED_REMINDERS_OLD_TASKS = True
 START_BOT_DATETIME = datetime.now(timezone.utc)
 
 
-def start(update, context):
+def start(update: Update, context: CallbackContext) -> None:
+    """This command handler starts the bot interactions it sends a message to the user with the instructions to use the bot"""
+
     username = update.message.from_user["id"]
     message = (
         "Bienvenido a PoliCal!\n"
@@ -54,7 +56,9 @@ def start(update, context):
     )
 
 
-def get_moodle_epn_url(update, context):
+def get_moodle_epn_url(update: Update, context: CallbackContext) -> None:
+    """This command handler is made for receiving the moodle url from the user and saves it to the database"""
+
     username = update.message.from_user["id"]
     try:
         calendar_url = " ".join(context.args).replace("\n", "")
@@ -78,7 +82,9 @@ def get_moodle_epn_url(update, context):
         )
 
 
-def save_subject_command(update, context):
+def save_subject_command(update: Update, context: CallbackContext) -> None:
+    """This command handler saves a subject if is not registerd in the database"""
+
     username = update.message.from_user["id"]
     new_subject = " ".join(context.args)
 
@@ -100,7 +106,9 @@ def save_subject_command(update, context):
         )
 
 
-def callback_reminder_message(context: CallbackContext):
+def callback_reminder_message(context: CallbackContext) -> None:
+    """This callback handler registers a new job for remind the user about a task 30 minutes before due the task"""
+
     (chat_id, text_message, message_id) = context.job.context
     logger.info(
         "Added new reminder for task: "
@@ -116,7 +124,10 @@ def callback_reminder_message(context: CallbackContext):
         logger.warning("cannot reply message {}: {}".format(message_id, e))
 
 
-def get_new_tasks(context):
+def get_new_tasks(context: CallbackContext) -> None:
+    """This functions repeats in specific times, looks for new tasks for every user that has a valid url registered in the database,
+    also defines new jobs for reminder incoming tasks for the users"""
+
     users_with_url = connectSQLite.get_all_users_with_URL()
     task_bot_datetime = datetime.now(timezone.utc)
     logger.info("get_new_tasks started")
@@ -138,7 +149,7 @@ def get_new_tasks(context):
                     context=(
                         username,
                         "La tarea " + sended_task[0] + " expirará pronto",
-                        sended_task[1],
+                        sended_task[0],
                     ),
                 )
         if len(tasks) > 0:
@@ -146,7 +157,14 @@ def get_new_tasks(context):
         CREATED_REMINDERS_OLD_TASKS = False
 
 
-def send_new_tasks(context, username, tasks):
+def send_new_tasks(context: CallbackContext, username: str, tasks: list) -> None:
+    """This function sends the tasks as messages to the users also registers josb for new task and remidner to the user
+
+    Args:
+        context (CallbackContext): Context sended by the main command handler
+        username (str): username to send the message
+        tasks (list): List of tasks to be sended to the user
+    """
     for task in tasks:
         message = task.summary()
         sended_msg = None
@@ -173,7 +191,8 @@ def send_new_tasks(context, username, tasks):
             )
 
 
-def get_jobs(update, context):
+def get_jobs(update: Update, context: CallbackContext) -> None:
+    """This function is made to kno how much jobs are currently executing"""
     username = update.message.from_user["id"]
     if username == 232424901:
         context.bot.send_message(
@@ -182,7 +201,8 @@ def get_jobs(update, context):
         )
 
 
-def get_tasks(update, context):
+def get_tasks(update: Update, context: CallbackContext) -> None:
+    """This command handler is made for updating and sending the tasks to the users"""
     username = update.message.from_user["id"]
     calendar_url = connectSQLite.get_user_calendar_url(username)
     tasks_processor.save_tasks_to_db(calendar_url, username, {}, False)
