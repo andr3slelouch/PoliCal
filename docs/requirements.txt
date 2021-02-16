@@ -15,3 +15,4 @@ TatSu
 urllib3
 wget
 mysql-connector-python
+python-telegram-bot
