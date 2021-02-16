@@ -233,6 +233,18 @@ def get_bot_token(config_file_path: str) -> str:
         generate_db_selector_file(config_file_path)
 
 
+def set_bot_token(config_file_path: str, token: str) -> str:
+    try:
+        with open(get_file_location(config_file_path), "r") as config_yaml:
+            file_config = yaml.safe_load(config_yaml)
+    except IOError:
+        print("Archivo de configuración no encontrado, generando archivo")
+        generate_db_selector_file(config_file_path)
+    file_config["token_bot"] = token
+    with open(config_file_path, "w") as f:
+        f.write(yaml.safe_dump(file_config, default_flow_style=False))
+
+
 def generate_db_selector_file(config_file_path: str):
     db_selector = {
         "preferred_dbms": "default",
