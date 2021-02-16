@@ -1,0 +1,16 @@
+arrow
+certifi
+chardet
+ics
+idna
+oauthlib
+py-trello
+python-dateutil
+pytz
+PyYAML
+requests
+requests-oauthlib
+six
+TatSu
+urllib3
+wget
