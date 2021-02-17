@@ -642,7 +642,7 @@ def get_sended_tasks_for_bot(username: str, message_date: datetime) -> list:
         message_date (datetime): Tasks should be after this date
 
     Returns:
-        tasks (list): Database cursor that access to tasks and subjects.
+        tasks (list): List of dictionaries with Tasks
     """
     user_id = get_user_id(username)
     query = (
@@ -663,12 +663,12 @@ def get_sended_tasks_for_bot(username: str, message_date: datetime) -> list:
     tasks = []
     timezone = pytz.timezone("America/Guayaquil")
     for row in cur.fetchall():
-        tarea = [
-            row[1],
-            row[2],
-            timezone.localize(row[0]) - timedelta(minutes=30),
-        ]
-        if tarea[2] > message_date:
+        tarea = {
+            "tid": row[1],
+            "title": row[2],
+            "due": timezone.localize(row[0]) - timedelta(minutes=30),
+        }
+        if tarea["due"] > message_date:
             tasks.append(tarea)
     conn.close()
     return tasks

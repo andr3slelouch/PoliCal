@@ -145,11 +145,11 @@ def get_new_tasks(context: CallbackContext) -> None:
             for sended_task in sended_tasks:
                 context.job_queue.run_once(
                     callback_reminder_message,
-                    sended_task[2],
+                    sended_task["due"],
                     context=(
                         username,
-                        "La tarea " + sended_task[0] + " expirará pronto",
-                        sended_task[0],
+                        "La tarea " + str(sended_task["title"]) + " expirará pronto",
+                        sended_task["tid"],
                     ),
                 )
         if len(tasks) > 0:
@@ -217,8 +217,8 @@ def get_tasks(update: Update, context: CallbackContext) -> None:
         for task in sended_tasks:
             context.bot.send_message(
                 chat_id=update.effective_chat.id,
-                text=task[1],
-                reply_to_message_id=int(task[0]),
+                text=task["title"],
+                reply_to_message_id=int(task["tid"]),
             )
         send_new_tasks(context, username, tasks)
 
