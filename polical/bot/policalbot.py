@@ -133,8 +133,8 @@ def get_new_tasks(context: CallbackContext) -> None:
     logger.info("get_new_tasks started")
     print("get_new_tasks started")
     for user_with_url in users_with_url:
-        username = user_with_url[0]
-        calendar_url = user_with_url[1]
+        username = user_with_url["username"]
+        calendar_url = user_with_url["url"]
         tasks_processor.save_tasks_to_db(calendar_url, username, {}, False)
         tasks = connectSQLite.get_tasks_for_bot(username, task_bot_datetime)
         sended_tasks = connectSQLite.get_sended_tasks_for_bot(

@@ -115,12 +115,15 @@ def save_user_task(task, username: str):
     conn.close()
 
 
-def check_user_task_existence(task, username: str):
+def check_user_task_existence(task, username: str) -> bool:
     """This function checks if a task exists in the database
 
     Args:
         task (TareaClass.Tarea): Tasks that would be added to the database.
         username(str): User owner of the task.
+
+    Returns:
+        bool: If exits True if not False
     """
     conn = get_db()
     cur = conn.cursor()
@@ -508,7 +511,7 @@ def get_all_users_with_URL() -> list:
     cur.execute(query)
     list_users = []
     for user in cur.fetchall():
-        list_users.append(user)
+        list_users.append({"username": user[0], "url": user[1]})
     conn.close()
     return list_users
 
