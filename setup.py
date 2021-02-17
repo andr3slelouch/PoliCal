@@ -32,6 +32,8 @@ setuptools.setup(
         "TatSu",
         "urllib3",
         "wget",
+        "mysql-connector-python",
+        "python-telegram-bot",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
