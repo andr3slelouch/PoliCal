@@ -1,0 +1,505 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>polical.Get_Trello_MoodleEPN_Keys &mdash; PoliCal 1.1.3 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PoliCal
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PoliCal</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>polical.Get_Trello_MoodleEPN_Keys</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for polical.Get_Trello_MoodleEPN_Keys</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: Get_Trello_MoodleEPN_Keys</span>
+<span class="sd">   :platform: Unix, Windows</span>
+<span class="sd">   :synopsis: This module gets keys, and initializes config files.</span>
+
+<span class="sd">.. moduleauthor:: Luis Andrade &lt;andr3slelouch@github.com&gt;</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># This code is based on https://github.com/delucks/gtd.py onboard function,</span>
+<span class="c1"># especial thanks to: delucks</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">webbrowser</span>
+<span class="kn">import</span> <span class="nn">trello</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">polical</span> <span class="kn">import</span> <span class="n">configuration</span>
+<span class="kn">from</span> <span class="nn">polical</span> <span class="kn">import</span> <span class="n">connectSQLite</span>
+<span class="kn">from</span> <span class="nn">requests_oauthlib</span> <span class="kn">import</span> <span class="n">OAuth1Session</span>
+<span class="kn">from</span> <span class="nn">requests_oauthlib.oauth1_session</span> <span class="kn">import</span> <span class="n">TokenRequestDenied</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="n">get_file_location</span><span class="p">(</span><span class="s2">&quot;Running.log&quot;</span><span class="p">),</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+    <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2">:</span><span class="si">%(levelname)s</span><span class="s2">:</span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="DevNullRedirect"><a class="viewcode-back" href="../../index.html#polical.Get_Trello_MoodleEPN_Keys.DevNullRedirect">[docs]</a><span class="k">class</span> <span class="nc">DevNullRedirect</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Temporarily eat stdout/stderr to allow no output.</span>
+<span class="sd">    This is used to suppress browser messages in webbrowser.open&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_stderr</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">dup</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_stdout</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">dup</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">devnull</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">O_RDWR</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">traceback</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old_stderr</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">dup2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old_stdout</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="onboard"><a class="viewcode-back" href="../../index.html#polical.Get_Trello_MoodleEPN_Keys.onboard">[docs]</a><span class="k">def</span> <span class="nf">onboard</span><span class="p">(</span><span class="n">no_open</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;polical.yaml&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Obtain Trello API credentials and put them into your config file.</span>
+<span class="sd">    This is invoked automatically the first time you attempt to do an operation which requires authentication.</span>
+<span class="sd">    The configuration file is put in an appropriate place for your operating system.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">output_file</span> <span class="o">=</span> <span class="n">configuration</span><span class="o">.</span><span class="n">get_file_location</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>  <span class="c1"># Use platform detection</span>
+    <span class="n">user_api_key_url</span> <span class="o">=</span> <span class="s2">&quot;https://trello.com/app-key&quot;</span>
+    <span class="n">request_token_url</span> <span class="o">=</span> <span class="s2">&quot;https://trello.com/1/OAuthGetRequestToken&quot;</span>
+    <span class="n">authorize_url</span> <span class="o">=</span> <span class="s2">&quot;https://trello.com/1/OAuthAuthorizeToken&quot;</span>
+    <span class="n">access_token_url</span> <span class="o">=</span> <span class="s2">&quot;https://trello.com/1/OAuthGetAccessToken&quot;</span>
+    <span class="n">calendar_moodle_epn_url</span> <span class="o">=</span> <span class="s2">&quot;https://aulasvirtuales.epn.edu.ec/calendar/export.php?&quot;</span>
+    <span class="c1"># Nuevo link https://aulasvirtuales.epn.edu.ec/calendar/export.php?</span>
+    <span class="c1"># First, open the URL that allows the user to get an auth token. Tell them to copy both into the program</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Mostrando print-board al usuario&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;Bienvenido a PoliCal!</span><span class="se">\n</span><span class="s2"> Recuerde que antes de iniciar el proceso de obtención de credenciales ud debe tener una cuenta en Trello y en el Aula Virtual, y deben estar iniciadas las sesiones en el navegador predeterminado&quot;</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Ingrese su nombre:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PASO 1: Acceso a Trello&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Recuerde ingresar e iniciar sesion previamente a www.trello.com&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;En su navegador web se cargará el siguiente URL:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="n">user_api_key_url</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s1">&#39;Cuando llegue a esa página, inicie sesión y copie la &quot;Tecla&quot; o &quot;Key&quot; que se muestra en un cuadro de texto.&#39;</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;Si es la primera vez que realiza este proceso debe aceptar los terminos y condiciones de Trello&quot;</span>
+    <span class="p">)</span>
+    <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Presione ENTER para ir al enlace&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">no_open</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">DevNullRedirect</span><span class="p">():</span>
+            <span class="n">webbrowser</span><span class="o">.</span><span class="n">open_new_tab</span><span class="p">(</span><span class="n">user_api_key_url</span><span class="p">)</span>
+    <span class="n">api_key</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Por favor, introduzca el valor de &quot;Tecla&quot; o &quot;Key&quot;:&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s1">&#39;Ahora desplácese hasta la parte inferior de la página y copie el &quot;Secreto&quot; o &quot;Secret&quot; que se muestra en un cuadro de texto.&#39;</span>
+    <span class="p">)</span>
+    <span class="n">api_secret</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s1">&#39;Por favor, introduzca el valor de &quot;Secret&quot;:&#39;</span><span class="p">)</span>
+    <span class="c1"># Then, work on getting OAuth credentials for the user so they are permanently authorized to use this program</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PASO 2: Permitir acceso de Polical a Trello&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;Ahora obtendremos las credenciales de OAuth necesarias para usar este programa...&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># The following code is cannibalized from trello.util.create_oauth_token from the py-trello project.</span>
+    <span class="c1"># Rewriting because it does not support opening the auth URLs using webbrowser.open and since we&#39;re using</span>
+    <span class="c1"># click, a lot of the input methods used in that script are simplistic compared to what&#39;s available to us.</span>
+    <span class="c1"># Thank you to the original authors!</span>
+    <span class="sd">&quot;&quot;&quot;Step 1: Get a request token. This is a temporary token that is used for</span>
+<span class="sd">    having the user authorize an access token and to sign the request to obtain</span>
+<span class="sd">    said access token.&quot;&quot;&quot;</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">OAuth1Session</span><span class="p">(</span><span class="n">client_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span> <span class="n">client_secret</span><span class="o">=</span><span class="n">api_secret</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">fetch_request_token</span><span class="p">(</span><span class="n">request_token_url</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">TokenRequestDenied</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid API key/secret provided: </span><span class="si">{0}</span><span class="s2"> / </span><span class="si">{1}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_key</span><span class="p">,</span> <span class="n">api_secret</span><span class="p">))</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">resource_owner_key</span><span class="p">,</span> <span class="n">resource_owner_secret</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;oauth_token&quot;</span><span class="p">),</span>
+        <span class="n">response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;oauth_token_secret&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;Step 2: Redirect to the provider. Since this is a CLI script we do not</span>
+<span class="sd">    redirect. In a web application you would redirect the user to the URL</span>
+<span class="sd">    below.&quot;&quot;&quot;</span>
+    <span class="n">user_confirmation_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{authorize_url}</span><span class="s2">?oauth_token=</span><span class="si">{oauth_token}</span><span class="s2">&amp;scope=</span><span class="si">{scope}</span><span class="s2">&amp;expiration=</span><span class="si">{expiration}</span><span class="s2">&amp;name=</span><span class="si">{name}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+        <span class="n">authorize_url</span><span class="o">=</span><span class="n">authorize_url</span><span class="p">,</span>
+        <span class="n">oauth_token</span><span class="o">=</span><span class="n">resource_owner_key</span><span class="p">,</span>
+        <span class="n">expiration</span><span class="o">=</span><span class="s2">&quot;never&quot;</span><span class="p">,</span>
+        <span class="n">scope</span><span class="o">=</span><span class="s2">&quot;read,write&quot;</span><span class="p">,</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;PoliCal&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;Visite la siguiente URL en su navegador web para autorizar a PoliCal acceso a su cuenta:&quot;</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="n">user_confirmation_url</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;Concedale los permisos a PoliCal para acceder a sus datos de Trello, estas credenciales se mantendran de manera local&quot;</span>
+    <span class="p">)</span>
+    <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Presione ENTER para ir al enlace&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">no_open</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">DevNullRedirect</span><span class="p">():</span>
+            <span class="n">webbrowser</span><span class="o">.</span><span class="n">open_new_tab</span><span class="p">(</span><span class="n">user_confirmation_url</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;After the user has granted access to you, the consumer, the provider will</span>
+<span class="sd">    redirect you to whatever URL you have told them to redirect to. You can</span>
+<span class="sd">    usually define this in the oauth_callback argument as well.&quot;&quot;&quot;</span>
+    <span class="n">confirmation</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;¿Has autorizado a PoliCal? Escriba n para no y S para si:&quot;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">confirmation</span> <span class="o">==</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span>
+        <span class="n">confirmation</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
+            <span class="s2">&quot;¿Has autorizado a PoliCal? Escriba n para no y S para si:&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">oauth_verifier</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;¿Cuál es el código de verificación?:&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="sd">&quot;&quot;&quot;Step 3: Once the consumer has redirected the user back to the oauth_callback</span>
+<span class="sd">    URL you can request the access token the user has approved. You use the</span>
+<span class="sd">    request token to sign this request. After this is done you throw away the</span>
+<span class="sd">    request token and use the access token returned. You should store this</span>
+<span class="sd">    access token somewhere safe, like a database, for future use.&quot;&quot;&quot;</span>
+    <span class="n">session</span> <span class="o">=</span> <span class="n">OAuth1Session</span><span class="p">(</span>
+        <span class="n">client_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
+        <span class="n">client_secret</span><span class="o">=</span><span class="n">api_secret</span><span class="p">,</span>
+        <span class="n">resource_owner_key</span><span class="o">=</span><span class="n">resource_owner_key</span><span class="p">,</span>
+        <span class="n">resource_owner_secret</span><span class="o">=</span><span class="n">resource_owner_secret</span><span class="p">,</span>
+        <span class="n">verifier</span><span class="o">=</span><span class="n">oauth_verifier</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">access_token</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">fetch_access_token</span><span class="p">(</span><span class="n">access_token_url</span><span class="p">)</span>
+
+    <span class="sd">&quot;&quot;&quot;Step 4: Ahora se debe buscar el calendario en formato ICS generado por el</span>
+<span class="sd">    Aula Virtual&quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;PASO 3: Obtención del calendario del Aula Virtual&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;Recuerde ingresar e iniciar sesion previamente a https://aulasvirtuales.epn.edu.ec/&quot;</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;A continuación se abrirá un link hacia el Aula Virtual EPN, en proximos eventos para: elija Todos los cursos&quot;</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;y a continuación desplácese a la parte más inferior de la página y de clic en el botón Exportar Calendario&quot;</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s1">&#39;Luego, en la opción Exportar seleccione todos los eventos y después en &quot;para&quot; seleccione los 60 días recientes y próximos&#39;</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Finalmente de clic en el boton Obtener URL del calendario&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;Visite la siguiente URL en su navegador web para obtener el calendario del aula virtual EPN:&quot;</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="n">calendar_moodle_epn_url</span><span class="p">)</span>
+    <span class="nb">input</span><span class="p">(</span>
+        <span class="s2">&quot;Presione ENTER para ir al enlace e iniciar el proceso, no olvide verificar si su sesión del Aula Virtual se encuentra activa&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">no_open</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">DevNullRedirect</span><span class="p">():</span>
+            <span class="n">webbrowser</span><span class="o">.</span><span class="n">open_new_tab</span><span class="p">(</span><span class="n">calendar_moodle_epn_url</span><span class="p">)</span>
+    <span class="n">calendar_url</span> <span class="o">=</span> <span class="n">calendar_moodle_epn_url</span>
+    <span class="k">while</span> <span class="ow">not</span> <span class="p">(</span><span class="n">configuration</span><span class="o">.</span><span class="n">check_for_url</span><span class="p">(</span><span class="n">calendar_url</span><span class="p">)):</span>
+        <span class="n">calendar_url</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
+            <span class="s2">&quot;Por favor, introduzca el url generado por el Aula Virtual, si este es erróneo se volverá a solicitar:&quot;</span>
+        <span class="p">)</span>
+    <span class="n">final_output_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;oauth_token&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">[</span><span class="s2">&quot;oauth_token&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;oauth_token_secret&quot;</span><span class="p">:</span> <span class="n">access_token</span><span class="p">[</span><span class="s2">&quot;oauth_token_secret&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;api_key&quot;</span><span class="p">:</span> <span class="n">api_key</span><span class="p">,</span>
+        <span class="s2">&quot;api_secret&quot;</span><span class="p">:</span> <span class="n">api_secret</span><span class="p">,</span>
+        <span class="s2">&quot;calendar_url&quot;</span><span class="p">:</span> <span class="n">calendar_url</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># Ensure we have a folder to put this in, if it&#39;s in a nested config location</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    output_folder = os.path.dirname(output_file)</span>
+<span class="sd">    if not os.path.isdir(output_folder):</span>
+<span class="sd">        os.makedirs(output_folder)</span>
+<span class="sd">        print(&#39;Created folder {0} to hold your configuration&#39;.format(output_folder))</span>
+<span class="sd">    # Try to be safe about not destroying existing credentials</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">board_id</span><span class="p">,</span> <span class="n">owner_id</span> <span class="o">=</span> <span class="n">get_working_board_id</span><span class="p">(</span>
+        <span class="n">api_key</span><span class="p">,</span>
+        <span class="n">api_secret</span><span class="p">,</span>
+        <span class="n">access_token</span><span class="p">[</span><span class="s2">&quot;oauth_token&quot;</span><span class="p">],</span>
+        <span class="n">access_token</span><span class="p">[</span><span class="s2">&quot;oauth_token_secret&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">final_output_data</span><span class="p">[</span><span class="s2">&quot;board_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">board_id</span>
+    <span class="n">final_output_data</span><span class="p">[</span><span class="s2">&quot;owner_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">owner_id</span>
+    <span class="k">if</span> <span class="n">check_file_existence</span><span class="p">(</span><span class="n">output_file</span><span class="p">):</span>
+        <span class="n">check_user_on_file</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">username</span> <span class="o">+</span> <span class="n">owner_id</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="c1"># use safe_load instead load</span>
+            <span class="n">super_final</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="n">super_final</span><span class="p">[</span><span class="n">username</span> <span class="o">+</span> <span class="n">owner_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">final_output_data</span>
+            <span class="n">connectSQLite</span><span class="o">.</span><span class="n">save_user</span><span class="p">(</span><span class="n">username</span> <span class="o">+</span> <span class="n">owner_id</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">super_final</span> <span class="o">=</span> <span class="p">{</span><span class="n">username</span> <span class="o">+</span> <span class="n">owner_id</span><span class="p">:</span> <span class="n">final_output_data</span><span class="p">}</span>
+        <span class="n">connectSQLite</span><span class="o">.</span><span class="n">save_user</span><span class="p">(</span><span class="n">username</span> <span class="o">+</span> <span class="n">owner_id</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">super_final</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="get_working_board_id"><a class="viewcode-back" href="../../index.html#polical.Get_Trello_MoodleEPN_Keys.get_working_board_id">[docs]</a><span class="k">def</span> <span class="nf">get_working_board_id</span><span class="p">(</span>
+    <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">api_secret</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">oauth_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">oauth_token_secret</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function is for getting the TareasPoli Board ID that is created in the onboard process</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        api_key (str):  The api key to acceso Trello</span>
+<span class="sd">        api_secret (str): The api secret to acceso Trello</span>
+<span class="sd">        oauth_token (str): The oauth token to acceso Trello</span>
+<span class="sd">        oauth_token_secret (str): The oauth token secret to acceso Trello</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        board_id (str): This is the board id of TareasPoli board</span>
+<span class="sd">        owner_id (str): This is the owner id of Trello user</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">trello</span><span class="o">.</span><span class="n">TrelloClient</span><span class="p">(</span>
+        <span class="n">api_key</span><span class="o">=</span><span class="n">api_key</span><span class="p">,</span>
+        <span class="n">api_secret</span><span class="o">=</span><span class="n">api_secret</span><span class="p">,</span>
+        <span class="n">token</span><span class="o">=</span><span class="n">oauth_token</span><span class="p">,</span>
+        <span class="n">token_secret</span><span class="o">=</span><span class="n">oauth_token_secret</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">board_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">owner_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">all_boards</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_boards</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">board</span> <span class="ow">in</span> <span class="n">all_boards</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">board</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;TareasPoli&quot;</span><span class="p">:</span>
+            <span class="n">board_id</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">id</span>
+    <span class="k">if</span> <span class="n">board_id</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">((</span><span class="s1">&#39;No se encontró el board &quot;TareasPoli&quot;, será creado ahora&#39;</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No se encontró el board &quot;TareasPoli&quot;, será creado ahora&#39;</span><span class="p">)</span>
+        <span class="n">client</span><span class="o">.</span><span class="n">add_board</span><span class="p">(</span><span class="s2">&quot;TareasPoli&quot;</span><span class="p">)</span>
+        <span class="n">all_boards</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">list_boards</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">board</span> <span class="ow">in</span> <span class="n">all_boards</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">board</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;TareasPoli&quot;</span><span class="p">:</span>
+                <span class="n">board_id</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">id</span>
+    <span class="n">owner_id</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">all_members</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">id</span>
+    <span class="k">return</span> <span class="n">board_id</span><span class="p">,</span> <span class="n">owner_id</span></div>
+
+
+<div class="viewcode-block" id="check_user_on_file"><a class="viewcode-back" href="../../index.html#polical.Get_Trello_MoodleEPN_Keys.check_user_on_file">[docs]</a><span class="k">def</span> <span class="nf">check_user_on_file</span><span class="p">(</span><span class="n">output_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This functions checks if an user already exists on yaml file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        output_file (str):  File location</span>
+<span class="sd">        username (str): The username that would be checked.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Stop onboard function if the username already exists and the user answers N to overwrite it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_file</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="c1"># use safe_load instead load</span>
+            <span class="n">users</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">users</span> <span class="ow">and</span> <span class="n">username</span> <span class="ow">in</span> <span class="n">users</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">overwrite</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span>
+                    <span class="s2">&quot;El nombre de usuario actualmente ya existe, sobreescribir? s/N:&quot;</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">overwrite</span> <span class="o">==</span> <span class="s2">&quot;N&quot;</span><span class="p">:</span>
+                    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="check_file_existence"><a class="viewcode-back" href="../../index.html#polical.Get_Trello_MoodleEPN_Keys.check_file_existence">[docs]</a><span class="k">def</span> <span class="nf">check_file_existence</span><span class="p">(</span><span class="n">output_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This functions checks if the file already exists on filesystem</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        output_file (str):  File location</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool.  The return code::</span>
+
+<span class="sd">          False -- If the file not exists or is blank</span>
+<span class="sd">          True -- If already exists</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">output_file</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="c1"># use safe_load instead load</span>
+            <span class="n">users</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">users</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<span class="c1"># onboard(True)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, andr3slelouch.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

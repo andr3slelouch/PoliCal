@@ -1,0 +1,525 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>polical.configuration &mdash; PoliCal 1.1.3 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> PoliCal
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">PoliCal</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>polical.configuration</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for polical.configuration</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">.. module:: configuration</span>
+<span class="sd">   :platform: Unix, Windows</span>
+<span class="sd">   :synopsis: This module gets paths for files, and adds lists for the subjects in trello.</span>
+
+<span class="sd">.. moduleauthor:: Luis Andrade &lt;andr3slelouch@github.com&gt;</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="kn">import</span> <span class="n">copyfile</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">polical</span> <span class="kn">import</span> <span class="n">MateriaClass</span>
+<span class="kn">from</span> <span class="nn">trello</span> <span class="kn">import</span> <span class="n">TrelloClient</span>
+<span class="kn">from</span> <span class="nn">polical</span> <span class="kn">import</span> <span class="n">connectSQLite</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">polical</span> <span class="kn">import</span> <span class="n">configuration</span>
+
+
+<div class="viewcode-block" id="get_working_directory"><a class="viewcode-back" href="../../index.html#polical.configuration.get_working_directory">[docs]</a><span class="k">def</span> <span class="nf">get_working_directory</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This functions gets the working directory path.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        working_directory (str): The directory where database and yaml are located.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">db_filename</span> <span class="o">=</span> <span class="s2">&quot;tasks.db&quot;</span>
+    <span class="n">userdir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">(</span><span class="s2">&quot;~&quot;</span><span class="p">)</span>
+    <span class="n">working_directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">userdir</span><span class="p">,</span> <span class="s2">&quot;PoliCal&quot;</span><span class="p">)</span>
+    <span class="n">tasks_db</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_directory</span><span class="p">,</span> <span class="n">db_filename</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">working_directory</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">working_directory</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tasks_db</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">dir_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span>
+        <span class="n">tasks_src</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dir_path</span><span class="p">,</span> <span class="n">db_filename</span><span class="p">)</span>
+        <span class="n">tasks_dst</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_directory</span><span class="p">,</span> <span class="n">db_filename</span><span class="p">)</span>
+        <span class="n">copyfile</span><span class="p">(</span><span class="n">tasks_src</span><span class="p">,</span> <span class="n">tasks_dst</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">working_directory</span></div>
+
+
+<div class="viewcode-block" id="get_file_location"><a class="viewcode-back" href="../../index.html#polical.configuration.get_file_location">[docs]</a><span class="k">def</span> <span class="nf">get_file_location</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This function gets the full path location of a file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): Filename that needs the full path location</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        full_path_file_location (str): Full path location of the file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">working_directory</span> <span class="o">=</span> <span class="n">get_working_directory</span><span class="p">()</span>
+    <span class="n">full_path_file_location</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">working_directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">full_path_file_location</span></div>
+
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+    <span class="n">filename</span><span class="o">=</span><span class="n">get_file_location</span><span class="p">(</span><span class="s2">&quot;Running.log&quot;</span><span class="p">),</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+    <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2">:</span><span class="si">%(levelname)s</span><span class="s2">:</span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="load_config_file"><a class="viewcode-back" href="../../index.html#polical.configuration.load_config_file">[docs]</a><span class="k">def</span> <span class="nf">load_config_file</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This function is for loading yaml config file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config_file_path (str): File path for the config file to be loaded</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        file_config (dict): Dictionary with config keys.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        IOError</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_file_location</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_yaml</span><span class="p">:</span>
+            <span class="n">file_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">config_yaml</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">file_config</span>
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Archivo de configuración no encontrado, generando llaves&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="check_for_url"><a class="viewcode-back" href="../../index.html#polical.configuration.check_for_url">[docs]</a><span class="k">def</span> <span class="nf">check_for_url</span><span class="p">(</span><span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This function is for checking moodle calendar url</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        url (str): Moodle Calendar Address to be checked</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool.  The return code::</span>
+
+<span class="sd">          False -- If the url does not start with https and ends with recentupcoming</span>
+<span class="sd">          True -- If the url is correct</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">checker</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s2">&quot;^https.*recentupcoming$&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">checker</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="create_subject"><a class="viewcode-back" href="../../index.html#polical.configuration.create_subject">[docs]</a><span class="k">def</span> <span class="nf">create_subject</span><span class="p">(</span>
+    <span class="n">subject_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">task_title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">user_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">trello_account</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This function creates a subject in Trello if trello_account is True, and adds it to local database associating to a user.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        subject_code (str): Subject Code to check with local database and trello.</span>
+<span class="sd">        task_title (str): Subject title for showing to the user if subject is not founded in local database.</span>
+<span class="sd">        user_dict (dict): User dictionary with keys to connect to trello.</span>
+<span class="sd">        username (str): The username for the owner of the current subject.</span>
+<span class="sd">        trello_account (bool): Flag to indicate if the subject would be created in Trello.</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        bool.  The return code::</span>
+
+<span class="sd">          False -- If the Trello account flag is deactivated and the subject is not founded in local database</span>
+<span class="sd">          True -- If the process to create the subject was successful</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">subject</span> <span class="o">=</span> <span class="n">MateriaClass</span><span class="o">.</span><span class="n">Materia</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">subject_code</span><span class="p">)</span>
+    <span class="n">materia_id</span> <span class="o">=</span> <span class="n">connectSQLite</span><span class="o">.</span><span class="n">get_subject_id</span><span class="p">(</span><span class="n">subject_code</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">trello_account</span><span class="p">:</span>
+        <span class="n">client</span> <span class="o">=</span> <span class="n">TrelloClient</span><span class="p">(</span>
+            <span class="n">api_key</span><span class="o">=</span><span class="n">user_dict</span><span class="p">[</span><span class="s2">&quot;api_key&quot;</span><span class="p">],</span>
+            <span class="n">api_secret</span><span class="o">=</span><span class="n">user_dict</span><span class="p">[</span><span class="s2">&quot;api_secret&quot;</span><span class="p">],</span>
+            <span class="n">token</span><span class="o">=</span><span class="n">user_dict</span><span class="p">[</span><span class="s2">&quot;oauth_token&quot;</span><span class="p">],</span>
+            <span class="n">token_secret</span><span class="o">=</span><span class="n">user_dict</span><span class="p">[</span><span class="s2">&quot;oauth_token_secret&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">subjects_board</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">get_board</span><span class="p">(</span><span class="n">user_dict</span><span class="p">[</span><span class="s2">&quot;board_id&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">connectSQLite</span><span class="o">.</span><span class="n">check_no_subject_id</span><span class="p">(</span><span class="n">subject_code</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
+            <span class="n">subject_name</span> <span class="o">=</span> <span class="n">connectSQLite</span><span class="o">.</span><span class="n">get_subject_name</span><span class="p">(</span><span class="n">subject_code</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">subject_name</span><span class="p">)</span>
+            <span class="n">add_subject_to_trello_list</span><span class="p">(</span>
+                <span class="n">subjects_board</span><span class="p">,</span> <span class="n">subject_name</span><span class="p">,</span> <span class="n">subject_code</span><span class="p">,</span> <span class="n">username</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">connectSQLite</span><span class="o">.</span><span class="n">get_subject_name</span><span class="p">(</span><span class="n">subject_code</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2"> Nombre de materia no encontrado, titulo de la tarea:&quot;</span> <span class="o">+</span> <span class="n">task_title</span>
+            <span class="p">)</span>
+            <span class="n">subject_name</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Por favor agregue el nombre de la materia:&quot;</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span>
+            <span class="k">while</span> <span class="n">response</span> <span class="o">==</span> <span class="s2">&quot;N&quot;</span> <span class="ow">or</span> <span class="n">response</span> <span class="o">==</span> <span class="s2">&quot;n&quot;</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;¿El nombre de la materia &quot;</span> <span class="o">+</span> <span class="n">subject_name</span> <span class="o">+</span> <span class="s2">&quot; es correcto?&quot;</span><span class="p">)</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;¿Guardar? S/N:&quot;</span><span class="p">)</span>
+            <span class="n">subject</span> <span class="o">=</span> <span class="n">MateriaClass</span><span class="o">.</span><span class="n">Materia</span><span class="p">(</span><span class="n">subject_name</span><span class="p">,</span> <span class="n">subject_code</span><span class="p">)</span>
+            <span class="n">connectSQLite</span><span class="o">.</span><span class="n">save_subject</span><span class="p">(</span><span class="n">subject</span><span class="p">)</span>
+            <span class="n">add_subject_to_trello_list</span><span class="p">(</span>
+                <span class="n">subjects_board</span><span class="p">,</span> <span class="n">subject_name</span><span class="p">,</span> <span class="n">subject_code</span><span class="p">,</span> <span class="n">username</span>
+            <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">materia_id</span><span class="p">:</span>
+        <span class="n">temporalSubject</span> <span class="o">=</span> <span class="n">MateriaClass</span><span class="o">.</span><span class="n">Materia</span><span class="p">(</span><span class="s2">&quot;Desconocido&quot;</span><span class="p">,</span> <span class="n">subject_code</span><span class="p">)</span>
+        <span class="n">connectSQLite</span><span class="o">.</span><span class="n">save_subject</span><span class="p">(</span><span class="n">temporalSubject</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">connectSQLite</span><span class="o">.</span><span class="n">check_user_subject_existence</span><span class="p">(</span><span class="n">materia_id</span><span class="p">,</span> <span class="n">username</span><span class="p">):</span>
+        <span class="n">connectSQLite</span><span class="o">.</span><span class="n">save_user_subject</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="add_subject_to_trello_list"><a class="viewcode-back" href="../../index.html#polical.configuration.add_subject_to_trello_list">[docs]</a><span class="k">def</span> <span class="nf">add_subject_to_trello_list</span><span class="p">(</span>
+    <span class="n">subjects_board</span><span class="p">,</span> <span class="n">subject_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">subject_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">username</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function adds a subject as list to trello board.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        subjects_board (Trello.Board): Tareas Poli&#39;s Board object from Trello library</span>
+<span class="sd">        subject_name (str): Subject name to create new list.</span>
+<span class="sd">        subject_code (str): Subject code to add it to name list.</span>
+<span class="sd">        username (str): The username for the owner of the current subject.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">trello_list_id</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">trello_list</span> <span class="ow">in</span> <span class="n">subjects_board</span><span class="o">.</span><span class="n">list_lists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">trello_list</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">subject_name</span><span class="p">:</span>
+            <span class="n">trello_list_id</span> <span class="o">=</span> <span class="n">trello_list</span><span class="o">.</span><span class="n">id</span>
+    <span class="k">if</span> <span class="n">trello_list_id</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="n">subjects_board</span><span class="o">.</span><span class="n">add_list</span><span class="p">(</span><span class="n">subject_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">trello_list</span> <span class="ow">in</span> <span class="n">subjects_board</span><span class="o">.</span><span class="n">list_lists</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">trello_list</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">subject_name</span><span class="p">:</span>
+                <span class="n">trello_list_id</span> <span class="o">=</span> <span class="n">trello_list</span><span class="o">.</span><span class="n">id</span>
+    <span class="n">subject</span> <span class="o">=</span> <span class="n">MateriaClass</span><span class="o">.</span><span class="n">Materia</span><span class="p">(</span><span class="n">subject_name</span><span class="p">,</span> <span class="n">subject_code</span><span class="p">,</span> <span class="n">trello_list_id</span><span class="p">)</span>
+    <span class="n">connectSQLite</span><span class="o">.</span><span class="n">save_user_subject</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">username</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_subject_name_from_ics_event_category"><a class="viewcode-back" href="../../index.html#polical.configuration.get_subject_name_from_ics_event_category">[docs]</a><span class="k">def</span> <span class="nf">get_subject_name_from_ics_event_category</span><span class="p">(</span><span class="n">full_subject_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This function gets subject name from the categories in ics event</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        full_subject_name (str): Full subject name with format XXX_YYY_ZZZ</span>
+
+<span class="sd">    Return:</span>
+<span class="sd">        subject_name (str): Subject name</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">full_subject_name_list</span> <span class="o">=</span> <span class="n">full_subject_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="n">subject_name</span> <span class="o">=</span> <span class="n">full_subject_name_list</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">subject_name</span></div>
+
+
+<div class="viewcode-block" id="get_preferred_dbms"><a class="viewcode-back" href="../../index.html#polical.configuration.get_preferred_dbms">[docs]</a><span class="k">def</span> <span class="nf">get_preferred_dbms</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns the dbms to be used stored in config_file_path</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config_file_path (str): Where the file is stored</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The database that is used</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_file_location</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_yaml</span><span class="p">:</span>
+            <span class="n">file_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">config_yaml</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">file_config</span><span class="p">[</span><span class="s2">&quot;preferred_dbms&quot;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Archivo de configuración no encontrado, generando archivo&quot;</span><span class="p">)</span>
+        <span class="n">generate_db_selector_file</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="set_preffered_dbms"><a class="viewcode-back" href="../../index.html#polical.configuration.set_preffered_dbms">[docs]</a><span class="k">def</span> <span class="nf">set_preffered_dbms</span><span class="p">(</span>
+    <span class="n">preffered_dbms</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config_file_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">get_file_location</span><span class="p">(</span><span class="s2">&quot;config.yaml&quot;</span><span class="p">)</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Saves the database that polical is using</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        preffered_dbms (str):</span>
+<span class="sd">            - mysql: To use MySQL database</span>
+<span class="sd">            - default: To use SQLite3 database</span>
+<span class="sd">        config_file_path (str, optional): Where the file is stored . Defaults to &quot;config.yaml&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_file_location</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_yaml</span><span class="p">:</span>
+            <span class="n">file_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">config_yaml</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Archivo de configuración no encontrado, generando archivo&quot;</span><span class="p">)</span>
+        <span class="n">generate_db_selector_file</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span>
+
+    <span class="n">file_config</span><span class="p">[</span><span class="s2">&quot;preferred_dbms&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">preffered_dbms</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">file_config</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="get_bot_token"><a class="viewcode-back" href="../../index.html#polical.configuration.get_bot_token">[docs]</a><span class="k">def</span> <span class="nf">get_bot_token</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Returns the bot token stored in config_file_path</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config_file_path (str): Where the file is stored</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: Token to access to Telegram Bot</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_file_location</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_yaml</span><span class="p">:</span>
+            <span class="n">file_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">config_yaml</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">file_config</span><span class="p">[</span><span class="s2">&quot;token_bot&quot;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Archivo de configuración no encontrado, generando archivo&quot;</span><span class="p">)</span>
+        <span class="n">generate_db_selector_file</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="set_bot_token"><a class="viewcode-back" href="../../index.html#polical.configuration.set_bot_token">[docs]</a><span class="k">def</span> <span class="nf">set_bot_token</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">token</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Saves the telegram token for being used for the bot telegram</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config_file_path (str): Where the file is stored</span>
+<span class="sd">        token (str): A valid token to access to Telegram Bot</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_file_location</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_yaml</span><span class="p">:</span>
+            <span class="n">file_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">config_yaml</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Archivo de configuración no encontrado, generando archivo&quot;</span><span class="p">)</span>
+        <span class="n">generate_db_selector_file</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span>
+    <span class="n">file_config</span><span class="p">[</span><span class="s2">&quot;token_bot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">file_config</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="generate_db_selector_file"><a class="viewcode-back" href="../../index.html#polical.configuration.generate_db_selector_file">[docs]</a><span class="k">def</span> <span class="nf">generate_db_selector_file</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This function generates a db selector file template with the required parameters</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config_file_path (str): Where the file should be stored</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">db_selector</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;preferred_dbms&quot;</span><span class="p">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;token_bot&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;mysql_credentials&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;database&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">}</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">db_selector</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="get_mysql_credentials"><a class="viewcode-back" href="../../index.html#polical.configuration.get_mysql_credentials">[docs]</a><span class="k">def</span> <span class="nf">get_mysql_credentials</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This function returns the credentials to access to mysql database stored in config.yaml config file</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        config_file_path (str): Where is the file stored</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: Dictionary that contains username and password for the MySQL database</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">get_file_location</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">config_yaml</span><span class="p">:</span>
+            <span class="n">file_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">config_yaml</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">file_config</span><span class="p">[</span><span class="s2">&quot;mysql_credentials&quot;</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">IOError</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Archivo de configuración no encontrado, generando archivo&quot;</span><span class="p">)</span>
+        <span class="n">generate_db_selector_file</span><span class="p">(</span><span class="n">config_file_path</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="prepare_mysql_query"><a class="viewcode-back" href="../../index.html#polical.configuration.prepare_mysql_query">[docs]</a><span class="k">def</span> <span class="nf">prepare_mysql_query</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;This function changes ? characters to %s for being used by MySQL Connection</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        query (str): Database query to execute</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: SQLite3 query parsed to MySQL query</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">get_preferred_dbms</span><span class="p">(</span><span class="n">get_file_location</span><span class="p">(</span><span class="s2">&quot;config.yaml&quot;</span><span class="p">))</span> <span class="o">==</span> <span class="s2">&quot;mysql&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">query</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">query</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, andr3slelouch.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
