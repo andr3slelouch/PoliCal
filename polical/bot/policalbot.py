@@ -25,7 +25,9 @@ from datetime import datetime, timezone, timedelta
 
 # Enable logging
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    filename=configuration.get_file_location("polical.log"),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO,
 )
 
 logger = logging.getLogger(__name__)
@@ -130,9 +132,14 @@ def get_new_tasks(context: CallbackContext) -> None:
 
     users_with_url = connectSQLite.get_all_users_with_URL()
     task_bot_datetime = datetime.now(timezone.utc)
+    global CREATED_REMINDERS_OLD_TASKS
     logger.info("get_new_tasks started")
     print("get_new_tasks started")
+    user_count = 1
     for user_with_url in users_with_url:
+        logger.info(
+            "Procesing user " + str(user_count) + " from " + str(len(users_with_url))
+        )
         username = user_with_url["username"]
         calendar_url = user_with_url["url"]
         tasks_processor.save_tasks_to_db(calendar_url, username, {}, False)
@@ -140,7 +147,6 @@ def get_new_tasks(context: CallbackContext) -> None:
         sended_tasks = connectSQLite.get_sended_tasks_for_bot(
             username, START_BOT_DATETIME
         )
-        global CREATED_REMINDERS_OLD_TASKS
         if len(sended_tasks) > 0 and CREATED_REMINDERS_OLD_TASKS:
             for sended_task in sended_tasks:
                 context.job_queue.run_once(
@@ -154,7 +160,9 @@ def get_new_tasks(context: CallbackContext) -> None:
                 )
         if len(tasks) > 0:
             send_new_tasks(context, username, tasks)
-        CREATED_REMINDERS_OLD_TASKS = False
+        user_count += 1
+    CREATED_REMINDERS_OLD_TASKS = False
+    # send_jobs_to_admin(context, "Sended from get_new_task function\n")
 
 
 def send_new_tasks(context: CallbackContext, username: str, tasks: list) -> None:
@@ -174,6 +182,11 @@ def send_new_tasks(context: CallbackContext, username: str, tasks: list) -> None
                 text=message,
                 parse_mode=ParseMode.MARKDOWN,
             )
+        except telegram.error.Unauthorized:
+            logger.info(
+                "User " + username + " has blocked the bot skipping to send task"
+            )
+            continue
         except:
             sended_msg = context.bot.send_message(chat_id=username, text=message)
         task.define_tid(sended_msg.message_id)
@@ -191,14 +204,26 @@ def send_new_tasks(context: CallbackContext, username: str, tasks: list) -> None
             )
 
 
+def send_jobs_to_admin(context: CallbackContext, message: str = "") -> None:
+    """Insolated function to send current state of jobs and Flag
+
+    Args:
+        context (CallbackContext): [description]
+        message (str, optional): [description]. Defaults to "".
+    """
+    message += "Number of jobs " + str(len(context.job_queue.jobs()))
+    message += "\nFlag is " + str(CREATED_REMINDERS_OLD_TASKS)
+    context.bot.send_message(
+        chat_id=232424901,
+        text=message,
+    )
+
+
 def get_jobs(update: Update, context: CallbackContext) -> None:
-    """This function is made to kno how much jobs are currently executing"""
+    """This function is made to know how much jobs are currently executing"""
     username = update.message.from_user["id"]
     if username == 232424901:
-        context.bot.send_message(
-            chat_id=232424901,
-            text="Number of jobs " + str(len(context.job_queue.jobs())),
-        )
+        send_jobs_to_admin(context)
 
 
 def get_tasks(update: Update, context: CallbackContext) -> None:
