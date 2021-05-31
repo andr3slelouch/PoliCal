@@ -637,6 +637,21 @@ def get_tasks_for_bot(username: str, message_date: datetime) -> list:
     return tasks
 
 
+def get_task(uid: str) -> TareaClass.Tarea:
+    query = (
+        "select TarUID, TarTitulo, TarDescripcion, TarFechaLim, MateriasUsuarios.MatID, MateriasUsuarios.idMateria "
+        + "from Materias, Tareas, TareasUsuarios, MateriasUsuarios "
+        + "where Tareas.Materias_idMaterias = Materias.idMaterias AND "
+        + "TareasUsuarios.TarUsrEstado = 'N' AND "
+        + "TareasUsuarios.idTareas = Tareas.idTareas AND "
+        + "MateriasUsuarios.idMateria = Materias.idMaterias AND "
+        + "MateriasUsuarios.idUsuario = TareasUsuarios.idUsuarios AND "
+        + "TareasUsuarios.idUsuarios = '"
+        + uid
+        + "';"
+    )
+
+
 def get_sended_tasks_for_bot(username: str, message_date: datetime) -> list:
     """This function gets all sended tasks from the user and with due after message_date.
 
