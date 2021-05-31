@@ -76,7 +76,8 @@ def save_task(task):
     query = configuration.prepare_mysql_query(
         "INSERT INTO Tareas(TarUID, TarTitulo, TarDescripcion, TarFechaLim, Materias_idMaterias) VALUES (?, ?, ?, ?, ?);"
     )
-    if not check_task_existence(task):
+    task_existence = check_task_existence(task)
+    if task_existence == "not-exist":
         cur.execute(
             query,
             (
@@ -88,7 +89,37 @@ def save_task(task):
             ),
         )
         conn.commit()
+    elif task_existence == "diff-date":
+        return update_task(task, task_existence)
     conn.close()
+
+
+def update_task(task, task_existence=None):
+    """This function updates a task into the database
+
+    Args:
+        task (TareaClass.Tarea): Task that would be updated
+    """
+
+    conn = get_db()
+    cur = conn.cursor()
+    query = configuration.prepare_mysql_query(
+        "UPDATE Tareas SET TarTitulo = ?, TarDescripcion = ?, TarFechaLim = ?, Materias_idMaterias = ? WHERE TarUID = ? VALUES (?, ?, ?, ?, ?);"
+    )
+    if task_existence == "diff-date":
+        cur.execute(
+            query,
+            (
+                task.title,
+                task.description.replace("\\n", "\n"),
+                task.due_date,
+                task.subject_id,
+                task.id,
+            ),
+        )
+        conn.commit()
+    conn.close()
+    return task.id
 
 
 def save_user_task(task, username: str):
@@ -97,8 +128,12 @@ def save_user_task(task, username: str):
     Args:
         task (TareaClass.Tarea): Tasks that would be added to the database.
         username(str): User owner of the task.
+
+    Returns:
+        updated_task_id(str): ID of the task updated if not None
+
     """
-    save_task(task)
+    updated_task_id = save_task(task)
     conn = get_db()
     cur = conn.cursor()
     tarea_id = get_task_id(task.id)
@@ -113,6 +148,7 @@ def save_user_task(task, username: str):
         )
         conn.commit()
     conn.close()
+    return updated_task_id
 
 
 def check_user_task_existence(task, username: str) -> bool:
@@ -153,19 +189,26 @@ def check_task_existence(task) -> bool:
         task (Tarea): Tasks that would be added to the database.
 
     Returns:
-        bool: If exits True if not False
+        str: If exists with the same date returns 'exists-equal', if exists with different date returns 'diff-date' else returns 'not-exist'
     """
     conn = get_db()
     cur = conn.cursor()
-    checker = "select count(TarUID) from Tareas where TarUID = '" + task.id + "'"
+    checker = (
+        "select count(TarUID), TarFechaLim Tar from Tareas where TarUID = '"
+        + task.id
+        + "'"
+    )
     cur.execute(checker, ())
     exists = 0
     for row in cur.fetchall():
         exists = row[0]
+        if task.due_date != row[1]:
+            return "diff-date"
+
     if exists == 0:
-        return False
+        return "not-exist"
     else:
-        return True
+        return "exists-equal"
 
 
 def save_subject(subject: MateriaClass.Materia):
@@ -664,7 +707,7 @@ def get_sended_tasks_for_bot(username: str, message_date: datetime) -> list:
     """
     user_id = get_user_id(username)
     query = (
-        "select TarFechaLim, TarUsrTID, TarTitulo "
+        "select TarFechaLim, TarUsrTID, TarTitulo, TarUID "
         + "from Materias, Tareas, TareasUsuarios, MateriasUsuarios "
         + "where Tareas.Materias_idMaterias = Materias.idMaterias AND "
         + "TareasUsuarios.TarUsrEstado = 'E' AND "
@@ -685,6 +728,7 @@ def get_sended_tasks_for_bot(username: str, message_date: datetime) -> list:
             "tid": row[1],
             "title": row[2],
             "due": timezone.localize(row[0]) - timedelta(minutes=30),
+            "uid": row[3],
         }
         if tarea["due"] > message_date:
             tasks.append(tarea)

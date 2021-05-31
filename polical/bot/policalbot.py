@@ -126,6 +126,16 @@ def callback_reminder_message(context: CallbackContext) -> None:
         logger.warning("cannot reply message {}: {}".format(message_id, e))
 
 
+def remove_job_if_exists(name: str, context: CallbackContext) -> bool:
+    """Remove job with given name. Returns whether job was removed."""
+    current_jobs = context.job_queue.get_jobs_by_name(name)
+    if not current_jobs:
+        return False
+    for job in current_jobs:
+        job.schedule_removal()
+    return True
+
+
 def get_new_tasks(context: CallbackContext) -> None:
     """This functions repeats in specific times, looks for new tasks for every user that has a valid url registered in the database,
     also defines new jobs for reminder incoming tasks for the users"""
@@ -142,7 +152,17 @@ def get_new_tasks(context: CallbackContext) -> None:
         )
         username = user_with_url["username"]
         calendar_url = user_with_url["url"]
-        tasks_processor.save_tasks_to_db(calendar_url, username, {}, False)
+        updated_tasks = tasks_processor.save_tasks_to_db(
+            calendar_url, username, {}, False
+        )
+        for id_task in updated_tasks:
+            """
+            Here it needs to execute the following actions
+            * Delete the job with unupdated date
+            * Report the user the change of the date
+            * Create a new job with the correct update(here? Im not sure about)
+            """
+            remove_job_if_exists(str(id_task), context)
         tasks = connectSQLite.get_tasks_for_bot(username, task_bot_datetime)
         sended_tasks = connectSQLite.get_sended_tasks_for_bot(
             username, START_BOT_DATETIME
@@ -157,6 +177,7 @@ def get_new_tasks(context: CallbackContext) -> None:
                         "La tarea " + str(sended_task["title"]) + " expirará pronto",
                         sended_task["tid"],
                     ),
+                    name=sended_task["uid"] + "/" + username,
                 )
         if len(tasks) > 0:
             send_new_tasks(context, username, tasks)
@@ -201,6 +222,7 @@ def send_new_tasks(context: CallbackContext, username: str, tasks: list) -> None
                     "La tarea " + task.title + " expirará pronto",
                     task.tid,
                 ),
+                name=task.id + "/" + username,
             )
 
 

@@ -6,7 +6,9 @@ import requests
 import time
 
 
-def save_tasks_to_db(url: str, username: str, user_dict: dict, trello_account=True):
+def save_tasks_to_db(
+    url: str, username: str, user_dict: dict, trello_account=True
+) -> [str]:
     """Save incoming tasks to the database
 
     Args:
@@ -14,10 +16,14 @@ def save_tasks_to_db(url: str, username: str, user_dict: dict, trello_account=Tr
         username (str): User owner of the tasks
         user_dict (dict): Dictionary that has user configurations
         trello_account (bool, optional): If tasks will be sended to trello. Defaults to True.
+
+    Returns:
+        updated_tasks([str]): A list of the updated tasks
     """
     START_BOT_DATETIME = datetime.now(timezone.utc)
     virtual_class_calendar = Calendar(requests.get(url).text)
     events = []
+    updated_tasks = []
     for temp_event in virtual_class_calendar.events:
         if temp_event.end.to("America/Guayaquil").datetime > START_BOT_DATETIME:
             events.append(temp_event)
@@ -37,7 +43,10 @@ def save_tasks_to_db(url: str, username: str, user_dict: dict, trello_account=Tr
             task_event.end.to("America/Guayaquil").datetime,
             subject_id,
         )
-        connectSQLite.save_user_task(task, username)
+        updated_task_id = connectSQLite.save_user_task(task, username)
+        if updated_task_id:
+            updated_tasks.append(updated_task_id)
+    return updated_tasks
 
 
 def send_tasks_to_trello(username: str, user_dict: dict):
