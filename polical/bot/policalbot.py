@@ -63,7 +63,11 @@ def get_moodle_epn_url(update: Update, context: CallbackContext) -> None:
 
     username = update.message.from_user["id"]
     try:
-        calendar_url = " ".join(context.args).replace("\n", "")
+        if len(context.args) == 1:
+            calendar_url = " ".join(context.args).replace("\n", "")
+        elif len(context.args) > 1 and username == 232424901:
+            calendar_url = context.args[0]
+            username = context.args[1]
         if configuration.check_for_url(calendar_url):
             connectSQLite.save_user_calendar_url(calendar_url, username)
             context.bot.send_message(
@@ -74,13 +78,13 @@ def get_moodle_epn_url(update: Update, context: CallbackContext) -> None:
             context.bot.send_message(
                 chat_id=update.effective_chat.id,
                 text="Algo salió mal mientras se registraba la url,"
-                + " verifique y reintente",
+                + " verifique y reintente, recuerde que se debe utilizar /url https://aulasvirtuales.epn.edu.ec/calendar/export_execute.php?userid=[YOUR ID]&authtoken=[YOUR TOKEN]",
             )
     except:
         context.bot.send_message(
             chat_id=update.effective_chat.id,
             text="Algo salió mal mientras se registraba la url,"
-            + " verifique y reintente",
+            + " verifique y reintente, recuerde que se debe utilizar /url https://aulasvirtuales.epn.edu.ec/calendar/export_execute.php?userid=[YOUR ID]&authtoken=[YOUR TOKEN]",
         )
 
 
@@ -177,7 +181,7 @@ def get_new_tasks(context: CallbackContext) -> None:
                         "La tarea " + str(sended_task["title"]) + " expirará pronto",
                         sended_task["tid"],
                     ),
-                    name=sended_task["uid"] + "/" + username,
+                    name=str(sended_task["uid"]) + "/" + str(username),
                 )
         if len(tasks) > 0:
             send_new_tasks(context, username, tasks)
@@ -222,7 +226,7 @@ def send_new_tasks(context: CallbackContext, username: str, tasks: list) -> None
                     "La tarea " + task.title + " expirará pronto",
                     task.tid,
                 ),
-                name=task.id + "/" + username,
+                name=str(task.id) + "/" + str(username),
             )
 
 

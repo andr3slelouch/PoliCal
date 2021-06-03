@@ -70,7 +70,6 @@ def save_task(task):
     Args:
         task (TareaClass.Tarea): Tasks that would be added to the database.
     """
-
     conn = get_db()
     cur = conn.cursor()
     query = configuration.prepare_mysql_query(
@@ -202,8 +201,8 @@ def check_task_existence(task) -> bool:
     exists = 0
     for row in cur.fetchall():
         exists = row[0]
-        if task.due_date != row[1]:
-            return "diff-date"
+        # if task.due_date != row[1]:
+        #    return "diff-date"
 
     if exists == 0:
         return "not-exist"
@@ -680,7 +679,7 @@ def get_tasks_for_bot(username: str, message_date: datetime) -> list:
     return tasks
 
 
-def get_task(uid: str) -> TareaClass.Tarea:
+def get_task(uid: str):
     query = (
         "select TarUID, TarTitulo, TarDescripcion, TarFechaLim, MateriasUsuarios.MatID, MateriasUsuarios.idMateria "
         + "from Materias, Tareas, TareasUsuarios, MateriasUsuarios "

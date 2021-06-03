@@ -28,7 +28,12 @@ def save_tasks_to_db(
         if temp_event.end.to("America/Guayaquil").datetime > START_BOT_DATETIME:
             events.append(temp_event)
     for task_event in events:
-        event_category = list(task_event.categories)[0]
+        list_categories = list(task_event.categories)
+        if not list_categories:
+            list_categories = ["000_UNK0000_00_2021-1"]
+        event_category = list_categories[0]
+        if not event_category:
+            event_category = "000_UNK0000_00_2021-1"
         task_subject = configuration.get_subject_name_from_ics_event_category(
             event_category
         )

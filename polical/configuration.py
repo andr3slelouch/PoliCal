@@ -94,7 +94,7 @@ def check_for_url(url: str) -> bool:
           False -- If the url does not start with https and ends with recentupcoming
           True -- If the url is correct
     """
-    checker = re.search("^https.*recentupcoming$", url)
+    checker = re.search("^https.*", url)
     if checker:
         return True
     else:
